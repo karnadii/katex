@@ -13,8 +13,7 @@ import 'package:katex_dart/src/parse/token.dart';
 /// Receives an [errorCode], a human-readable [errorMsg], and an optional
 /// [token], and returns `true`/`false`/`"ignore"`/`"warn"`/`"error"` (as
 /// [bool]/[String]) or `null`/`void` to mean "no further processing".
-typedef StrictFunction =
-    Object? Function(String errorCode, String errorMsg, Token? token);
+typedef StrictFunction = Object? Function(String errorCode, String errorMsg, Token? token);
 
 /// A user-supplied trust callback. Receives the trust [context] and returns
 /// whether the (potentially dangerous) input should be trusted.
@@ -54,16 +53,12 @@ class Settings {
        errorColor = errorColor ?? '#cc0000',
        macros = macros ?? <String, Object?>{},
        // processor: (t) => max(0, t)
-       minRuleThickness = minRuleThickness == null
-           ? 0
-           : (minRuleThickness < 0 ? 0 : minRuleThickness),
+       minRuleThickness = minRuleThickness == null ? 0 : (minRuleThickness < 0 ? 0 : minRuleThickness),
        colorIsTextColor = colorIsTextColor ?? false,
        strict = strict ?? false,
        trust = trust ?? false,
        // default Infinity; processor: (s) => max(0, s)
-       maxSize = maxSize == null
-           ? double.infinity
-           : (maxSize < 0 ? 0 : maxSize),
+       maxSize = maxSize == null ? double.infinity : (maxSize < 0 ? 0 : maxSize),
        // default 1000; processor: (n) => max(0, n)
        maxExpand = maxExpand == null ? 1000 : (maxExpand < 0 ? 0 : maxExpand),
        globalGroup = globalGroup ?? false;

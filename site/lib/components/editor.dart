@@ -115,8 +115,8 @@ class Editor extends StatefulComponent {
           css('.anim-segmented', [
             css('&').styles(
               display: Display.flex,
-              radius: BorderRadius.circular(6.px),
               border: Border.all(color: const Color('#bbb'), width: 1.px),
+              radius: BorderRadius.circular(6.px),
               overflow: Overflow.hidden,
             ),
             css('.anim-btn').styles(

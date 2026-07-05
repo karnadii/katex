@@ -53,10 +53,7 @@ String? _which(String exe) {
 /// on success.
 bool _rasterize(String rasterizer, String svg, String svgPath, String out) {
   File(svgPath).writeAsStringSync(svg);
-  final r = Process.runSync(
-    rasterizer,
-    ['-z', _zoom, svgPath, '-o', out],
-  );
+  final r = Process.runSync(rasterizer, ['-z', _zoom, svgPath, '-o', out]);
   return r.exitCode == 0 && File(out).existsSync();
 }
 

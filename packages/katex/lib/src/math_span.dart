@@ -70,14 +70,10 @@ class _InlineMath extends LeafRenderObjectWidget {
   final double fontSize;
   final Color? color;
 
-  Color _resolve(BuildContext context) =>
-      color ??
-      DefaultTextStyle.of(context).style.color ??
-      const Color(0xFF000000);
+  Color _resolve(BuildContext context) => color ?? DefaultTextStyle.of(context).style.color ?? const Color(0xFF000000);
 
   @override
-  RenderObject createRenderObject(BuildContext context) =>
-      _RenderInlineMath(box, fontSize, _resolve(context));
+  RenderObject createRenderObject(BuildContext context) => _RenderInlineMath(box, fontSize, _resolve(context));
 
   @override
   void updateRenderObject(
@@ -121,8 +117,7 @@ class _RenderInlineMath extends RenderBox {
   Size _measure() => boxSizePx(_box, _fontSize);
 
   @override
-  Size computeDryLayout(BoxConstraints constraints) =>
-      constraints.constrain(_measure());
+  Size computeDryLayout(BoxConstraints constraints) => constraints.constrain(_measure());
 
   @override
   void performLayout() {
@@ -133,16 +128,18 @@ class _RenderInlineMath extends RenderBox {
   // is the part below the baseline). This lets inline math rest on the
   // surrounding text's baseline.
   @override
-  double? computeDistanceToActualBaseline(TextBaseline baseline) =>
-      _box.height * _fontSize;
+  double? computeDistanceToActualBaseline(TextBaseline baseline) => _box.height * _fontSize;
 
   @override
   void paint(PaintingContext context, Offset offset) {
     context.canvas
       ..save()
       ..translate(offset.dx, offset.dy);
-    KatexBoxPainter(_box, fontSize: _fontSize, color: _color)
-        .paint(context.canvas, size);
+    KatexBoxPainter(
+      _box,
+      fontSize: _fontSize,
+      color: _color,
+    ).paint(context.canvas, size);
     context.canvas.restore();
   }
 }

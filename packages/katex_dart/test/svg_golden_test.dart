@@ -79,8 +79,10 @@ String _repoRoot() {
     }
     final parent = p.dirname(dir);
     if (parent == dir) {
-      fail('Could not locate repo root (with reference/fixtures/png) '
-          'from ${Directory.current}');
+      fail(
+        'Could not locate repo root (with reference/fixtures/png) '
+        'from ${Directory.current}',
+      );
     }
     dir = parent;
   }
@@ -102,12 +104,21 @@ String? _which(String exe) {
 bool _rasterize(String rasterizer, String svgPath, String pngPath) {
   ProcessResult r;
   if (rasterizer == 'resvg') {
-    r = Process.runSync(
-        rasterizer, [svgPath, pngPath, '--zoom', _zoom.toString()]);
+    r = Process.runSync(rasterizer, [
+      svgPath,
+      pngPath,
+      '--zoom',
+      _zoom.toString(),
+    ]);
   } else {
     // rsvg-convert
-    r = Process.runSync(
-        rasterizer, ['-z', _zoom.toString(), svgPath, '-o', pngPath]);
+    r = Process.runSync(rasterizer, [
+      '-z',
+      _zoom.toString(),
+      svgPath,
+      '-o',
+      pngPath,
+    ]);
   }
   return r.exitCode == 0 && File(pngPath).existsSync();
 }
@@ -124,26 +135,27 @@ void main() {
     test('SVG golden (skipped — toolchain unavailable)', () {
       final reason = StringBuffer('SVG golden test SKIPPED: ');
       if (rasterizer == null) {
-        reason.write('no SVG rasterizer on PATH (need resvg or rsvg-convert). ');
+        reason.write(
+          'no SVG rasterizer on PATH (need resvg or rsvg-convert). ',
+        );
       }
       if (!nodeOk) {
         reason.write('node + reference/pngdiff.mjs unavailable for diffing. ');
       }
-      reason.write('Comparison logic is implemented and will run where the '
-          'toolchain exists. PRIMARY numeric gate remains '
-          'oracle_dimension_test.dart.');
+      reason.write(
+        'Comparison logic is implemented and will run where the '
+        'toolchain exists. PRIMARY numeric gate remains '
+        'oracle_dimension_test.dart.',
+      );
       print('\nSVG GOLDEN PASS RATE: SKIPPED — $reason');
     }, skip: 'SVG rasterizer / node diff toolchain not available');
     return;
   }
 
   final galleryFile = File(p.join(root, 'reference', 'gallery.json'));
-  final gallery =
-      (jsonDecode(galleryFile.readAsStringSync()) as List)
-          .cast<Map<String, dynamic>>();
+  final gallery = (jsonDecode(galleryFile.readAsStringSync()) as List).cast<Map<String, dynamic>>();
 
-  final diffsDir = Directory(p.join(Directory.current.path, 'test', '.diffs'))
-    ..createSync(recursive: true);
+  final diffsDir = Directory(p.join(Directory.current.path, 'test', '.diffs'))..createSync(recursive: true);
   final tmpDir = Directory.systemTemp.createTempSync('katex_svg_golden_');
 
   final rows = <String>[
@@ -159,16 +171,20 @@ void main() {
     final displayMode = entry['displayMode'] as bool;
 
     test('svg golden: $id', () {
-      final svg =
-          renderToSvg(tex, options: KatexOptions(displayMode: displayMode));
+      final svg = renderToSvg(
+        tex,
+        options: KatexOptions(displayMode: displayMode),
+      );
       final svgPath = p.join(tmpDir.path, '$id.svg');
       final ourPng = p.join(tmpDir.path, '$id.png');
       File(svgPath).writeAsStringSync(svg);
 
-      final refPng =
-          p.join(root, 'reference', 'fixtures', 'png', '$id.png');
-      expect(File(refPng).existsSync(), isTrue,
-          reason: 'missing reference PNG for $id');
+      final refPng = p.join(root, 'reference', 'fixtures', 'png', '$id.png');
+      expect(
+        File(refPng).existsSync(),
+        isTrue,
+        reason: 'missing reference PNG for $id',
+      );
 
       final ok = _rasterize(rasterizer, svgPath, ourPng);
       if (!ok) {
@@ -184,24 +200,27 @@ void main() {
 
       // Diff via node/pixelmatch.
       final outDiff = p.join(diffsDir.path, '$id.png');
-      final r = Process.runSync(
-        'node',
-        [pngdiff, ourPng, refPng, outDiff, '0.1'],
-        workingDirectory: p.join(root, 'reference'),
-      );
-      expect(r.exitCode, 0,
-          reason: 'pngdiff failed for $id: ${r.stderr}');
+      final r = Process.runSync('node', [
+        pngdiff,
+        ourPng,
+        refPng,
+        outDiff,
+        '0.1',
+      ], workingDirectory: p.join(root, 'reference'));
+      expect(r.exitCode, 0, reason: 'pngdiff failed for $id: ${r.stderr}');
       final result = jsonDecode(r.stdout as String) as Map;
       final ratio = (result['ratio'] as num).toDouble();
       ratios[id] = ratio;
 
       final ourDim = _pngDimRaw(ourPng, root);
 
-      rows.add('${id.padRight(22)} '
-          '${ourDim.padRight(9)} '
-          '${_pngDimRaw(refPng, root).padRight(9)} '
-          '${ratio.toStringAsFixed(4).padRight(10)} '
-          '${_knownApprox.contains(id) ? '[KNOWN-APPROX]' : ''}');
+      rows.add(
+        '${id.padRight(22)} '
+        '${ourDim.padRight(9)} '
+        '${_pngDimRaw(refPng, root).padRight(9)} '
+        '${ratio.toStringAsFixed(4).padRight(10)} '
+        '${_knownApprox.contains(id) ? '[KNOWN-APPROX]' : ''}',
+      );
 
       if (!_knownApprox.contains(id)) {
         gatedRatios.add(ratio);
@@ -214,36 +233,44 @@ void main() {
   }
 
   tearDownAll(() {
-    final mean = gatedRatios.isEmpty
-        ? 0.0
-        : gatedRatios.reduce((a, b) => a + b) / gatedRatios.length;
-    print('\n===== SVG GOLDEN REPORT (rasterizer: $rasterizer, '
-        'zoom: ${_zoom.toStringAsFixed(3)}, diffs: ${diffsDir.path}) =====');
+    final mean = gatedRatios.isEmpty ? 0.0 : gatedRatios.reduce((a, b) => a + b) / gatedRatios.length;
+    print(
+      '\n===== SVG GOLDEN REPORT (rasterizer: $rasterizer, '
+      'zoom: ${_zoom.toStringAsFixed(3)}, diffs: ${diffsDir.path}) =====',
+    );
     for (final row in rows) {
       print(row);
     }
     // "Pass" here means rasterized + diffed (not empty). The diff ratios are a
     // coarse signal, reported honestly; see header for why they are large.
     final rasterized = ratios.length;
-    print('\nSVG GOLDEN: $rasterized/${gallery.length} entries rasterized & '
-        'diffed (raster failures: $rasterFailures).');
-    print('SVG GOLDEN mean per-pixel diff ratio (gated): '
-        '${mean.toStringAsFixed(4)} '
-        '(ceiling ${_meanRatioCeiling.toStringAsFixed(2)} — LENIENT; '
-        'see header for alignment limitations).');
-    print('NOTE: exact visual alignment is not an MVP goal; the dimension test '
-        'is the authoritative numeric gate. Diff PNGs in test/.diffs/.');
+    print(
+      '\nSVG GOLDEN: $rasterized/${gallery.length} entries rasterized & '
+      'diffed (raster failures: $rasterFailures).',
+    );
+    print(
+      'SVG GOLDEN mean per-pixel diff ratio (gated): '
+      '${mean.toStringAsFixed(4)} '
+      '(ceiling ${_meanRatioCeiling.toStringAsFixed(2)} — LENIENT; '
+      'see header for alignment limitations).',
+    );
+    print(
+      'NOTE: exact visual alignment is not an MVP goal; the dimension test '
+      'is the authoritative numeric gate. Diff PNGs in test/.diffs/.',
+    );
   });
 
   test('svg golden mean diff ratio under lenient ceiling', () {
-    final mean = gatedRatios.isEmpty
-        ? 1.0
-        : gatedRatios.reduce((a, b) => a + b) / gatedRatios.length;
-    expect(mean, lessThanOrEqualTo(_meanRatioCeiling),
-        reason: 'mean gated diff ratio ${mean.toStringAsFixed(4)} exceeded '
-            'lenient ceiling $_meanRatioCeiling — likely a gross rendering '
-            'regression (empty raster, wrong scale). Per-entry ratios: '
-            '${ratios.entries.map((e) => '${e.key}=${e.value.toStringAsFixed(3)}').join(', ')}');
+    final mean = gatedRatios.isEmpty ? 1.0 : gatedRatios.reduce((a, b) => a + b) / gatedRatios.length;
+    expect(
+      mean,
+      lessThanOrEqualTo(_meanRatioCeiling),
+      reason:
+          'mean gated diff ratio ${mean.toStringAsFixed(4)} exceeded '
+          'lenient ceiling $_meanRatioCeiling — likely a gross rendering '
+          'regression (empty raster, wrong scale). Per-entry ratios: '
+          '${ratios.entries.map((e) => '${e.key}=${e.value.toStringAsFixed(3)}').join(', ')}',
+    );
   });
 }
 
@@ -254,10 +281,10 @@ String _pngDimRaw(String pngPath, String root) {
       "const{PNG}=require('pngjs'); const fs=require('fs'); "
       'const p=PNG.sync.read(fs.readFileSync(process.argv[1])); '
       "process.stdout.write(p.width+'x'+p.height)";
-  final r = Process.runSync(
-    'node',
-    ['-e', script, pngPath],
-    workingDirectory: p.join(root, 'reference'),
-  );
+  final r = Process.runSync('node', [
+    '-e',
+    script,
+    pngPath,
+  ], workingDirectory: p.join(root, 'reference'));
   return r.exitCode == 0 ? (r.stdout as String).trim() : '?x?';
 }

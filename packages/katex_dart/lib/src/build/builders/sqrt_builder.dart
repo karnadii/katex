@@ -25,8 +25,7 @@ import 'package:katex_dart/src/ast/parse_node.dart' hide KernNode, RuleNode;
 import 'package:katex_dart/src/box/box_node.dart';
 import 'package:katex_dart/src/build/build_common.dart';
 import 'package:katex_dart/src/build/build_expression.dart';
-import 'package:katex_dart/src/build/builders/delimiter_builders.dart'
-    show sizeToMaxHeight;
+import 'package:katex_dart/src/build/builders/delimiter_builders.dart' show sizeToMaxHeight;
 import 'package:katex_dart/src/build/options.dart';
 import 'package:katex_dart/src/build/style.dart';
 import 'package:katex_dart/src/svg/svg_geometry.g.dart' as geom;
@@ -64,13 +63,11 @@ const double _vbPad = 80;
 // [contentWidth] is the radicand width; the surd path is made that-much-plus-
 // advanceWidth wide so its long vinculum runs over the whole radicand (KaTeX's
 // 400em-wide, top-left-anchored, sliced SVG).
-({
-  SvgPathNode span,
+({SvgPathNode span, double height, double ruleWidth, double advanceWidth}) _makeSurd(
   double height,
-  double ruleWidth,
-  double advanceWidth,
-})
-_makeSurd(double height, double contentWidth, Options options) {
+  double contentWidth,
+  Options options,
+) {
   // Remove the effect of size changes (e.g. \Huge) — KaTeX scales up rather
   // than picking a taller surd. We keep the style (e.g. \scriptstyle).
   final newOptions = options.havingBaseSizing();
@@ -84,10 +81,13 @@ _makeSurd(double height, double contentWidth, Options options) {
   var largeSize = 4;
 
   // The "small" Main glyph total height.
-  final mainGlyph =
-      makeSymbol(r'\surd', 'Main-Regular', Mode.math, options: newOptions);
-  if (mainGlyph != null &&
-      (mainGlyph.height + mainGlyph.depth) > scaledTarget) {
+  final mainGlyph = makeSymbol(
+    r'\surd',
+    'Main-Regular',
+    Mode.math,
+    options: newOptions,
+  );
+  if (mainGlyph != null && (mainGlyph.height + mainGlyph.depth) > scaledTarget) {
     kind = _SurdKind.small;
   } else {
     var matched = false;
@@ -114,10 +114,12 @@ _makeSurd(double height, double contentWidth, Options options) {
 
   // The standard sqrt SVGs each have a 0.04em-thick vinculum. If
   // minRuleThickness is larger we add extraVinculum (in ems).
-  final extraVinculum = math.max(
-    0,
-    options.minRuleThickness - options.fontMetrics().sqrtRuleThickness,
-  ).toDouble();
+  final extraVinculum = math
+      .max(
+        0,
+        options.minRuleThickness - options.fontMetrics().sqrtRuleThickness,
+      )
+      .toDouble();
 
   // texHeight/advanceWidth/viewBoxHeight/sqrtName follow makeSqrtImage.
   final double texHeight;
@@ -148,9 +150,7 @@ _makeSurd(double height, double contentWidth, Options options) {
       advanceWidth = 1.056;
   }
 
-  final ruleWidth =
-      (options.fontMetrics().sqrtRuleThickness + extraVinculum) *
-      sizeMultiplier;
+  final ruleWidth = (options.fontMetrics().sqrtRuleThickness + extraVinculum) * sizeMultiplier;
 
   final pathData = geom.sqrtPath(sqrtName, extraVinculum, viewBoxHeight);
 
@@ -266,12 +266,15 @@ BoxNode _buildSqrt(SqrtNode group, Options options) {
   const rootMarginRight = -10 * muToEm; // \mkern -10mu
 
   return withAtomClass(
-    makeSpan([
-      const KernNode(rootMarginLeft),
-      rootWrap,
-      const KernNode(rootMarginRight),
-      body,
-    ], classes: const ['sqrt']),
+    makeSpan(
+      [
+        const KernNode(rootMarginLeft),
+        rootWrap,
+        const KernNode(rootMarginRight),
+        body,
+      ],
+      classes: const ['sqrt'],
+    ),
     'mord',
     options: options,
   );

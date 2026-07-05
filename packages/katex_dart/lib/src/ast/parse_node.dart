@@ -39,8 +39,7 @@ class Measurement {
   final String unit;
 
   @override
-  bool operator ==(Object other) =>
-      other is Measurement && other.number == number && other.unit == unit;
+  bool operator ==(Object other) => other is Measurement && other.number == number && other.unit == unit;
 
   @override
   int get hashCode => Object.hash(number, unit);
@@ -715,14 +714,10 @@ enum ColSeparationType {
 class AlignSpec {
   /// Creates a separator spec (`type: "separator"` in KaTeX), carrying the
   /// literal [separator] text drawn between columns.
-  const AlignSpec.separator(this.separator)
-    : align = null,
-      pregap = null,
-      postgap = null;
+  const AlignSpec.separator(this.separator) : align = null, pregap = null, postgap = null;
 
   /// Creates an aligned-column spec (`type: "align"` in KaTeX).
-  const AlignSpec.align(String this.align, {this.pregap, this.postgap})
-    : separator = null;
+  const AlignSpec.align(String this.align, {this.pregap, this.postgap}) : separator = null;
 
   /// The separator text, non-null iff this is a separator spec.
   final String? separator;

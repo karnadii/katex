@@ -162,10 +162,8 @@ void main() {
 
     // The visible rules are the only RuleNodes with BOTH a positive width and a
     // positive height — the per-row layout struts are zero-width.
-    List<RuleNode> visibleRules(BoxNode root) => _flatten(root)
-        .whereType<RuleNode>()
-        .where((r) => r.width > 0 && (r.height + r.depth) > 0)
-        .toList();
+    List<RuleNode> visibleRules(BoxNode root) =>
+        _flatten(root).whereType<RuleNode>().where((r) => r.width > 0 && (r.height + r.depth) > 0).toList();
 
     // From LaTeX \showthe\arrayrulewidth — KaTeX's `fontMetrics.arrayRuleWidth`
     // is 0.04 em across all styles, and minRuleThickness defaults to 0.
@@ -186,13 +184,9 @@ void main() {
       );
       final rules = visibleRules(root);
       // Vertical separator: width == arrayRuleWidth, tall.
-      final verticals = rules
-          .where((r) => (r.width - arrayRuleWidth).abs() < 1e-9)
-          .toList();
+      final verticals = rules.where((r) => (r.width - arrayRuleWidth).abs() < 1e-9).toList();
       // Horizontal hline: height == arrayRuleWidth, wide.
-      final horizontals = rules
-          .where((r) => (r.height - arrayRuleWidth).abs() < 1e-9)
-          .toList();
+      final horizontals = rules.where((r) => (r.height - arrayRuleWidth).abs() < 1e-9).toList();
       expect(verticals, hasLength(1), reason: 'one | separator');
       expect(horizontals, hasLength(1), reason: r'one \hline');
       // The vertical separator spans (roughly) the whole array height; the
@@ -207,12 +201,8 @@ void main() {
         options: display,
       );
       final rules = visibleRules(root);
-      final verticals = rules
-          .where((r) => (r.width - arrayRuleWidth).abs() < 1e-9)
-          .length;
-      final horizontals = rules
-          .where((r) => (r.height - arrayRuleWidth).abs() < 1e-9)
-          .length;
+      final verticals = rules.where((r) => (r.width - arrayRuleWidth).abs() < 1e-9).length;
+      final horizontals = rules.where((r) => (r.height - arrayRuleWidth).abs() < 1e-9).length;
       expect(verticals, 3, reason: 'three | separators');
       expect(horizontals, 3, reason: r'three \hline rows');
     });
@@ -284,9 +274,9 @@ void main() {
     // Locates the `.root` wrapper span and the surd `.sqrt` span's two VLists:
     // the index VList (inside `.root`) and the surd body VList (the sibling).
     (SpanNode rootWrap, VList indexVList) findRoot(BoxNode root) {
-      final wrap = _flatten(root)
-          .whereType<SpanNode>()
-          .firstWhere((s) => s.classes.contains('root'));
+      final wrap = _flatten(
+        root,
+      ).whereType<SpanNode>().firstWhere((s) => s.classes.contains('root'));
       final vlist = _flatten(wrap).whereType<VList>().first;
       return (wrap, vlist);
     }
@@ -324,9 +314,9 @@ void main() {
         final (wrap, _) = findRoot(root);
         // The .sqrt span holds: [Kern(5mu), root, Kern(-10mu), body]. Find the
         // kerns flanking the `.root` wrapper.
-        final sqrtSpan = _flatten(root)
-            .whereType<SpanNode>()
-            .firstWhere((s) => s.classes.contains('sqrt'));
+        final sqrtSpan = _flatten(
+          root,
+        ).whereType<SpanNode>().firstWhere((s) => s.classes.contains('sqrt'));
         final kids = sqrtSpan.children;
         final wrapIndex = kids.indexOf(wrap);
         expect(wrapIndex, greaterThan(0), reason: 'root has a leading kern');
@@ -402,20 +392,26 @@ void main() {
       );
     });
 
-    test(r'\vec{x} renders the static "vec" SVG arrow (not a combining glyph)',
-        () {
-      final nodes = _flatten(renderToBox(r'\vec{x}'));
-      final vec = nodes.whereType<SvgPathNode>().where(
-        (s) => s.pathName == 'vec',
-      );
-      expect(vec, isNotEmpty, reason: r'\vec should use the vec SVG path');
-      expect(vec.first.pathData, isNotEmpty, reason: 'vec path data resolved');
-      // No combining-arrow glyph (U+20D7) should be emitted.
-      final combining = nodes.whereType<GlyphNode>().where(
-        (g) => g.codepoint == 0x20d7,
-      );
-      expect(combining, isEmpty, reason: 'no missing combining U+20D7 glyph');
-    });
+    test(
+      r'\vec{x} renders the static "vec" SVG arrow (not a combining glyph)',
+      () {
+        final nodes = _flatten(renderToBox(r'\vec{x}'));
+        final vec = nodes.whereType<SvgPathNode>().where(
+          (s) => s.pathName == 'vec',
+        );
+        expect(vec, isNotEmpty, reason: r'\vec should use the vec SVG path');
+        expect(
+          vec.first.pathData,
+          isNotEmpty,
+          reason: 'vec path data resolved',
+        );
+        // No combining-arrow glyph (U+20D7) should be emitted.
+        final combining = nodes.whereType<GlyphNode>().where(
+          (g) => g.codepoint == 0x20d7,
+        );
+        expect(combining, isEmpty, reason: 'no missing combining U+20D7 glyph');
+      },
+    );
 
     test(r'\widehat{abc} uses a stretchy widehat SVG sized to the base', () {
       final root = renderToBox(r'\widehat{abc}');
@@ -529,7 +525,8 @@ void main() {
         expect(
           accentShift,
           closeTo(bodyPos.shift - body.height, 1e-6),
-          reason: 'accent baseline sits exactly at body.height (no clearance '
+          reason:
+              'accent baseline sits exactly at body.height (no clearance '
               'kern dragging it onto the base)',
         );
         // The accent ink occupies [shift - height, shift]; its lowest point
@@ -569,48 +566,57 @@ void main() {
     }
 
     // Collects the leaf GlyphNodes' code points in left-to-right order.
-    List<int> glyphs(BoxNode root) => _flatten(root)
-        .whereType<GlyphNode>()
-        .map((g) => g.codepoint)
-        .toList();
+    List<int> glyphs(BoxNode root) => _flatten(root).whereType<GlyphNode>().map((g) => g.codepoint).toList();
 
-    test(r'\int_0^1 uses the side supsub layout (msupsub), not stacked limits',
-        () {
-      final root = renderToBox(
-        r'\int_0^1',
-        options: const KatexOptions(displayMode: true),
-      );
-      // Side layout: there must be a .msupsub span holding the scripts.
-      expect(findMsupsub(root), isNotNull,
-          reason: r'\int scripts must render to the side (nolimits)');
-      // The integral sign (U+222B) must be present as a bare glyph and the
-      // bounds 0/1 sit beside it.
-      expect(glyphs(root), contains(0x222b),
-          reason: 'integral sign glyph should be rendered');
-    });
+    test(
+      r'\int_0^1 uses the side supsub layout (msupsub), not stacked limits',
+      () {
+        final root = renderToBox(
+          r'\int_0^1',
+          options: const KatexOptions(displayMode: true),
+        );
+        // Side layout: there must be a .msupsub span holding the scripts.
+        expect(
+          findMsupsub(root),
+          isNotNull,
+          reason: r'\int scripts must render to the side (nolimits)',
+        );
+        // The integral sign (U+222B) must be present as a bare glyph and the
+        // bounds 0/1 sit beside it.
+        expect(
+          glyphs(root),
+          contains(0x222b),
+          reason: 'integral sign glyph should be rendered',
+        );
+      },
+    );
 
-    test(r'\int_0^1 subscript carries a negative italic-correction left kern',
-        () {
-      final root = renderToBox(
-        r'\int_0^1',
-        options: const KatexOptions(displayMode: true),
-      );
-      final msupsub = findMsupsub(root)!;
-      // Inside the msupsub vlist, the subscript row is an HBox whose first
-      // child is a negative KernNode (= -italic of the integral sign). The
-      // superscript row has no such leading negative kern. This is what tucks
-      // the lower bound under the slanted sign.
-      final negKerns = _flatten(msupsub)
-          .whereType<KernNode>()
-          .where((k) => k.width < -1e-6)
-          .toList();
-      expect(negKerns, isNotEmpty,
-          reason: 'subscript must be pulled left by the integral italic '
-              'correction (KaTeX marginLeft = -base.italic)');
-    });
+    test(
+      r'\int_0^1 subscript carries a negative italic-correction left kern',
+      () {
+        final root = renderToBox(
+          r'\int_0^1',
+          options: const KatexOptions(displayMode: true),
+        );
+        final msupsub = findMsupsub(root)!;
+        // Inside the msupsub vlist, the subscript row is an HBox whose first
+        // child is a negative KernNode (= -italic of the integral sign). The
+        // superscript row has no such leading negative kern. This is what tucks
+        // the lower bound under the slanted sign.
+        final negKerns = _flatten(
+          msupsub,
+        ).whereType<KernNode>().where((k) => k.width < -1e-6).toList();
+        expect(
+          negKerns,
+          isNotEmpty,
+          reason:
+              'subscript must be pulled left by the integral italic '
+              'correction (KaTeX marginLeft = -base.italic)',
+        );
+      },
+    );
 
-    test(r'\int_0^1 side scripts carry the scriptspace (0.05em) right kern',
-        () {
+    test(r'\int_0^1 side scripts carry the scriptspace (0.05em) right kern', () {
       // KaTeX appends `marginRight = 0.5pt / ptPerEm / multiplier` (= 0.05em at
       // 10 ptPerEm, displaystyle) to *every* side-script row — both in the
       // generic supsub builder and the op nolimits DOM. Without it the bounds
@@ -622,13 +628,16 @@ void main() {
         options: const KatexOptions(displayMode: true),
       );
       final msupsub = findMsupsub(root)!;
-      final scriptspaceKerns = _flatten(msupsub)
-          .whereType<KernNode>()
-          .where((k) => (k.width - 0.05).abs() < 1e-6)
-          .toList();
-      expect(scriptspaceKerns, hasLength(2),
-          reason: 'both the sup and sub rows trail a 0.05em scriptspace kern '
-              '(KaTeX marginRight)');
+      final scriptspaceKerns = _flatten(
+        msupsub,
+      ).whereType<KernNode>().where((k) => (k.width - 0.05).abs() < 1e-6).toList();
+      expect(
+        scriptspaceKerns,
+        hasLength(2),
+        reason:
+            'both the sup and sub rows trail a 0.05em scriptspace kern '
+            '(KaTeX marginRight)',
+      );
     });
 
     test(r'\oint_C places the single subscript to the side', () {
@@ -636,8 +645,11 @@ void main() {
         r'\oint_C',
         options: const KatexOptions(displayMode: true),
       );
-      expect(findMsupsub(root), isNotNull,
-          reason: r'\oint is nolimits: subscript goes to the side');
+      expect(
+        findMsupsub(root),
+        isNotNull,
+        reason: r'\oint is nolimits: subscript goes to the side',
+      );
     });
 
     test(r'\sum_{i=0}^n keeps limits: scripts stack, no msupsub', () {
@@ -647,18 +659,27 @@ void main() {
       );
       // Limits layout stacks via the op-limits VList; it must NOT route
       // through the side .msupsub column.
-      expect(findMsupsub(root), isNull,
-          reason: r'\sum in displaystyle stacks limits, not side scripts');
+      expect(
+        findMsupsub(root),
+        isNull,
+        reason: r'\sum in displaystyle stacks limits, not side scripts',
+      );
       // The script column is taller than the bare operator: depth (i=0 below)
       // and height (n above) both extend past the glyph.
       final bare = renderToBox(
         r'\sum',
         options: const KatexOptions(displayMode: true),
       );
-      expect(root.height, greaterThan(bare.height + 1e-6),
-          reason: r'upper limit n raises the height above the bare \sum');
-      expect(root.depth, greaterThan(bare.depth + 1e-6),
-          reason: r'lower limit i=0 extends the depth below the bare \sum');
+      expect(
+        root.height,
+        greaterThan(bare.height + 1e-6),
+        reason: r'upper limit n raises the height above the bare \sum',
+      );
+      expect(
+        root.depth,
+        greaterThan(bare.depth + 1e-6),
+        reason: r'lower limit i=0 extends the depth below the bare \sum',
+      );
     });
 
     test(r'\prod_{i=1}^n and \bigcup_{i=1}^n keep limits (no side column)', () {
@@ -669,15 +690,21 @@ void main() {
           tex,
           options: const KatexOptions(displayMode: true),
         );
-        expect(findMsupsub(root), isNull,
-            reason: '$tex must stack limits above/below, not to the side');
+        expect(
+          findMsupsub(root),
+          isNull,
+          reason: '$tex must stack limits above/below, not to the side',
+        );
       }
     });
 
     test(r'\int_0^1 in inline (non-display) mode also uses side scripts', () {
       final root = renderToBox(r'\int_0^1');
-      expect(findMsupsub(root), isNotNull,
-          reason: r'\int is nolimits in every style');
+      expect(
+        findMsupsub(root),
+        isNotNull,
+        reason: r'\int is nolimits in every style',
+      );
     });
   });
 
@@ -689,17 +716,16 @@ void main() {
   // those margins as kerns; these tests pin the exact em values.
   group('supsub italic correction + scriptspace (RC-1)', () {
     // Finds the msupsub span anywhere in the built tree.
-    SpanNode msupsubOf(BoxNode root) => _flatten(root)
-        .whereType<SpanNode>()
-        .firstWhere((s) => s.classes.contains('msupsub'));
+    SpanNode msupsubOf(BoxNode root) => _flatten(
+      root,
+    ).whereType<SpanNode>().firstWhere((s) => s.classes.contains('msupsub'));
 
     // The HBox holding the base + (optional italic kern) + msupsub span.
-    HBox supsubHBoxOf(BoxNode root) =>
-        _flatten(root).whereType<HBox>().firstWhere(
-          (h) => h.children.any(
-            (c) => c is SpanNode && c.classes.contains('msupsub'),
-          ),
-        );
+    HBox supsubHBoxOf(BoxNode root) => _flatten(root).whereType<HBox>().firstWhere(
+      (h) => h.children.any(
+        (c) => c is SpanNode && c.classes.contains('msupsub'),
+      ),
+    );
 
     test('scriptspace (0.05em) trails the superscript row', () {
       // x has italic 0, so the only horizontal kern in the sup row is the
@@ -725,8 +751,7 @@ void main() {
       );
     });
 
-    test('slanted base (V) shifts the superscript by its italic (0.2222em)',
-        () {
+    test('slanted base (V) shifts the superscript by its italic (0.2222em)', () {
       // Math-Italic V has italic 0.22222. A bare base-italic kern of that size
       // must sit between the base span and the msupsub span.
       final hbox = supsubHBoxOf(renderToBox('V^2'));
@@ -749,10 +774,9 @@ void main() {
       expect(baseKern.width, closeTo(0.22222, 1e-4));
 
       final msupsub = msupsubOf(root);
-      final negKerns = _flatten(msupsub)
-          .whereType<KernNode>()
-          .where((k) => k.width < 0)
-          .toList();
+      final negKerns = _flatten(
+        msupsub,
+      ).whereType<KernNode>().where((k) => k.width < 0).toList();
       expect(negKerns, hasLength(1), reason: 'subscript has one negative kern');
       expect(
         negKerns.single.width,
@@ -761,13 +785,15 @@ void main() {
       );
     });
 
-    test('base italic does not change root height/depth (RC-1 is horizontal)',
-        () {
-      // The fix is purely horizontal: V^2 vertical metrics are unaffected.
-      final root = renderToBox('V^2');
-      expect(root.height, greaterThan(0));
-      expect(root.depth, closeTo(0, 1e-9));
-    });
+    test(
+      'base italic does not change root height/depth (RC-1 is horizontal)',
+      () {
+        // The fix is purely horizontal: V^2 vertical metrics are unaffected.
+        final root = renderToBox('V^2');
+        expect(root.height, greaterThan(0));
+        expect(root.depth, closeTo(0, 1e-9));
+      },
+    );
   });
 
   // T-034 (RC-c) — genfrac nested-fraction depth + `\cfrac` strut.

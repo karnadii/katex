@@ -14,8 +14,7 @@ const String _spaceRegexString = '[ \r\n\t]';
 const String _controlWordRegexString = r'\\[a-zA-Z@]+';
 // "\\[^\uD800-\uDFFF]" — backslash followed by any non-surrogate code unit.
 const String _controlSymbolRegexString = '\\\\[^\uD800-\uDFFF]';
-const String _controlWordWhitespaceRegexString =
-    '($_controlWordRegexString)$_spaceRegexString*';
+const String _controlWordWhitespaceRegexString = '($_controlWordRegexString)$_spaceRegexString*';
 const String _controlSpaceRegexString = '\\\\(\n|[ \r\t]+\n?)[ \r\t]*';
 const String _combiningDiacriticalMarkString = '[\u0300-\u036f]';
 
@@ -95,10 +94,7 @@ class Lexer implements LexerInterface {
     // Advance past the matched text.
     tokenRegexLastIndex = match.end;
 
-    final text =
-        match.group(6) ??
-        match.group(3) ??
-        (match.group(2) != null ? r'\ ' : ' ');
+    final text = match.group(6) ?? match.group(3) ?? (match.group(2) != null ? r'\ ' : ' ');
 
     if (catcodes[text] == 14) {
       // comment character

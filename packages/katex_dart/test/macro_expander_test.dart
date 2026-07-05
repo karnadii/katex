@@ -7,8 +7,7 @@ import 'package:katex_dart/src/types.dart';
 import 'package:test/test.dart';
 
 /// Builds a [MacroExpander] over [input] in math mode with default settings.
-MacroExpander expander(String input, [Settings? settings]) =>
-    MacroExpander(input, settings ?? Settings(), Mode.math);
+MacroExpander expander(String input, [Settings? settings]) => MacroExpander(input, settings ?? Settings(), Mode.math);
 
 /// Fully expands [input] and returns the resulting (forward-order) token texts,
 /// stopping at EOF.
@@ -84,10 +83,7 @@ void main() {
       final mex = expander('{abc}rest');
       final arg = mex.consumeArg();
       // tokens are returned in reverse (stack) order.
-      expect(
-        arg.tokens.map((t) => t.text).toList(),
-        <String>['c', 'b', 'a'],
-      );
+      expect(arg.tokens.map((t) => t.text).toList(), <String>['c', 'b', 'a']);
       expect(mex.popToken().text, 'r');
     });
 
@@ -137,10 +133,12 @@ void main() {
     test(r'\TeX expands to its textrm body', () {
       final tokens = expandAll(r'\TeX');
       // Faithful prefix of KaTeX's \TeX expansion.
-      expect(
-        tokens.take(4).toList(),
-        <String>[r'\textrm', '{', r'\html@mathml', '{'],
-      );
+      expect(tokens.take(4).toList(), <String>[
+        r'\textrm',
+        '{',
+        r'\html@mathml',
+        '{',
+      ]);
     });
   });
 

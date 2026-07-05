@@ -88,9 +88,7 @@ class Math extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final baseColor = color ??
-        DefaultTextStyle.of(context).style.color ??
-        const Color(0xFF000000);
+    final baseColor = color ?? DefaultTextStyle.of(context).style.color ?? const Color(0xFF000000);
     final fontSizePx = fontSize ?? kDefaultMathFontSize;
 
     final BoxNode box;
@@ -138,10 +136,7 @@ class Math extends StatelessWidget {
     if (onError != null) {
       return onError!(context, error);
     }
-    return Text(
-      tex,
-      style: const TextStyle(color: _errorColor),
-    );
+    return Text(tex, style: const TextStyle(color: _errorColor));
   }
 
   /// Converts a Flutter [Color] to the `#rrggbb` CSS string [KatexOptions]

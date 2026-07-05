@@ -130,10 +130,8 @@ void defineFunction(List<String> names, FunctionSpec spec) {
 
 /// If [arg] is an ordgroup of exactly one node, return that node; otherwise
 /// return [arg]. Mirrors KaTeX's `normalizeArgument`.
-ParseNode normalizeArgument(ParseNode arg) =>
-    arg is OrdGroupNode && arg.body.length == 1 ? arg.body[0] : arg;
+ParseNode normalizeArgument(ParseNode arg) => arg is OrdGroupNode && arg.body.length == 1 ? arg.body[0] : arg;
 
 /// If [arg] is an ordgroup, return its body; otherwise wrap [arg] in a list.
 /// Mirrors KaTeX's `ordargument`.
-List<ParseNode> ordargument(ParseNode arg) =>
-    arg is OrdGroupNode ? arg.body : <ParseNode>[arg];
+List<ParseNode> ordargument(ParseNode arg) => arg is OrdGroupNode ? arg.body : <ParseNode>[arg];

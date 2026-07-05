@@ -31,11 +31,7 @@ const String katexFlutterPackage = 'katex';
 /// - `package` is set so the bundled (package) font is resolved.
 /// - `height` is `1.0` so the line height does not add extra leading; the box
 ///   tree already carries explicit height/depth.
-TextStyle textStyleFor(
-  KatexFont font,
-  double fontSizePx, {
-  Color? color,
-}) {
+TextStyle textStyleFor(KatexFont font, double fontSizePx, {Color? color}) {
   return TextStyle(
     fontFamily: 'KaTeX_${font.fontName}',
     package: katexFlutterPackage,

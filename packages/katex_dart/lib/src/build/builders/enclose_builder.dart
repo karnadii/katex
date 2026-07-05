@@ -27,8 +27,7 @@ import 'package:katex_dart/src/build/options.dart';
 
 /// Registers the enclose builder into [registry].
 void registerEncloseBuilder(Map<String, GroupBuilder> registry) {
-  registry['enclose'] = (node, options) =>
-      _buildEnclose(node as ast.EncloseParseNode, options);
+  registry['enclose'] = (node, options) => _buildEnclose(node as ast.EncloseParseNode, options);
 }
 
 // Wraps [inner] with [leftPad]/[rightPad] em of horizontal padding and
@@ -59,9 +58,7 @@ BoxNode _pad(
     positionType: VListPositionType.individualShift,
     children: <VListChild>[
       VListChild.elem(horizontal),
-      VListChild.elem(
-        RuleNode(width: 0, height: horizontal.height + topPad),
-      ),
+      VListChild.elem(RuleNode(width: 0, height: horizontal.height + topPad)),
       VListChild.elem(
         RuleNode(width: 0, height: 0, depth: horizontal.depth + bottomPad),
       ),

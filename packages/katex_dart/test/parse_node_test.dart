@@ -104,10 +104,7 @@ void main() {
 
     test('Measurement equality', () {
       expect(const Measurement(1, 'em'), const Measurement(1, 'em'));
-      expect(
-        const Measurement(1, 'em') == const Measurement(2, 'em'),
-        isFalse,
-      );
+      expect(const Measurement(1, 'em') == const Measurement(2, 'em'), isFalse);
     });
   });
 

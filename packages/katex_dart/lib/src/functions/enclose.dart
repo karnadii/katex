@@ -26,8 +26,10 @@ void registerEnclose() {
       allowedInText: true,
       argTypes: const <ArgType?>[ArgType.color, ArgType.hbox],
       handler: (context, args, optArgs) {
-        final color = assertNodeType<ColorTokenNode>(args[0], 'color-token')
-            .color;
+        final color = assertNodeType<ColorTokenNode>(
+          args[0],
+          'color-token',
+        ).color;
         return EncloseParseNode(
           mode: context.parser.mode,
           label: context.funcName,

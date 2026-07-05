@@ -20,8 +20,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-const _sourceJs =
-    '../../reference/node_modules/katex/src/fontMetricsData.js';
+const _sourceJs = '../../reference/node_modules/katex/src/fontMetricsData.js';
 const _outPath = 'lib/src/font/font_metrics_data.g.dart';
 
 Future<void> main() async {
@@ -35,16 +34,18 @@ Future<void> main() async {
   // path so Node's resolver does not depend on the import being relative to a
   // package boundary.
   final absSource = sourceFile.absolute.uri.toString();
-  final script = '''
+  final script =
+      '''
 import data from ${jsonEncode(absSource)};
 const m = data.default || data;
 process.stdout.write(JSON.stringify(m));
 ''';
 
-  final result = await Process.run(
-    'node',
-    ['--input-type=module', '-e', script],
-  );
+  final result = await Process.run('node', [
+    '--input-type=module',
+    '-e',
+    script,
+  ]);
   if (result.exitCode != 0) {
     stderr.writeln('node failed (exit ${result.exitCode}):');
     stderr.writeln(result.stderr);
@@ -57,12 +58,12 @@ process.stdout.write(JSON.stringify(m));
     ..writeln('// GENERATED FILE — DO NOT EDIT.')
     ..writeln('// Regenerate with: dart run tool/gen_font_metrics.dart')
     ..writeln('//')
-    ..writeln('// Source: KaTeX src/fontMetricsData.js (SIL OFL fonts; MIT data).')
+    ..writeln(
+      '// Source: KaTeX src/fontMetricsData.js (SIL OFL fonts; MIT data).',
+    )
     ..writeln('// family -> charcode -> [depth, height, italic, skew, width].')
     ..writeln()
-    ..writeln(
-      'const Map<String, Map<int, List<double>>> fontMetricsData = {',
-    );
+    ..writeln('const Map<String, Map<int, List<double>>> fontMetricsData = {');
 
   // Sort families for deterministic output.
   final families = decoded.keys.toList()..sort();
@@ -72,9 +73,7 @@ process.stdout.write(JSON.stringify(m));
     // Sort charcodes numerically for deterministic, diffable output.
     final codes = glyphs.keys.map(int.parse).toList()..sort();
     for (final code in codes) {
-      final tuple = (glyphs['$code'] as List)
-          .map((n) => _dartNum(n as num))
-          .join(', ');
+      final tuple = (glyphs['$code'] as List).map((n) => _dartNum(n as num)).join(', ');
       buffer.writeln('    $code: [$tuple],');
     }
     buffer.writeln('  },');
@@ -85,8 +84,10 @@ process.stdout.write(JSON.stringify(m));
   outFile.parent.createSync(recursive: true);
   outFile.writeAsStringSync(buffer.toString());
 
-  final glyphCount =
-      decoded.values.fold<int>(0, (s, g) => s + (g as Map).length);
+  final glyphCount = decoded.values.fold<int>(
+    0,
+    (s, g) => s + (g as Map).length,
+  );
   stdout.writeln(
     'Wrote $_outPath: ${families.length} families, $glyphCount glyphs.',
   );

@@ -77,10 +77,10 @@ class _FlutterCellState extends State<FlutterCell> {
     // (the embedded view itself is pinned to the math's full height, below).
     return div(
       styles: Styles(
-        height: 100.percent,
         display: Display.flex,
-        alignItems: AlignItems.center,
+        height: 100.percent,
         justifyContent: JustifyContent.center,
+        alignItems: AlignItems.center,
       ),
       [
         if (_mounted)
@@ -95,7 +95,7 @@ class _FlutterCellState extends State<FlutterCell> {
               minHeight: component.heightPx.toDouble(),
               maxHeight: component.heightPx.toDouble(),
             ),
-            styles: Styles(height: component.heightPx.px, width: 100.percent),
+            styles: Styles(width: 100.percent, height: component.heightPx.px),
             widget: mathCellWidget(
               component.tex,
               displayMode: component.displayMode,

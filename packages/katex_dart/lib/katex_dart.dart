@@ -22,15 +22,13 @@ export 'package:katex_dart/src/build/katex_options.dart' show KatexOptions;
 // (GlyphNode carries a KatexFont / CharacterMetrics); export them so consumers
 // like katex can read them without reaching into src/.
 export 'package:katex_dart/src/font/font_metrics.dart' show CharacterMetrics, Mode;
-export 'package:katex_dart/src/font/font_types.dart'
-    show KatexFont, KatexFontFamily, KatexFontVariant;
+export 'package:katex_dart/src/font/font_types.dart' show KatexFont, KatexFontFamily, KatexFontVariant;
 export 'package:katex_dart/src/parse/parse_error.dart' show ParseError;
 // Glyph outline paths (font units, y-up) keyed by font name → codepoint, plus
 // the units-per-em they're authored at. Part of the public model so backends
 // that render glyphs as filled paths (e.g. the SVG serializer, or an external
 // consumer that paints outlines) don't need to reach into src/.
-export 'package:katex_dart/src/svg/glyph_paths.g.dart'
-    show katexGlyphPaths, katexGlyphUnitsPerEm;
+export 'package:katex_dart/src/svg/glyph_paths.g.dart' show katexGlyphPaths, katexGlyphUnitsPerEm;
 
 /// Renders [tex] to a [BoxNode] tree — the primary public API.
 ///

@@ -72,14 +72,17 @@ const double _passThreshold = 1;
 String _repoRoot() {
   var dir = Directory.current.absolute.path;
   while (true) {
-    if (Directory(p.join(dir, 'reference', 'fixtures', 'metrics'))
-        .existsSync()) {
+    if (Directory(
+      p.join(dir, 'reference', 'fixtures', 'metrics'),
+    ).existsSync()) {
       return dir;
     }
     final parent = p.dirname(dir);
     if (parent == dir) {
-      fail('Could not locate repo root (with reference/fixtures) '
-          'from ${Directory.current}');
+      fail(
+        'Could not locate repo root (with reference/fixtures) '
+        'from ${Directory.current}',
+      );
     }
     dir = parent;
   }
@@ -108,16 +111,13 @@ class _DimResult {
     return relDiff <= _relTol || absDiff <= _absTol;
   }
 
-  String get pctStr =>
-      applicable ? '${(relDiff * 100).toStringAsFixed(3)}%' : '   n/a';
+  String get pctStr => applicable ? '${(relDiff * 100).toStringAsFixed(3)}%' : '   n/a';
 }
 
 void main() {
   final root = _repoRoot();
   final galleryFile = File(p.join(root, 'reference', 'gallery.json'));
-  final gallery =
-      (jsonDecode(galleryFile.readAsStringSync()) as List)
-          .cast<Map<String, dynamic>>();
+  final gallery = (jsonDecode(galleryFile.readAsStringSync()) as List).cast<Map<String, dynamic>>();
 
   // Accumulate per-entry results so we can print one summary table at the end.
   final rows = <String>[];
@@ -136,12 +136,19 @@ void main() {
     final displayMode = entry['displayMode'] as bool;
 
     test('dimension: $id', () {
-      final box = renderToBox(tex, options: KatexOptions(displayMode: displayMode));
+      final box = renderToBox(
+        tex,
+        options: KatexOptions(displayMode: displayMode),
+      );
 
-      final metricsFile =
-          File(p.join(root, 'reference', 'fixtures', 'metrics', '$id.json'));
-      expect(metricsFile.existsSync(), isTrue,
-          reason: 'missing metrics fixture for $id');
+      final metricsFile = File(
+        p.join(root, 'reference', 'fixtures', 'metrics', '$id.json'),
+      );
+      expect(
+        metricsFile.existsSync(),
+        isTrue,
+        reason: 'missing metrics fixture for $id',
+      );
       final fx = jsonDecode(metricsFile.readAsStringSync()) as Map;
       final oracleRoot = fx['root'] as Map;
 
@@ -163,7 +170,8 @@ void main() {
           // noisy "n/a" line but keep height/depth.
           continue;
         }
-        final line = '${id.padRight(22)} '
+        final line =
+            '${id.padRight(22)} '
             '${r.name.padRight(6)} '
             '${r.ours.toStringAsFixed(5).padRight(10)} '
             '${(r.oracle?.toStringAsFixed(5) ?? 'null').padRight(10)} '
@@ -189,26 +197,34 @@ void main() {
       } else {
         for (final r in results) {
           if (!r.pass) {
-            gatedFailures.add('$id.${r.name}: ours=${r.ours.toStringAsFixed(5)} '
-                'oracle=${r.oracle} (${r.pctStr})');
+            gatedFailures.add(
+              '$id.${r.name}: ours=${r.ours.toStringAsFixed(5)} '
+              'oracle=${r.oracle} (${r.pctStr})',
+            );
           }
         }
       }
 
       // Per-entry assertion for gated entries: each must be within tolerance.
-      expect(entryPass, isTrue,
-          reason: 'dimension mismatch for $id:\n'
-              '${results.where((r) => r.applicable).map((r) => '  ${r.name}: '
-                  'ours=${r.ours.toStringAsFixed(5)} oracle=${r.oracle} '
-                  '(${r.pctStr}) ${r.pass ? "ok" : "OUT OF TOLERANCE"}').join('\n')}');
+      expect(
+        entryPass,
+        isTrue,
+        reason:
+            'dimension mismatch for $id:\n'
+            '${results.where((r) => r.applicable).map((r) => '  ${r.name}: '
+                'ours=${r.ours.toStringAsFixed(5)} oracle=${r.oracle} '
+                '(${r.pctStr}) ${r.pass ? "ok" : "OUT OF TOLERANCE"}').join('\n')}',
+      );
     });
   }
 
   tearDownAll(() {
     final total = gallery.length;
-    print('\n===== DIMENSION GOLDEN REPORT '
-        '(tolerance: rel<=${(_relTol * 100).toStringAsFixed(0)}% '
-        'OR abs<=${_absTol}em) =====');
+    print(
+      '\n===== DIMENSION GOLDEN REPORT '
+      '(tolerance: rel<=${(_relTol * 100).toStringAsFixed(0)}% '
+      'OR abs<=${_absTol}em) =====',
+    );
     for (final row in rows) {
       print(row);
     }
@@ -219,10 +235,14 @@ void main() {
       }
     }
     final rate = gatedTotal == 0 ? 0.0 : gatedPass / gatedTotal;
-    print('\nDIMENSION PASS RATE (gated): $gatedPass/$gatedTotal '
-        '(${(rate * 100).toStringAsFixed(1)}%)');
-    print('DIMENSION PASS RATE (whole gallery, incl. known-approx as fail): '
-        '$gatedPass/$total');
+    print(
+      '\nDIMENSION PASS RATE (gated): $gatedPass/$gatedTotal '
+      '(${(rate * 100).toStringAsFixed(1)}%)',
+    );
+    print(
+      'DIMENSION PASS RATE (whole gallery, incl. known-approx as fail): '
+      '$gatedPass/$total',
+    );
     if (gatedFailures.isNotEmpty) {
       print('\nGATED FAILURES:');
       for (final f in gatedFailures) {
@@ -232,8 +252,10 @@ void main() {
     if (_knownApprox.isEmpty) {
       print('FOLLOW-UP: none — all gallery entries are hard-gated.');
     } else {
-      print('FOLLOW-UP: ${_knownApprox.join(', ')} excluded from the hard gate '
-          '(MVP approximation).');
+      print(
+        'FOLLOW-UP: ${_knownApprox.join(', ')} excluded from the hard gate '
+        '(MVP approximation).',
+      );
     }
   });
 
@@ -241,10 +263,14 @@ void main() {
     // Runs after the per-entry tests have populated the counters (test order
     // is registration order in package:test).
     final rate = gatedTotal == 0 ? 0.0 : gatedPass / gatedTotal;
-    expect(rate, greaterThanOrEqualTo(_passThreshold),
-        reason: 'gated dimension pass rate $gatedPass/$gatedTotal '
-            '(${(rate * 100).toStringAsFixed(1)}%) below '
-            'threshold ${(_passThreshold * 100).toStringAsFixed(0)}%. '
-            'Failures: ${gatedFailures.join('; ')}');
+    expect(
+      rate,
+      greaterThanOrEqualTo(_passThreshold),
+      reason:
+          'gated dimension pass rate $gatedPass/$gatedTotal '
+          '(${(rate * 100).toStringAsFixed(1)}%) below '
+          'threshold ${(_passThreshold * 100).toStringAsFixed(0)}%. '
+          'Failures: ${gatedFailures.join('; ')}',
+    );
   });
 }

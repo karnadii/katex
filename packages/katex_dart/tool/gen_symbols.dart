@@ -44,8 +44,7 @@ void main() {
   // strip types and execute it.
   final tmp = Directory.systemTemp.createTempSync('katex_gen_symbols_');
   try {
-    final stagedSymbols = File('${tmp.path}/symbols.ts')
-      ..writeAsStringSync(symbolsTs.readAsStringSync());
+    final stagedSymbols = File('${tmp.path}/symbols.ts')..writeAsStringSync(symbolsTs.readAsStringSync());
     final dumper = File('${tmp.path}/dump.mts')
       ..writeAsStringSync('''
 import symbols from "./symbols.ts";
@@ -61,14 +60,15 @@ process.stdout.write(JSON.stringify({math: s["math"], text: s["text"]}));
     );
     if (result.exitCode != 0) {
       stderr
-        ..writeln('node failed to dump KaTeX symbols (exit ${result.exitCode}):')
+        ..writeln(
+          'node failed to dump KaTeX symbols (exit ${result.exitCode}):',
+        )
         ..writeln(result.stderr);
       stagedSymbols.deleteSync();
       exit(1);
     }
 
-    final data = (jsonDecode(result.stdout as String) as Map)
-        .cast<String, dynamic>();
+    final data = (jsonDecode(result.stdout as String) as Map).cast<String, dynamic>();
     final math = (data['math'] as Map).cast<String, dynamic>();
     final text = (data['text'] as Map).cast<String, dynamic>();
 
@@ -83,7 +83,9 @@ process.stdout.write(JSON.stringify({math: s["math"], text: s["text"]}));
       ..writeln()
       ..writeln("import 'package:katex_dart/src/symbols/symbols.dart';")
       ..writeln()
-      ..writeln('/// Symbol tables keyed by [Mode], mirroring KaTeX `symbols[mode][name]`.')
+      ..writeln(
+        '/// Symbol tables keyed by [Mode], mirroring KaTeX `symbols[mode][name]`.',
+      )
       ..writeln('const Map<Mode, Map<String, SymbolData>> symbolsTable = {')
       ..write(_emitMode('math', math))
       ..write(_emitMode('text', text))

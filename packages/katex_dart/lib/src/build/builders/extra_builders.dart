@@ -19,32 +19,20 @@ import 'package:katex_dart/src/svg/svg_geometry.g.dart' as geom;
 
 /// Registers the T-039 builders into [registry].
 void registerExtraBuilders(Map<String, GroupBuilder> registry) {
-  registry['mathchoice'] = (node, options) =>
-      _buildMathChoice(node as ast.MathChoiceNode, options);
-  registry['htmlmathml'] = (node, options) =>
-      _buildHtmlMathml(node as ast.HtmlMathmlNode, options);
-  registry['html'] = (node, options) =>
-      _buildHtml(node as ast.HtmlNode, options);
-  registry['href'] = (node, options) =>
-      _buildHref(node as ast.HrefNode, options);
-  registry['vphantom'] = (node, options) =>
-      _buildVphantom(node as ast.VphantomNode, options);
-  registry['smash'] = (node, options) =>
-      _buildSmash(node as ast.SmashNode, options);
+  registry['mathchoice'] = (node, options) => _buildMathChoice(node as ast.MathChoiceNode, options);
+  registry['htmlmathml'] = (node, options) => _buildHtmlMathml(node as ast.HtmlMathmlNode, options);
+  registry['html'] = (node, options) => _buildHtml(node as ast.HtmlNode, options);
+  registry['href'] = (node, options) => _buildHref(node as ast.HrefNode, options);
+  registry['vphantom'] = (node, options) => _buildVphantom(node as ast.VphantomNode, options);
+  registry['smash'] = (node, options) => _buildSmash(node as ast.SmashNode, options);
   registry['lap'] = (node, options) => _buildLap(node as ast.LapNode, options);
-  registry['horizBrace'] = (node, options) =>
-      _buildHorizBrace(node as ast.HorizBraceNode, options);
-  registry['xArrow'] = (node, options) =>
-      _buildXArrow(node as ast.XArrowNode, options);
-  registry['raisebox'] = (node, options) =>
-      _buildRaiseBox(node as ast.RaiseBoxNode, options);
-  registry['vcenter'] = (node, options) =>
-      _buildVcenter(node as ast.VcenterNode, options);
+  registry['horizBrace'] = (node, options) => _buildHorizBrace(node as ast.HorizBraceNode, options);
+  registry['xArrow'] = (node, options) => _buildXArrow(node as ast.XArrowNode, options);
+  registry['raisebox'] = (node, options) => _buildRaiseBox(node as ast.RaiseBoxNode, options);
+  registry['vcenter'] = (node, options) => _buildVcenter(node as ast.VcenterNode, options);
   registry['pmb'] = (node, options) => _buildPmb(node as ast.PmbNode, options);
-  registry['verb'] = (node, options) =>
-      _buildVerb(node as ast.VerbNode, options);
-  registry['hbox'] = (node, options) =>
-      _buildHbox(node as ast.HboxNode, options);
+  registry['verb'] = (node, options) => _buildVerb(node as ast.VerbNode, options);
+  registry['hbox'] = (node, options) => _buildHbox(node as ast.HboxNode, options);
 }
 
 // ---- hbox -----------------------------------------------------------------
@@ -152,11 +140,7 @@ BoxNode _buildLap(ast.LapNode group, Options options) {
 // Stretchy brace via SVG, reusing the accent/arrow stretchy mechanism.
 // KaTeX braces use a 3-path SVG (left corner, stretchy middle, right corner).
 
-const Map<
-  String,
-  ({List<String> paths, double minWidth, double viewBoxHeight})
->
-_braceData = {
+const Map<String, ({List<String> paths, double minWidth, double viewBoxHeight})> _braceData = {
   'overbrace': (
     paths: ['leftbrace', 'midbrace', 'rightbrace'],
     minWidth: 1.6,
@@ -186,16 +170,15 @@ BoxNode _braceSvg(String label, double baseWidth) {
   final height = data.viewBoxHeight / 1000;
   final paths = data.paths;
 
-  SvgPathNode piece(String name, double width, SvgPreserveAspectRatio par) =>
-      SvgPathNode(
-        pathName: name,
-        pathData: geom.svgPath[name] ?? '',
-        viewBoxWidth: 400000,
-        viewBoxHeight: data.viewBoxHeight,
-        width: width,
-        height: height,
-        preserveAspectRatio: par,
-      );
+  SvgPathNode piece(String name, double width, SvgPreserveAspectRatio par) => SvgPathNode(
+    pathName: name,
+    pathData: geom.svgPath[name] ?? '',
+    viewBoxWidth: 400000,
+    viewBoxHeight: data.viewBoxHeight,
+    width: width,
+    height: height,
+    preserveAspectRatio: par,
+  );
 
   if (paths.length == 3) {
     // Three-piece brace (KaTeX stretchy.svgSpan, 3-child case): left corner |
@@ -219,8 +202,7 @@ BoxNode _braceSvg(String label, double baseWidth) {
   ]);
 }
 
-BoxNode _buildHorizBrace(ast.HorizBraceNode group, Options options) =>
-    _horizBrace(group, options, null);
+BoxNode _buildHorizBrace(ast.HorizBraceNode group, Options options) => _horizBrace(group, options, null);
 
 /// Builds a `\overbrace{…}^{label}` / `\underbrace{…}_{label}`: the brace with
 /// its note stacked (and centered) above/below. Port of horizBrace.ts's supsub
@@ -235,11 +217,7 @@ BoxNode buildHorizBraceSupSub(ast.SupSubNode grp, Options options) {
   return _horizBrace(group, options, label);
 }
 
-BoxNode _horizBrace(
-  ast.HorizBraceNode group,
-  Options options,
-  BoxNode? label,
-) {
+BoxNode _horizBrace(ast.HorizBraceNode group, Options options, BoxNode? label) {
   final body = buildGroup(group.base, options.havingBaseStyle(Style.DISPLAY));
   final braceBody = _braceSvg(group.label.substring(1), body.width);
   final braceClass = group.isOver ? 'mover' : 'munder';
@@ -281,9 +259,7 @@ BoxNode _horizBrace(
   // against the wider so the equation — not the note — controls the width.
   final vSpan = makeSpan([vlist], classes: ['minner', braceClass]);
   final totalWidth = vSpan.width > label.width ? vSpan.width : label.width;
-  BoxNode centered(BoxNode b) => b.width >= totalWidth
-      ? b
-      : makeFragment([KernNode((totalWidth - b.width) / 2), b]);
+  BoxNode centered(BoxNode b) => b.width >= totalWidth ? b : makeFragment([KernNode((totalWidth - b.width) / 2), b]);
 
   final VList outer;
   if (group.isOver) {
@@ -318,11 +294,7 @@ BoxNode _horizBrace(
 // Stretchy extensible arrows with optional text above/below. Reuses the
 // arrow SVG path data (the same `svgGeometry` paths the accents use).
 
-const Map<
-  String,
-  ({List<String> paths, double minWidth, double viewBoxHeight})
->
-_arrowData = {
+const Map<String, ({List<String> paths, double minWidth, double viewBoxHeight})> _arrowData = {
   'xleftarrow': (paths: ['leftarrow'], minWidth: 1.469, viewBoxHeight: 522),
   'xrightarrow': (paths: ['rightarrow'], minWidth: 1.469, viewBoxHeight: 522),
   'xLeftarrow': (
@@ -428,16 +400,15 @@ _arrowData = {
   final height = data.viewBoxHeight / 1000;
   final paths = data.paths;
 
-  SvgPathNode piece(String name, double w, SvgPreserveAspectRatio par) =>
-      SvgPathNode(
-        pathName: name,
-        pathData: geom.svgPath[name] ?? '',
-        viewBoxWidth: 400000,
-        viewBoxHeight: data.viewBoxHeight,
-        width: w,
-        height: height,
-        preserveAspectRatio: par,
-      );
+  SvgPathNode piece(String name, double w, SvgPreserveAspectRatio par) => SvgPathNode(
+    pathName: name,
+    pathData: geom.svgPath[name] ?? '',
+    viewBoxWidth: 400000,
+    viewBoxHeight: data.viewBoxHeight,
+    width: w,
+    height: height,
+    preserveAspectRatio: par,
+  );
 
   if (paths.length == 1) {
     // Single arrow: keep the head (right arrows anchor right; left, left).
@@ -469,16 +440,11 @@ BoxNode _buildXArrow(ast.XArrowNode group, Options options) {
   // The arrow width follows the wider of the two labels, with a per-arrow
   // minimum. Use the upper/lower label widths plus padding (KaTeX uses the
   // x-arrow-pad CSS; ~0.5em on each side approximates it).
-  final data =
-      _arrowData[group.label.substring(1)] ?? _arrowData['xrightarrow']!;
+  final data = _arrowData[group.label.substring(1)] ?? _arrowData['xrightarrow']!;
   final labelWidth = lowerGroup == null
       ? upperGroup.width
-      : (upperGroup.width > lowerGroup.width
-            ? upperGroup.width
-            : lowerGroup.width);
-  final arrowWidth = (labelWidth + 0.667 > data.minWidth)
-      ? labelWidth + 0.667
-      : data.minWidth;
+      : (upperGroup.width > lowerGroup.width ? upperGroup.width : lowerGroup.width);
+  final arrowWidth = (labelWidth + 0.667 > data.minWidth) ? labelWidth + 0.667 : data.minWidth;
 
   final svg = _arrowSvg(group.label.substring(1), arrowWidth);
   final arrowBody = svg.body;
@@ -492,8 +458,7 @@ BoxNode _buildXArrow(ast.XArrowNode group, Options options) {
 
   final VList vlist;
   if (lowerGroup != null) {
-    final lowerShift =
-        -axisHeight + lowerGroup.height + 0.5 * svg.height + 0.111;
+    final lowerShift = -axisHeight + lowerGroup.height + 0.5 * svg.height + 0.111;
     vlist = makeVList(
       positionType: VListPositionType.individualShift,
       children: [

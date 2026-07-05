@@ -30,17 +30,14 @@ import 'package:katex_dart/src/ast/parse_node.dart' hide KernNode, RuleNode;
 import 'package:katex_dart/src/box/box_node.dart';
 import 'package:katex_dart/src/build/build_common.dart';
 import 'package:katex_dart/src/build/build_expression.dart';
-import 'package:katex_dart/src/build/builders/supsub_builder.dart'
-    show isCharacterBox;
+import 'package:katex_dart/src/build/builders/supsub_builder.dart' show isCharacterBox;
 import 'package:katex_dart/src/build/options.dart';
 import 'package:katex_dart/src/svg/svg_geometry.g.dart' as geom;
 
 /// Registers the accent / accentUnder builders into [registry].
 void registerAccentBuilders(Map<String, GroupBuilder> registry) {
-  registry['accent'] = (node, options) =>
-      _buildAccent(node as AccentNode, options);
-  registry['accentUnder'] = (node, options) =>
-      _buildAccentUnder(node as AccentUnderNode, options);
+  registry['accent'] = (node, options) => _buildAccent(node as AccentNode, options);
+  registry['accentUnder'] = (node, options) => _buildAccentUnder(node as AccentUnderNode, options);
 }
 
 GlyphNode? _baseSymbol(BoxNode node) {
@@ -191,9 +188,7 @@ _katexImagesData = {
 /// stretchy arrow SVGs always anchor the top (`YMin`); only the x-anchor
 /// varies (left head vs. right head).
 SvgPreserveAspectRatio _sliceForAlign(String align) =>
-    align.startsWith('xMax')
-    ? SvgPreserveAspectRatio.xMaxYMinSlice
-    : SvgPreserveAspectRatio.xMinYMinSlice;
+    align.startsWith('xMax') ? SvgPreserveAspectRatio.xMaxYMinSlice : SvgPreserveAspectRatio.xMinYMinSlice;
 
 const Set<String> _wideAccentLabels = {
   'widehat',
@@ -408,10 +403,7 @@ BoxNode _buildAccent(AccentNode group, Options options) {
 
   final vlist = makeVList(
     positionType: VListPositionType.firstBaseline,
-    children: [
-      VListChild.elem(body),
-      VListChild.elem(accentBody),
-    ],
+    children: [VListChild.elem(body), VListChild.elem(accentBody)],
   );
 
   return withAtomClass(

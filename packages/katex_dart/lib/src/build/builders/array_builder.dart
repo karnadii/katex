@@ -17,8 +17,7 @@ import 'package:katex_dart/src/build/style.dart';
 
 /// Registers the array builder into [registry].
 void registerArrayBuilder(Map<String, GroupBuilder> registry) {
-  registry['array'] = (node, options) =>
-      _buildArray(node as ArrayNode, options);
+  registry['array'] = (node, options) => _buildArray(node as ArrayNode, options);
 }
 
 class _Outrow {
@@ -133,9 +132,7 @@ BoxNode _buildArray(ArrayNode group, Options options) {
   var c = 0;
   var colDescrNum = 0;
   while (c < nc || colDescrNum < colDescriptions.length) {
-    var colDescr = colDescrNum < colDescriptions.length
-        ? colDescriptions[colDescrNum]
-        : null;
+    var colDescr = colDescrNum < colDescriptions.length ? colDescriptions[colDescrNum] : null;
 
     // Column separators (`|`/`:`) → a vertical rule spanning the whole array.
     // KaTeX inserts a `doubleRuleSep` gap between consecutive separators (for
@@ -179,9 +176,7 @@ BoxNode _buildArray(ArrayNode group, Options options) {
 
       firstSeparator = false;
       colDescrNum++;
-      colDescr = colDescrNum < colDescriptions.length
-          ? colDescriptions[colDescrNum]
-          : null;
+      colDescr = colDescrNum < colDescriptions.length ? colDescriptions[colDescrNum] : null;
     }
 
     if (c >= nc) {

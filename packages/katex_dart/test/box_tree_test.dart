@@ -107,19 +107,17 @@ void main() {
       required double height,
       required double depth,
       required double width,
-    }) =>
-        GlyphNode(
-          codepoint: 0x41,
-          font:
-              const KatexFont(KatexFontFamily.main, KatexFontVariant.regular),
-          metrics: CharacterMetrics(
-            depth: depth,
-            height: height,
-            italic: 0,
-            skew: 0,
-            width: width,
-          ),
-        );
+    }) => GlyphNode(
+      codepoint: 0x41,
+      font: const KatexFont(KatexFontFamily.main, KatexFontVariant.regular),
+      metrics: CharacterMetrics(
+        depth: depth,
+        height: height,
+        italic: 0,
+        skew: 0,
+        width: width,
+      ),
+    );
 
     test('individualShift positions and dimensions match makeVList math', () {
       final e0 = glyph(height: 0.7, depth: 0.2, width: 0.5);
@@ -127,10 +125,7 @@ void main() {
 
       final vlist = VList(
         positionType: VListPositionType.individualShift,
-        children: [
-          VListChild.elem(e0),
-          VListChild.elem(e1, shift: -0.5),
-        ],
+        children: [VListChild.elem(e0), VListChild.elem(e1, shift: -0.5)],
       );
 
       // Hand-computed via the makeVList port (see box_node.dart):
@@ -204,11 +199,7 @@ void main() {
           width: 0.5,
         ),
       );
-      final span = SpanNode(
-        [a, a],
-        color: '#ff0000',
-        classes: const ['mord'],
-      );
+      final span = SpanNode([a, a], color: '#ff0000', classes: const ['mord']);
       expect(span.width, closeTo(1.0, tol));
       expect(span.height, closeTo(0.7, tol));
       expect(span.depth, closeTo(0.1, tol));

@@ -69,8 +69,7 @@ class KatexFont {
   String get fontFileName => 'KaTeX_$fontName.ttf';
 
   @override
-  bool operator ==(Object other) =>
-      other is KatexFont && other.family == family && other.variant == variant;
+  bool operator ==(Object other) => other is KatexFont && other.family == family && other.variant == variant;
 
   @override
   int get hashCode => Object.hash(family, variant);

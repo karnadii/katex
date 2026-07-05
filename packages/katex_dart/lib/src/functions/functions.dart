@@ -74,27 +74,19 @@ void ensureRegistered() {
 // ---------------------------------------------------------------------------
 
 /// Asserts [node] is a [TextOrdNode] and returns it.
-TextOrdNode _assertTextord(ParseNode node) =>
-    assertNodeType(node, 'textord');
+TextOrdNode _assertTextord(ParseNode node) => assertNodeType(node, 'textord');
 
 SizeNode _assertSize(ParseNode node) => assertNodeType(node, 'size');
 
-ColorTokenNode _assertColorToken(ParseNode node) =>
-    assertNodeType(node, 'color-token');
+ColorTokenNode _assertColorToken(ParseNode node) => assertNodeType(node, 'color-token');
 
 /// Returns [node] if it is a symbol parse node, else `null`.
-SymbolParseNode? _checkSymbolNode(ParseNode? node) =>
-    node is SymbolParseNode ? node : null;
+SymbolParseNode? _checkSymbolNode(ParseNode? node) => node is SymbolParseNode ? node : null;
 
 bool _isCharacterBox(ParseNode node) {
   // Mirrors KaTeX's utils.isCharacterBox for the MVP node set.
-  final base = node is OrdGroupNode && node.body.isNotEmpty
-      ? node.body[0]
-      : node;
-  return base is MathOrdNode ||
-      base is TextOrdNode ||
-      base is AtomNode ||
-      base is SpacingNode;
+  final base = node is OrdGroupNode && node.body.isNotEmpty ? node.body[0] : node;
+  return base is MathOrdNode || base is TextOrdNode || base is AtomNode || base is SpacingNode;
 }
 
 // ---------------------------------------------------------------------------
@@ -245,12 +237,9 @@ void _registerGenfrac() {
         final numer = args[4];
         final denom = args[5];
         final leftNode = normalizeArgument(args[0]);
-        final leftDelim = leftNode is AtomNode && leftNode.family == Group.open
-            ? delimFromValue(leftNode.text)
-            : null;
+        final leftDelim = leftNode is AtomNode && leftNode.family == Group.open ? delimFromValue(leftNode.text) : null;
         final rightNode = normalizeArgument(args[1]);
-        final rightDelim =
-            rightNode is AtomNode && rightNode.family == Group.close
+        final rightDelim = rightNode is AtomNode && rightNode.family == Group.close
             ? delimFromValue(rightNode.text)
             : null;
         final barNode = _assertSize(args[2]);
@@ -1089,8 +1078,7 @@ void _registerOverlineUnderline() {
     FunctionSpec(
       type: 'overline',
       numArgs: 1,
-      handler: (context, args, optArgs) =>
-          OverlineNode(mode: context.parser.mode, body: args[0]),
+      handler: (context, args, optArgs) => OverlineNode(mode: context.parser.mode, body: args[0]),
     ),
   );
 
@@ -1100,8 +1088,7 @@ void _registerOverlineUnderline() {
       type: 'underline',
       numArgs: 1,
       allowedInText: true,
-      handler: (context, args, optArgs) =>
-          UnderlineNode(mode: context.parser.mode, body: args[0]),
+      handler: (context, args, optArgs) => UnderlineNode(mode: context.parser.mode, body: args[0]),
     ),
   );
 }
@@ -1147,8 +1134,7 @@ void _registerText() {
 
 MathClass _binrelClass(ParseNode arg) {
   final atom = arg is OrdGroupNode && arg.body.isNotEmpty ? arg.body[0] : arg;
-  if (atom is AtomNode &&
-      (atom.family == Group.bin || atom.family == Group.rel)) {
+  if (atom is AtomNode && (atom.family == Group.bin || atom.family == Group.rel)) {
     return atom.family == Group.bin ? MathClass.mbin : MathClass.mrel;
   }
   return MathClass.mord;
@@ -1210,9 +1196,7 @@ void _registerMclass() {
         final baseArg = args[1];
         final shiftedArg = args[0];
         final funcName = context.funcName;
-        final mclass = funcName != r'\stackrel'
-            ? _binrelClass(baseArg)
-            : MathClass.mrel;
+        final mclass = funcName != r'\stackrel' ? _binrelClass(baseArg) : MathClass.mrel;
         final baseOp = OpNode(
           mode: baseArg.mode,
           limits: true,
@@ -1262,7 +1246,7 @@ void _registerKern() {
               parser.settings.reportNonstrict(
                 'mathVsTextUnits',
                 "LaTeX's $funcName supports only mu units, "
-                'not ${size.value.unit} units',
+                    'not ${size.value.unit} units',
               );
             }
             if (parser.mode != Mode.math) {
@@ -1298,8 +1282,7 @@ void _registerRelax() {
       numArgs: 0,
       allowedInText: true,
       allowedInArgument: true,
-      handler: (context, args, optArgs) =>
-          InternalNode(mode: context.parser.mode),
+      handler: (context, args, optArgs) => InternalNode(mode: context.parser.mode),
     ),
   );
 }
@@ -1570,11 +1553,7 @@ void _registerHref() {
         })) {
           return parser.formatUnsupportedCmd(r'\href');
         }
-        return HrefNode(
-          mode: parser.mode,
-          href: href,
-          body: ordargument(body),
-        );
+        return HrefNode(mode: parser.mode, href: href, body: ordargument(body));
       },
     ),
   );
@@ -1862,8 +1841,7 @@ void _registerDef() {
         final token = parser.fetch();
         if (_globalMap.containsKey(token.text)) {
           // KaTeX doesn't have \par, so ignore \long.
-          if (context.funcName == r'\global' ||
-              context.funcName == r'\\globallong') {
+          if (context.funcName == r'\global' || context.funcName == r'\\globallong') {
             token.text = _globalMap[token.text]!;
           }
           final fn = parser.parseFunction(null, null);
@@ -2142,10 +2120,7 @@ void _registerHbox() {
       allowedInText: true,
       primitive: true,
       handler: (context, args, optArgs) {
-        return HboxNode(
-          mode: context.parser.mode,
-          body: ordargument(args[0]),
-        );
+        return HboxNode(mode: context.parser.mode, body: ordargument(args[0]));
       },
     ),
   );

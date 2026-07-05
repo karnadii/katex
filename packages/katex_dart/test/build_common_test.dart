@@ -102,8 +102,12 @@ void main() {
     test("'A' scales with the options size multiplier", () {
       final options = Options.initial().havingStyle(Style.SCRIPT);
       expect(options.sizeMultiplier, 0.7);
-      final glyph =
-          makeSymbol('A', 'Main-Regular', Mode.math, options: options)!;
+      final glyph = makeSymbol(
+        'A',
+        'Main-Regular',
+        Mode.math,
+        options: options,
+      )!;
       expect(glyph.size, 0.7);
       expect(glyph.height, closeTo(0.68333 * 0.7, 1e-5));
       expect(glyph.width, closeTo(0.75 * 0.7, 1e-5));

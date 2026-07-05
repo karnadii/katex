@@ -103,8 +103,7 @@ int countRevealableLeaves(BoxNode node) {
     case SpanNode():
       return node.children.fold(0, (s, c) => s + countRevealableLeaves(c));
     case VList():
-      return node.positions
-          .fold(0, (s, p) => s + countRevealableLeaves(p.box));
+      return node.positions.fold(0, (s, p) => s + countRevealableLeaves(p.box));
     case EncloseNode():
       // One op for the frame/fill/strike decorations, plus the child's leaves.
       return 1 + countRevealableLeaves(node.child);
@@ -206,9 +205,7 @@ class KatexBoxPainter extends CustomPainter {
     for (final op in ops) {
       // Each element owns a 1/n slice of the timeline by its reveal rank;
       // `t * n - rank` is its local 0 → 1 progress within that slot.
-      final a = isFade
-          ? t
-          : ((t * n - op.revealStart) / _kFadeSlots).clamp(0.0, 1.0);
+      final a = isFade ? t : ((t * n - op.revealStart) / _kFadeSlots).clamp(0.0, 1.0);
       if (a <= 0.0) {
         continue;
       }
@@ -242,8 +239,7 @@ class KatexBoxPainter extends CustomPainter {
       }
       return;
     }
-    var order = List<int>.generate(n, (i) => i)
-      ..sort((a, b) => ops[a].left.compareTo(ops[b].left));
+    var order = List<int>.generate(n, (i) => i)..sort((a, b) => ops[a].left.compareTo(ops[b].left));
     if (mode == MathAnimationMode.rightToLeft) {
       order = order.reversed.toList();
     }
@@ -266,11 +262,23 @@ class KatexBoxPainter extends CustomPainter {
   ) {
     switch (node) {
       case GlyphNode():
-        ops.add(_leafOp(node, x, baselineY,
-            (c) => _paintGlyph(c, node, x, baselineY, currentColor)));
+        ops.add(
+          _leafOp(
+            node,
+            x,
+            baselineY,
+            (c) => _paintGlyph(c, node, x, baselineY, currentColor),
+          ),
+        );
       case RuleNode():
-        ops.add(_leafOp(node, x, baselineY,
-            (c) => _paintRule(c, node, x, baselineY, currentColor)));
+        ops.add(
+          _leafOp(
+            node,
+            x,
+            baselineY,
+            (c) => _paintRule(c, node, x, baselineY, currentColor),
+          ),
+        );
       case KernNode():
         break;
       case HBox():
@@ -289,18 +297,35 @@ class KatexBoxPainter extends CustomPainter {
           );
         }
       case SvgPathNode():
-        ops.add(_leafOp(node, x, baselineY,
-            (c) => _paintSvgPath(c, node, x, baselineY, currentColor)));
+        ops.add(
+          _leafOp(
+            node,
+            x,
+            baselineY,
+            (c) => _paintSvgPath(c, node, x, baselineY, currentColor),
+          ),
+        );
       case EncloseNode():
         // The frame/fill/strike decorations reveal as one element tied to the
         // enclose box; the inner content's leaves reveal individually after.
-        ops.add(_leafOp(node, x, baselineY,
-            (c) => _paintEncloseDecorations(c, node, x, baselineY,
-                currentColor)));
+        ops.add(
+          _leafOp(
+            node,
+            x,
+            baselineY,
+            (c) => _paintEncloseDecorations(c, node, x, baselineY, currentColor),
+          ),
+        );
         _collect(node.child, x, baselineY, currentColor, ops);
       case ImageNode():
-        ops.add(_leafOp(node, x, baselineY,
-            (c) => _paintImage(c, node, x, baselineY, currentColor)));
+        ops.add(
+          _leafOp(
+            node,
+            x,
+            baselineY,
+            (c) => _paintImage(c, node, x, baselineY, currentColor),
+          ),
+        );
     }
   }
 
@@ -521,8 +546,7 @@ class KatexBoxPainter extends CustomPainter {
     // \phase: the Steinmetz angle — a diagonal stroke down to the bottom-left
     // corner joined to a horizontal stroke along the bottom (mirrors the SVG
     // serializer and the shape KaTeX's `phasePath` SVG produces).
-    if (node.notations.contains(EncloseNotation.phase) &&
-        node.phaseLineWidth != null) {
+    if (node.notations.contains(EncloseNotation.phase) && node.phaseLineWidth != null) {
       final lw = node.phaseLineWidth! * fontSize;
       final h = (node.height + node.depth) * fontSize;
       final phasePaint = Paint()
@@ -552,8 +576,7 @@ class KatexBoxPainter extends CustomPainter {
     double baselineY,
     Color currentColor,
   ) {
-    if (node.pathData.isEmpty || node.viewBoxWidth <= 0 ||
-        node.viewBoxHeight <= 0) {
+    if (node.pathData.isEmpty || node.viewBoxWidth <= 0 || node.viewBoxHeight <= 0) {
       return;
     }
     final path = parseSvgPath(node.pathData);
@@ -1080,14 +1103,7 @@ class _SvgPathParser {
     }
   }
 
-  void _cubic(
-    double x1,
-    double y1,
-    double x2,
-    double y2,
-    double x,
-    double y,
-  ) {
+  void _cubic(double x1, double y1, double x2, double y2, double x, double y) {
     _path.cubicTo(x1, y1, x2, y2, x, y);
     _cx = x;
     _cy = y;
@@ -1151,8 +1167,7 @@ class _SvgPathParser {
 
   // --- Tokenizer ------------------------------------------------------------
 
-  static bool _isCommand(String c) =>
-      'MmLlHhVvCcSsQqTtAaZz'.contains(c);
+  static bool _isCommand(String c) => 'MmLlHhVvCcSsQqTtAaZz'.contains(c);
 
   void _skipSep() {
     while (_pos < _d.length) {
@@ -1172,10 +1187,7 @@ class _SvgPathParser {
       return false;
     }
     final c = _d[_pos];
-    return (c.codeUnitAt(0) >= 0x30 && c.codeUnitAt(0) <= 0x39) ||
-        c == '-' ||
-        c == '+' ||
-        c == '.';
+    return (c.codeUnitAt(0) >= 0x30 && c.codeUnitAt(0) <= 0x39) || c == '-' || c == '+' || c == '.';
   }
 
   double _num() {

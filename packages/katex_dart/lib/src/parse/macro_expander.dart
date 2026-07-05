@@ -237,8 +237,7 @@ class MacroExpander implements MacroContext {
         );
       }
       if (isDelimited) {
-        if ((depth == 0 || (depth == 1 && delims[match] == '{')) &&
-            tok.text == delims[match]) {
+        if ((depth == 0 || (depth == 1 && delims[match] == '{')) && tok.text == delims[match]) {
           ++match;
           if (match == delims.length) {
             // don't include delims in tokens
@@ -266,8 +265,7 @@ class MacroExpander implements MacroContext {
   ///
   /// Mirrors KaTeX's `consumeArg().tokens` (used by macro functions).
   @override
-  List<Token> consumeArgTokens([List<String>? delims]) =>
-      consumeArg(delims).tokens;
+  List<Token> consumeArgTokens([List<String>? delims]) => consumeArg(delims).tokens;
 
   /// Consume [numArgs] (optionally delimited) arguments and return them.
   ///
@@ -324,11 +322,7 @@ class MacroExpander implements MacroContext {
     final name = topToken.text;
     final expansion = (topToken.noexpand ?? false) ? null : _getExpansion(name);
     if (expansion == null || (expandableOnly && expansion.unexpandable)) {
-      if (expandableOnly &&
-          expansion == null &&
-          name.isNotEmpty &&
-          name[0] == r'\' &&
-          !isDefined(name)) {
+      if (expandableOnly && expansion == null && name.isNotEmpty && name[0] == r'\' && !isDefined(name)) {
         throw ParseError('Undefined control sequence: $name');
       }
       pushToken(topToken);
@@ -452,9 +446,7 @@ class MacroExpander implements MacroContext {
         return null;
       }
     }
-    final expansion = definition is MacroFunction
-        ? definition(this)
-        : definition;
+    final expansion = definition is MacroFunction ? definition(this) : definition;
     if (expansion is String) {
       var numArgs = 0;
       if (expansion.contains('#')) {
@@ -495,14 +487,11 @@ class MacroExpander implements MacroContext {
   bool isExpandable(String name) {
     final macro = macros.get(name);
     if (macro != null) {
-      return macro is String ||
-          macro is MacroFunction ||
-          (macro is MacroExpansion && !macro.unexpandable);
+      return macro is String || macro is MacroFunction || (macro is MacroExpansion && !macro.unexpandable);
     }
     // Falls back to the function table (T-008): a function is expandable iff it
     // exists and is not a primitive.
-    return (functionExists?.call(name) ?? false) &&
-        !(functionIsPrimitive?.call(name) ?? false);
+    return (functionExists?.call(name) ?? false) && !(functionIsPrimitive?.call(name) ?? false);
   }
 }
 

@@ -91,10 +91,7 @@ void main() {
     });
 
     test('HBox of two glyphs advances x for the second child', () {
-      final node = HBox([
-        glyph('a'),
-        glyph('b', width: 0.6),
-      ]);
+      final node = HBox([glyph('a'), glyph('b', width: 0.6)]);
       final svg = serializeBox(node);
       final doc = XmlDocument.parse(svg);
 
@@ -111,11 +108,7 @@ void main() {
     });
 
     test('KernNode advances x without emitting a node', () {
-      final node = HBox([
-        glyph('a'),
-        const KernNode(0.25),
-        glyph('b'),
-      ]);
+      final node = HBox([glyph('a'), const KernNode(0.25), glyph('b')]);
       final svg = serializeBox(node);
       final doc = XmlDocument.parse(svg);
 
@@ -153,43 +146,28 @@ void main() {
       // viewBox height spans the whole vlist (height + depth) plus the 0.08 em
       // content-overflow pad on the top and bottom. The serializer formats it
       // compactly via the same rounding rule used for the rect.
-      final expectedH = (vlist.height + vlist.depth) * defaultFontSize +
-          2 * 0.08 * defaultFontSize;
-      expect(
-        doc.rootElement.getAttribute('height'),
-        _compact(expectedH),
-      );
+      final expectedH = (vlist.height + vlist.depth) * defaultFontSize + 2 * 0.08 * defaultFontSize;
+      expect(doc.rootElement.getAttribute('height'), _compact(expectedH));
     });
 
     test('SpanNode applies color as fill', () {
-      final node = SpanNode(
-        [glyph('a')],
-        color: '#ff0000',
-      );
+      final node = SpanNode([glyph('a')], color: '#ff0000');
       final svg = serializeBox(node);
       final doc = XmlDocument.parse(svg);
 
       // A <g fill="#ff0000"> wraps the child glyph <path>.
-      final colored = doc
-          .findAllElements('g')
-          .where((g) => g.getAttribute('fill') == '#ff0000')
-          .toList();
+      final colored = doc.findAllElements('g').where((g) => g.getAttribute('fill') == '#ff0000').toList();
       expect(colored, hasLength(1));
       expect(colored.first.findAllElements('path').toList(), hasLength(1));
     });
 
     test('XML special characters in glyphs are escaped', () {
-      final node = HBox([
-        glyph('<'),
-        glyph('&'),
-        glyph('>'),
-      ]);
+      final node = HBox([glyph('<'), glyph('&'), glyph('>')]);
       final svg = serializeBox(node);
 
       // Parses despite the raw <, &, > characters.
       final doc = XmlDocument.parse(svg);
-      final texts =
-          doc.findAllElements('text').map((t) => t.innerText).toList();
+      final texts = doc.findAllElements('text').map((t) => t.innerText).toList();
       expect(texts, containsAll(<String>['<', '&', '>']));
       expect(svg, contains('&lt;'));
       expect(svg, contains('&amp;'));
@@ -225,9 +203,7 @@ void main() {
       final path = doc.findAllElements('path').single;
       expect(path.getAttribute('d'), 'M95,702 H400000 z');
       // Nested <svg> carries the viewBox + slice mapping.
-      final inner = doc.findAllElements('svg').firstWhere(
-        (e) => e.getAttribute('preserveAspectRatio') != null,
-      );
+      final inner = doc.findAllElements('svg').firstWhere((e) => e.getAttribute('preserveAspectRatio') != null);
       expect(inner.getAttribute('viewBox'), '0 0 400000 1080');
       expect(inner.getAttribute('preserveAspectRatio'), 'xMinYMin slice');
     });

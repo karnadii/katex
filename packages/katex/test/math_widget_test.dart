@@ -5,9 +5,7 @@ import 'package:katex_dart/katex_dart.dart';
 
 void main() {
   testWidgets('renders valid inline TeX without error', (tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(home: Math(r'\frac{a}{b}')),
-    );
+    await tester.pumpWidget(const MaterialApp(home: Math(r'\frac{a}{b}')));
 
     expect(tester.takeException(), isNull);
     expect(find.byType(Math), findsOneWidget);
@@ -25,9 +23,7 @@ void main() {
 
   testWidgets('rendered CustomPaint has non-zero size', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Center(child: Math(r'\frac{a}{b}')),
-      ),
+      const MaterialApp(home: Center(child: Math(r'\frac{a}{b}'))),
     );
 
     final size = tester.getSize(find.byType(Math));
@@ -55,8 +51,9 @@ void main() {
     expect(big.height, greaterThan(small.height));
   });
 
-  testWidgets('invokes onError builder for invalid TeX when not throwing',
-      (tester) async {
+  testWidgets('invokes onError builder for invalid TeX when not throwing', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Math(
@@ -70,19 +67,19 @@ void main() {
     expect(find.text('error-fallback'), findsOneWidget);
   });
 
-  testWidgets('shows default fallback for invalid TeX without onError',
-      (tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(home: Math(r'\frac{a}{')),
-    );
+  testWidgets('shows default fallback for invalid TeX without onError', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: Math(r'\frac{a}{')));
 
     expect(tester.takeException(), isNull);
     // Default fallback renders the raw source.
     expect(find.text(r'\frac{a}{'), findsOneWidget);
   });
 
-  testWidgets('rethrows for invalid TeX when throwOnError is true',
-      (tester) async {
+  testWidgets('rethrows for invalid TeX when throwOnError is true', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       const MaterialApp(home: Math(r'\frac{a}{', throwOnError: true)),
     );

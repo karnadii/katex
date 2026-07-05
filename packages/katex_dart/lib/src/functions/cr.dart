@@ -32,20 +32,14 @@ void registerCr() {
       allowedInText: true,
       handler: (context, args, optArgs) {
         final parser = context.parser;
-        final size = parser.gullet.future().text == '['
-            ? parser.parseSizeGroup(true)
-            : null;
+        final size = parser.gullet.future().text == '[' ? parser.parseSizeGroup(true) : null;
         final newLine =
             !parser.settings.displayMode ||
             !parser.settings.useStrictBehavior(
               'newLineInDisplayMode',
               r'In LaTeX, \\ or \newline does nothing in display mode',
             );
-        return CrNode(
-          mode: parser.mode,
-          newLine: newLine,
-          size: size?.value,
-        );
+        return CrNode(mode: parser.mode, newLine: newLine, size: size?.value);
       },
     ),
   );

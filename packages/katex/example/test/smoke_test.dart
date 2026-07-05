@@ -16,8 +16,9 @@ void main() {
     expect(find.byType(Math), findsWidgets);
   });
 
-  testWidgets('scrolling through the whole gallery never throws',
-      (tester) async {
+  testWidgets('scrolling through the whole gallery never throws', (
+    tester,
+  ) async {
     await tester.pumpWidget(const KatexGalleryApp());
     await tester.pump();
 

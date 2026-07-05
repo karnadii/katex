@@ -1,6 +1,6 @@
 name: katex
 description: A Flutter widget that renders LaTeX math by painting the backend-agnostic box tree from the pure-Dart katex_dart package. KaTeX in Flutter.
-version: 0.1.0
+version: 1.0.0
 repository: https://github.com/orestesgaolin/katex/tree/main/packages/katex
 homepage: https://github.com/orestesgaolin/katex
 issue_tracker: https://github.com/orestesgaolin/katex/issues
@@ -20,9 +20,9 @@ dependencies:
   katex_dart: ^0.1.0
 
 dev_dependencies:
+  flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
-  very_good_analysis: ^7.0.0
 
 flutter:
   uses-material-design: true

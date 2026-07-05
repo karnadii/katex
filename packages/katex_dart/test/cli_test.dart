@@ -28,11 +28,11 @@ String _packageRoot() {
 void main() {
   final root = _packageRoot();
 
-  ProcessResult run(List<String> args) => Process.runSync(
-    'dart',
-    ['run', 'katex_dart', ...args],
-    workingDirectory: root,
-  );
+  ProcessResult run(List<String> args) => Process.runSync('dart', [
+    'run',
+    'katex_dart',
+    ...args,
+  ], workingDirectory: root);
 
   test('renders a fraction to valid SVG on stdout (exit 0)', () {
     final result = run([r'\frac{a}{b}']);

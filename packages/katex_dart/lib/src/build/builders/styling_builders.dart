@@ -13,28 +13,17 @@ import 'package:katex_dart/src/build/style.dart';
 
 /// Registers the wrapper/presentation builders into [registry].
 void registerStylingBuilders(Map<String, GroupBuilder> registry) {
-  registry['font'] = (node, options) =>
-      _buildFont(node as ast.FontNode, options);
-  registry['color'] = (node, options) =>
-      _buildColor(node as ast.ColorNode, options);
-  registry['sizing'] = (node, options) =>
-      _buildSizing(node as ast.SizingNode, options);
-  registry['styling'] = (node, options) =>
-      _buildStyling(node as ast.StylingNode, options);
-  registry['text'] = (node, options) =>
-      _buildText(node as ast.TextNode, options);
-  registry['mclass'] = (node, options) =>
-      _buildMclass(node as ast.MclassNode, options);
-  registry['overline'] = (node, options) =>
-      _buildOverline(node as ast.OverlineNode, options);
-  registry['underline'] = (node, options) =>
-      _buildUnderline(node as ast.UnderlineNode, options);
-  registry['kern'] = (node, options) =>
-      _buildKern(node as ast.KernNode, options);
-  registry['phantom'] = (node, options) =>
-      _buildPhantom(node as ast.PhantomNode, options);
-  registry['rule'] = (node, options) =>
-      _buildRule(node as ast.RuleNode, options);
+  registry['font'] = (node, options) => _buildFont(node as ast.FontNode, options);
+  registry['color'] = (node, options) => _buildColor(node as ast.ColorNode, options);
+  registry['sizing'] = (node, options) => _buildSizing(node as ast.SizingNode, options);
+  registry['styling'] = (node, options) => _buildStyling(node as ast.StylingNode, options);
+  registry['text'] = (node, options) => _buildText(node as ast.TextNode, options);
+  registry['mclass'] = (node, options) => _buildMclass(node as ast.MclassNode, options);
+  registry['overline'] = (node, options) => _buildOverline(node as ast.OverlineNode, options);
+  registry['underline'] = (node, options) => _buildUnderline(node as ast.UnderlineNode, options);
+  registry['kern'] = (node, options) => _buildKern(node as ast.KernNode, options);
+  registry['phantom'] = (node, options) => _buildPhantom(node as ast.PhantomNode, options);
+  registry['rule'] = (node, options) => _buildRule(node as ast.RuleNode, options);
 }
 
 // ---- font ----------------------------------------------------------------
@@ -113,9 +102,7 @@ Options _optionsWithFont(ast.TextNode group, Options options) {
   } else if (_textFontWeights.containsKey(font)) {
     return options.withTextFontWeight(_textFontWeights[font]!);
   } else if (font == r'\emph') {
-    return options.fontShape == 'textit'
-        ? options.withTextFontShape('textup')
-        : options.withTextFontShape('textit');
+    return options.fontShape == 'textit' ? options.withTextFontShape('textup') : options.withTextFontShape('textit');
   } else if (_textFontShapes.containsKey(font)) {
     return options.withTextFontShape(_textFontShapes[font]!);
   }
@@ -213,9 +200,7 @@ BoxNode _buildPhantom(ast.PhantomNode group, Options options) {
 BoxNode _buildRule(ast.RuleNode group, Options options) {
   final width = calculateSize(group.width, options);
   final height = calculateSize(group.height, options);
-  final shift = group.shift == null
-      ? 0.0
-      : calculateSize(group.shift!, options);
+  final shift = group.shift == null ? 0.0 : calculateSize(group.shift!, options);
   return withAtomClass(
     RuleNode(width: width, height: height - shift, depth: shift),
     'mord',

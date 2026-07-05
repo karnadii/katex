@@ -409,10 +409,7 @@ Map<String, MacroDefinition> _defineBuiltinMacros() {
     '≙',
     r'\html@mathml{\stackrel{\tiny\wedge}{=}}{\mathrel{\char`≘}}',
   );
-  defineMacro(
-    '≚',
-    r'\html@mathml{\stackrel{\tiny\vee}{=}}{\mathrel{\char`≚}}',
-  );
+  defineMacro('≚', r'\html@mathml{\stackrel{\tiny\vee}{=}}{\mathrel{\char`≚}}');
   defineMacro(
     '≛',
     r'\html@mathml{\stackrel{\scriptsize\star}{=}}'
@@ -428,10 +425,7 @@ Map<String, MacroDefinition> _defineBuiltinMacros() {
     r'\html@mathml{\stackrel{\tiny\mathrm{m}}{=}}'
         r'{\mathrel{\char`≞}}',
   );
-  defineMacro(
-    '≟',
-    r'\html@mathml{\stackrel{\tiny?}{=}}{\mathrel{\char`≟}}',
-  );
+  defineMacro('≟', r'\html@mathml{\stackrel{\tiny?}{=}}{\mathrel{\char`≟}}');
 
   // Misc Unicode
   defineMacro('⟂', r'\perp');
@@ -496,10 +490,7 @@ Map<String, MacroDefinition> _defineBuiltinMacros() {
 
   // \def\dddot#1{...} — we use \overset which avoids the \mathop vertical
   // shift.
-  defineMacro(
-    r'\dddot',
-    r'{\overset{\raisebox{-0.1ex}{\normalsize ...}}{#1}}',
-  );
+  defineMacro(r'\dddot', r'{\overset{\raisebox{-0.1ex}{\normalsize ...}}{#1}}');
   defineMacro(
     r'\ddddot',
     r'{\overset{\raisebox{-0.1ex}{\normalsize ....}}{#1}}',
@@ -882,10 +873,7 @@ Map<String, MacroDefinition> _defineBuiltinMacros() {
         ...right, ...arg, ...left, // reversed
       ]);
       context.endGroup();
-      return MacroExpansion(
-        tokens: expanded.reversed.toList(),
-        numArgs: 0,
-      );
+      return MacroExpansion(tokens: expanded.reversed.toList(), numArgs: 0);
     };
   }
 

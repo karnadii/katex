@@ -34,9 +34,9 @@ class App extends StatelessComponent {
           h1([.text('KaTeX renderer comparison')]),
           a(
             classes: 'gh-link',
-            [.text('GitHub ↗')],
             href: 'https://github.com/orestesgaolin/katex',
             attributes: const {'target': '_blank', 'rel': 'noopener noreferrer'},
+            [.text('GitHub ↗')],
           ),
         ]),
         p(classes: 'subtitle', [
@@ -60,9 +60,9 @@ class App extends StatelessComponent {
           strong([.text('katex')]),
           .text(' is a fresh Dart port of '),
           a(
-            [.text('KaTeX')],
             href: 'https://katex.org',
             attributes: const {'target': '_blank', 'rel': 'noopener'},
+            [.text('KaTeX')],
           ),
           .text('. It parses LaTeX math into a backend-agnostic '),
           strong([.text('box tree')]),
@@ -88,9 +88,9 @@ class App extends StatelessComponent {
         p([
           .text('That portable core is reused elsewhere: '),
           a(
-            [.text('mermaid dart')],
             href: 'https://orestesgaolin.github.io/mermaid/',
             attributes: const {'target': '_blank', 'rel': 'noopener noreferrer'},
+            [.text('mermaid dart')],
           ),
           .text(', a pure-Dart port of mermaid.js, renders the TeX math labels '
               'in its diagrams with '),
@@ -140,9 +140,9 @@ class App extends StatelessComponent {
           css('.header-top').styles(
             display: Display.flex,
             flexWrap: FlexWrap.wrap,
-            gap: Gap.all(12.px),
-            alignItems: AlignItems.baseline,
             justifyContent: JustifyContent.spaceBetween,
+            alignItems: AlignItems.baseline,
+            gap: Gap.all(12.px),
           ),
           css('h1').styles(
             margin: Margin.only(bottom: 4.px),
@@ -164,14 +164,14 @@ class App extends StatelessComponent {
         css('.gh-link', [
           css('&').styles(
             padding: Padding.symmetric(horizontal: 14.px, vertical: 6.px),
-            radius: BorderRadius.circular(16.px),
             border: Border.all(color: const Color('#b9ccef'), width: 1.px),
+            radius: BorderRadius.circular(16.px),
             color: const Color('#1a4fa0'),
-            backgroundColor: const Color('#ffffff'),
-            textDecoration: const TextDecoration(line: TextDecorationLine.none),
             fontSize: 0.95.rem,
             fontWeight: FontWeight.w600,
+            textDecoration: const TextDecoration(line: TextDecorationLine.none),
             whiteSpace: WhiteSpace.noWrap,
+            backgroundColor: const Color('#ffffff'),
           ),
           css('&:hover').styles(backgroundColor: const Color('#eef3ff')),
         ]),
@@ -239,6 +239,7 @@ class App extends StatelessComponent {
             border: Border.only(
               bottom: BorderSide(color: const Color('#eee'), width: 1.px),
             ),
+            alignItems: AlignItems.stretch,
             gridTemplate: GridTemplate(
               columns: GridTracks([
                 GridTrack(TrackSize.fr(1.2)),
@@ -248,14 +249,13 @@ class App extends StatelessComponent {
               ]),
             ),
             gap: Gap.all(8.px),
-            alignItems: AlignItems.stretch,
           ),
           // Column 1: TeX source.
           css('.cmp-source').styles(
             display: Display.flex,
             padding: Padding.symmetric(horizontal: 4.px),
-            alignItems: AlignItems.center,
             flexWrap: FlexWrap.wrap,
+            alignItems: AlignItems.center,
             fontSize: 0.8.rem,
           ),
           css('.cmp-source code').styles(
@@ -297,10 +297,10 @@ class App extends StatelessComponent {
           css('.flutter-cell', [
             css('&').styles(
               display: Display.block,
+              position: const Position.relative(),
               minHeight: kRowMinHeight.px,
               padding: Padding.zero,
               overflow: Overflow.visible,
-              position: const Position.relative(),
             ),
             // FlutterEmbedView wrapper (div) + the loading placeholder.
             css('& > *').styles(width: 100.percent, height: 100.percent),
@@ -317,8 +317,8 @@ class App extends StatelessComponent {
           css('&').styles(
             margin: Margin.symmetric(horizontal: 4.px),
             color: const Color('#999'),
-            textDecoration: const TextDecoration(line: TextDecorationLine.none),
             fontSize: 0.7.rem,
+            textDecoration: const TextDecoration(line: TextDecorationLine.none),
           ),
           css('&:hover').styles(
             color: const Color('#cc0000'),
@@ -343,8 +343,8 @@ class App extends StatelessComponent {
         ]),
         // Footer (shared shape with the mermaid site).
         css('.foot').styles(
-          margin: Margin.only(top: 32.px),
           padding: Padding.only(top: 16.px),
+          margin: Margin.only(top: 32.px),
           border: Border.only(
             top: BorderSide(color: const Color('#e2e2e2'), width: 1.px),
           ),

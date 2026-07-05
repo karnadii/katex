@@ -10,8 +10,7 @@
 library;
 
 import 'package:flutter/widgets.dart';
-import 'package:katex/src/math_widget.dart'
-    show Math, kDefaultMathFontSize;
+import 'package:katex/src/math_widget.dart' show Math, kDefaultMathFontSize;
 import 'package:katex/src/render/box_painter.dart';
 import 'package:katex_dart/katex_dart.dart';
 
@@ -115,8 +114,7 @@ class AnimatedMath extends StatefulWidget {
   State<AnimatedMath> createState() => _AnimatedMathState();
 }
 
-class _AnimatedMathState extends State<AnimatedMath>
-    with SingleTickerProviderStateMixin {
+class _AnimatedMathState extends State<AnimatedMath> with SingleTickerProviderStateMixin {
   /// The controller we created ourselves, or `null` when the caller supplied
   /// one via [AnimatedMath.controller].
   AnimationController? _internal;
@@ -139,8 +137,7 @@ class _AnimatedMathState extends State<AnimatedMath>
 
   /// The reveal curve — forced linear under [AnimatedMath.stepDuration] so each
   /// element gets an equal real-time slice.
-  Curve get _curve =>
-      widget.stepDuration != null ? Curves.linear : widget.curve;
+  Curve get _curve => widget.stepDuration != null ? Curves.linear : widget.curve;
 
   @override
   void initState() {
@@ -224,23 +221,23 @@ class _AnimatedMathState extends State<AnimatedMath>
     }
 
     // Re-parse (and recount) when anything baked into the box tree changes.
-    final boxChanged = widget.tex != oldWidget.tex ||
+    final boxChanged =
+        widget.tex != oldWidget.tex ||
         widget.displayMode != oldWidget.displayMode ||
         widget.color != oldWidget.color ||
         widget.throwOnError != oldWidget.throwOnError;
     if (boxChanged) {
       _parse();
     }
-    if (_curve != (oldWidget.stepDuration != null
-        ? Curves.linear
-        : oldWidget.curve)) {
+    if (_curve != (oldWidget.stepDuration != null ? Curves.linear : oldWidget.curve)) {
       _curved.dispose();
       _curved = CurvedAnimation(parent: _controller, curve: _curve);
     }
 
     // Replay when the content, direction, or pacing changes (internal
     // controller only — an external controller is the caller's to drive).
-    final replay = boxChanged ||
+    final replay =
+        boxChanged ||
         widget.mode != oldWidget.mode ||
         widget.stepDuration != oldWidget.stepDuration ||
         widget.duration != oldWidget.duration;
@@ -265,9 +262,7 @@ class _AnimatedMathState extends State<AnimatedMath>
 
   @override
   Widget build(BuildContext context) {
-    final baseColor = widget.color ??
-        DefaultTextStyle.of(context).style.color ??
-        const Color(0xFF000000);
+    final baseColor = widget.color ?? DefaultTextStyle.of(context).style.color ?? const Color(0xFF000000);
     final fontSizePx = widget.fontSize ?? kDefaultMathFontSize;
 
     final box = _box;
@@ -302,10 +297,7 @@ class _AnimatedMathState extends State<AnimatedMath>
     if (widget.onError != null) {
       return widget.onError!(context, error);
     }
-    return Text(
-      widget.tex,
-      style: const TextStyle(color: Color(0xFFCC0000)),
-    );
+    return Text(widget.tex, style: const TextStyle(color: Color(0xFFCC0000)));
   }
 
   /// Converts a Flutter [Color] to the `#rrggbb` CSS string [KatexOptions]

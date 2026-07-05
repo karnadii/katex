@@ -120,14 +120,15 @@ void ensureMacrosRegistered() {
       }
       number = first;
       int? digit;
-      while ((digit = _digitToNumber[context.future().text]) != null &&
-          digit! < base) {
+      while ((digit = _digitToNumber[context.future().text]) != null && digit! < base) {
         number *= base;
         number += digit;
         context.popToken();
       }
     }
-    return r'\@char{' '$number' '}';
+    return r'\@char{'
+        '$number'
+        '}';
   });
 
   // \newcommand / \renewcommand / \providecommand.
@@ -193,13 +194,17 @@ String _newcommand(
   final exists = context.isDefined(name);
   if (exists && !existsOK) {
     throw ParseError(
-      r'\newcommand{' '$name' '} attempting to redefine $name; '
+      r'\newcommand{'
+      '$name'
+      '} attempting to redefine $name; '
       r'use \renewcommand',
     );
   }
   if (!exists && !nonexistsOK) {
     throw ParseError(
-      r'\renewcommand{' '$name' '} when command $name does not yet exist; '
+      r'\renewcommand{'
+      '$name'
+      '} when command $name does not yet exist; '
       r'use \newcommand',
     );
   }

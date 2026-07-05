@@ -15,21 +15,16 @@ import 'package:katex_dart/src/types.dart';
 
 /// Registers the symbol/ordgroup builders into [registry].
 void registerSymbolBuilders(Map<String, GroupBuilder> registry) {
-  registry['ordgroup'] = (node, options) =>
-      _buildOrdgroup(node as OrdGroupNode, options);
-  registry['mathord'] = (node, options) =>
-      _buildOrd(node, options, isTextord: false);
-  registry['textord'] = (node, options) =>
-      _buildOrd(node, options, isTextord: true);
+  registry['ordgroup'] = (node, options) => _buildOrdgroup(node as OrdGroupNode, options);
+  registry['mathord'] = (node, options) => _buildOrd(node, options, isTextord: false);
+  registry['textord'] = (node, options) => _buildOrd(node, options, isTextord: true);
   registry['atom'] = (node, options) => _buildAtom(node as AtomNode, options);
-  registry['spacing'] = (node, options) =>
-      _buildSpacing(node as SpacingNode, options);
+  registry['spacing'] = (node, options) => _buildSpacing(node as SpacingNode, options);
 }
 
 // A "tight" expression is script/scriptscript style; KaTeX marks such nodes
 // `mtight` so spacing uses the tight table.
-List<String> _maybeTight(Options options) =>
-    options.style.isTight() ? const ['mtight'] : const [];
+List<String> _maybeTight(Options options) => options.style.isTight() ? const ['mtight'] : const [];
 
 BoxNode _buildOrdgroup(OrdGroupNode group, Options options) {
   if (group.semisimple ?? false) {
@@ -96,11 +91,7 @@ BoxNode _buildSpacing(SpacingNode group, Options options) {
       );
     }
     final sym = mathsym(group.text, group.mode, options);
-    return makeSpan(
-      [if (sym != null) sym],
-      classes: ['mspace', ...extra],
-      options: options,
-    );
+    return makeSpan([?sym], classes: ['mspace', ...extra], options: options);
   } else if (_cssSpace.containsKey(group.text)) {
     return makeSpan(
       const [],

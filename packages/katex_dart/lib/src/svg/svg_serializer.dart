@@ -248,8 +248,7 @@ class _SvgSerializer {
     // \phase: the Steinmetz angle — a diagonal stroke from the top down to the
     // bottom-left corner joined to a horizontal stroke along the bottom. KaTeX
     // draws this as the filled `phasePath` SVG; geometrically it is this angle.
-    if (node.notations.contains(EncloseNotation.phase) &&
-        node.phaseLineWidth != null) {
+    if (node.notations.contains(EncloseNotation.phase) && node.phaseLineWidth != null) {
       final lw = node.phaseLineWidth! * fontSize;
       // Apex near the top-left; diagonal down to the bottom-left corner.
       _line(h / 2, top + lw / 2, lw / 2, top + h - lw / 2, lw, strike);
@@ -389,9 +388,7 @@ class _SvgSerializer {
 
   void _writeSpan(SpanNode node) {
     final hasColor = node.color != null && node.color!.isNotEmpty;
-    final classes = node.classes.isEmpty
-        ? ''
-        : ' class="${_escapeAttr(node.classes.join(' '))}"';
+    final classes = node.classes.isEmpty ? '' : ' class="${_escapeAttr(node.classes.join(' '))}"';
     if (hasColor || classes.isNotEmpty) {
       _buf.write('<g');
       if (hasColor) {
@@ -516,16 +513,11 @@ class _SvgSerializer {
     return s;
   }
 
-  String _escapeText(String s) => s
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;');
+  String _escapeText(String s) => s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 
   String _escapeAttr(String s) => _escapeText(s).replaceAll('"', '&quot;');
 
   /// The escaped stroke color for [color], or `currentColor` when it is null
   /// or empty (matching CSS's inherited-color default for enclose strokes).
-  String _strokeOr(String? color) => (color != null && color.isNotEmpty)
-      ? _escapeAttr(color)
-      : 'currentColor';
+  String _strokeOr(String? color) => (color != null && color.isNotEmpty) ? _escapeAttr(color) : 'currentColor';
 }

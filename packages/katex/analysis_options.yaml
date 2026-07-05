@@ -1,5 +1,9 @@
-include: package:very_good_analysis/analysis_options.yaml
+include: package:flutter_lints/flutter.yaml
 
 linter:
   rules:
     public_member_api_docs: false
+
+formatter:
+  trailing_commas: preserve
+  page_width: 120

@@ -42,8 +42,7 @@ void registerDelimiterBuilders(Map<String, GroupBuilder> registry) {
     );
   };
   // 'leftright' is registered here too, since it depends on the delim makers.
-  registry['leftright'] = (node, options) =>
-      _buildLeftRight(node as LeftRightNode, options);
+  registry['leftright'] = (node, options) => _buildLeftRight(node as LeftRightNode, options);
 }
 
 // Replacement of < / > with angle brackets in delimiters.
@@ -69,8 +68,7 @@ CharacterMetrics _getMetrics(String symbol, String font, Mode mode) {
 
 /// A null (empty) delimiter — reserves no visible glyph. Port of KaTeX's
 /// `makeNullDelimiter`.
-BoxNode makeNullDelimiter(Options options) =>
-    makeSpan(const [], classes: const ['nulldelimiter']);
+BoxNode makeNullDelimiter(Options options) => makeSpan(const [], classes: const ['nulldelimiter']);
 
 // Small delimiter: Main-Regular restyled to a (base) style. We bake the style
 // size scaling into the glyph by building it at the styled size.
@@ -83,7 +81,7 @@ BoxNode _makeSmallDelim(
 ) {
   final styled = options.havingBaseStyle(style);
   final glyph = makeSymbol(delim, 'Main-Regular', mode, options: styled);
-  final span = makeSpan([if (glyph != null) glyph], options: styled);
+  final span = makeSpan([?glyph], options: styled);
   return center ? _centerSpan(span, options, style) : span;
 }
 
@@ -98,7 +96,7 @@ BoxNode _makeLargeDelim(
   final styled = options.havingBaseStyle(Style.TEXT);
   final glyph = makeSymbol(delim, 'Size$size-Regular', mode, options: styled);
   final span = makeSpan(
-    [if (glyph != null) glyph],
+    [?glyph],
     classes: ['delimsizing', 'size$size'],
     options: styled,
   );
@@ -278,8 +276,7 @@ BoxNode? _makeStackedDelim(
     0,
     ((heightTotal - minHeight) / (middleFactor * repeatHeightTotal)).ceil(),
   );
-  final realHeightTotal =
-      minHeight + repeatCount * middleFactor * repeatHeightTotal;
+  final realHeightTotal = minHeight + repeatCount * middleFactor * repeatHeightTotal;
 
   var axisHeight = options.fontMetrics().axisHeight;
   if (center) {
@@ -316,9 +313,7 @@ BoxNode? _makeStackedDelim(
 // the glyph centers on the axis.
 BoxNode _centerSpan(BoxNode span, Options options, Style style) {
   final newOptions = options.havingBaseStyle(style);
-  final shift =
-      (1 - options.sizeMultiplier / newOptions.sizeMultiplier) *
-      options.fontMetrics().axisHeight;
+  final shift = (1 - options.sizeMultiplier / newOptions.sizeMultiplier) * options.fontMetrics().axisHeight;
   if (shift == 0) {
     return span;
   }
@@ -490,8 +485,7 @@ const List<double> sizeToMaxHeight = [0, 1.2, 1.8, 2.4, 3.0];
 /// Builds a manually-sized delimiter (`\bigl` etc.). Port of `makeSizedDelim`.
 BoxNode makeSizedDelim(String delimRaw, int size, Options options, Mode mode) {
   final delim = _normalizeDelim(delimRaw);
-  if (_stackLargeDelimiters.contains(delim) ||
-      _stackNeverDelimiters.contains(delim)) {
+  if (_stackLargeDelimiters.contains(delim) || _stackNeverDelimiters.contains(delim)) {
     return _makeLargeDelim(delim, size, false, options, mode);
   }
   // stackAlways delimiters: real stacked SVG geometry where available, else the
@@ -567,9 +561,7 @@ BoxNode _buildLeftRight(LeftRightNode group, Options options) {
   if (group.right == '.') {
     rightDelim = makeNullDelimiter(options);
   } else {
-    final rightOptions = group.rightColor != null
-        ? options.withColor(group.rightColor!)
-        : options;
+    final rightOptions = group.rightColor != null ? options.withColor(group.rightColor!) : options;
     rightDelim = makeLeftRightDelim(
       group.right,
       innerHeight,

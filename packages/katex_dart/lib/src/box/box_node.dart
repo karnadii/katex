@@ -47,16 +47,13 @@ sealed class BoxNode {
 }
 
 /// Sum of the widths of [children] (horizontal advance of a row).
-double _sumWidth(List<BoxNode> children) =>
-    children.fold<double>(0, (sum, c) => sum + c.width);
+double _sumWidth(List<BoxNode> children) => children.fold<double>(0, (sum, c) => sum + c.width);
 
 /// Greatest height among [children] (0 when empty).
-double _maxHeight(List<BoxNode> children) =>
-    children.fold<double>(0, (m, c) => math.max(m, c.height));
+double _maxHeight(List<BoxNode> children) => children.fold<double>(0, (m, c) => math.max(m, c.height));
 
 /// Greatest depth among [children] (0 when empty).
-double _maxDepth(List<BoxNode> children) =>
-    children.fold<double>(0, (m, c) => math.max(m, c.depth));
+double _maxDepth(List<BoxNode> children) => children.fold<double>(0, (m, c) => math.max(m, c.depth));
 
 /// A single character drawn from a KaTeX font.
 ///
@@ -191,8 +188,7 @@ class HBox extends BoxNode {
   double get depth => _maxDepth(children);
 
   @override
-  String toString() =>
-      'HBox(${children.length} children, $_dims)';
+  String toString() => 'HBox(${children.length} children, $_dims)';
 }
 
 /// A fixed-width horizontal gap (kerning/glue).
@@ -296,8 +292,7 @@ class VListPosition {
   final double shift;
 
   @override
-  String toString() =>
-      'VListPosition($box, shift: ${shift.toStringAsFixed(4)})';
+  String toString() => 'VListPosition($box, shift: ${shift.toStringAsFixed(4)})';
 }
 
 /// A vertical list: boxes stacked along the vertical axis at explicit shifts.
@@ -392,9 +387,7 @@ class VList extends BoxNode {
       case VListPositionType.top:
         var bottom = positionData;
         for (final child in children) {
-          bottom -= child.isKern
-              ? child.size
-              : child.elem!.height + child.elem!.depth;
+          bottom -= child.isKern ? child.size : child.elem!.height + child.elem!.depth;
         }
         depth = bottom;
       case VListPositionType.bottom:
@@ -457,8 +450,7 @@ class VList extends BoxNode {
   }
 
   @override
-  String toString() =>
-      'VList(${children.length} children, $_dims)';
+  String toString() => 'VList(${children.length} children, $_dims)';
 }
 
 /// A filled rectangle: fraction bars, sqrt lines, underlines, etc.
@@ -489,8 +481,7 @@ class RuleNode extends BoxNode {
   final bool isDashed;
 
   @override
-  String toString() =>
-      'RuleNode($_dims${isDashed ? ', dashed' : ''})';
+  String toString() => 'RuleNode($_dims${isDashed ? ', dashed' : ''})';
 }
 
 /// A notation drawn by an [EncloseNode] (KaTeX `<menclose>` notations).
@@ -632,8 +623,7 @@ class ImageNode extends BoxNode {
   final double depth;
 
   @override
-  String toString() =>
-      'ImageNode($src, $_dims)';
+  String toString() => 'ImageNode($src, $_dims)';
 }
 
 /// A wrapper node carrying presentation metadata (color, classes, sizing).
@@ -772,8 +762,7 @@ class SvgPathNode extends BoxNode {
   /// The viewBox as the SVG `viewBox` attribute string (`0 0 w h`).
   String get viewBox => '0 0 ${_n(viewBoxWidth)} ${_n(viewBoxHeight)}';
 
-  static String _n(double v) =>
-      v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toString();
+  static String _n(double v) => v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toString();
 
   @override
   String toString() =>

@@ -71,10 +71,7 @@ class SymbolData {
 
   @override
   bool operator ==(Object other) =>
-      other is SymbolData &&
-      other.font == font &&
-      other.group == group &&
-      other.replace == replace;
+      other is SymbolData && other.font == font && other.group == group && other.replace == replace;
 
   @override
   int get hashCode => Object.hash(font, group, replace);

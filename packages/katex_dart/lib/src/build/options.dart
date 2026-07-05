@@ -44,8 +44,7 @@ const List<double> _sizeMultipliers = [
   2.488,
 ];
 
-int _sizeAtStyle(int size, Style style) =>
-    style.size < 2 ? size : _sizeStyleMap[size - 1][style.size - 1];
+int _sizeAtStyle(int size, Style style) => style.size < 2 ? size : _sizeStyleMap[size - 1][style.size - 1];
 
 /// The main build options class, holding the current [style], color, size, and
 /// font selection. A faithful port of KaTeX's `Options`.
@@ -129,8 +128,7 @@ class Options {
 
   /// Clamps a rule [thickness] up to [minRuleThickness] (KaTeX floors every
   /// fraction bar / frame / array rule at the configured minimum).
-  double floorRuleThickness(double thickness) =>
-      thickness > minRuleThickness ? thickness : minRuleThickness;
+  double floorRuleThickness(double thickness) => thickness > minRuleThickness ? thickness : minRuleThickness;
 
   /// Returns a new options object with the same properties as `this`, with the
   /// given non-null overrides applied. Mirrors KaTeX's `extend`.
@@ -224,16 +222,13 @@ class Options {
   Options withFont(String font) => extend(font: font);
 
   /// Returns options with the given text [fontFamily] (clears [font]).
-  Options withTextFontFamily(String fontFamily) =>
-      extend(fontFamily: fontFamily, font: '');
+  Options withTextFontFamily(String fontFamily) => extend(fontFamily: fontFamily, font: '');
 
   /// Returns options with the given text [fontWeight] (clears [font]).
-  Options withTextFontWeight(String fontWeight) =>
-      extend(fontWeight: fontWeight, font: '');
+  Options withTextFontWeight(String fontWeight) => extend(fontWeight: fontWeight, font: '');
 
   /// Returns options with the given text [fontShape] (clears [font]).
-  Options withTextFontShape(String fontShape) =>
-      extend(fontShape: fontShape, font: '');
+  Options withTextFontShape(String fontShape) => extend(fontShape: fontShape, font: '');
 
   /// The global font metrics for the current [size] (KaTeX `fontMetrics`).
   FontMetrics fontMetrics() => getGlobalMetrics(size);

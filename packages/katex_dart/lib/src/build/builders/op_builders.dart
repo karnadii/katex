@@ -9,8 +9,7 @@ import 'package:katex_dart/src/ast/parse_node.dart' hide KernNode, RuleNode;
 import 'package:katex_dart/src/box/box_node.dart';
 import 'package:katex_dart/src/build/build_common.dart';
 import 'package:katex_dart/src/build/build_expression.dart';
-import 'package:katex_dart/src/build/builders/supsub_builder.dart'
-    show isCharacterBox;
+import 'package:katex_dart/src/build/builders/supsub_builder.dart' show isCharacterBox;
 import 'package:katex_dart/src/build/options.dart';
 import 'package:katex_dart/src/build/style.dart';
 import 'package:katex_dart/src/types.dart';
@@ -18,8 +17,7 @@ import 'package:katex_dart/src/types.dart';
 /// Registers the op/operatorname builders into [registry].
 void registerOpBuilders(Map<String, GroupBuilder> registry) {
   registry['op'] = (node, options) => _buildOp(node as OpNode, options);
-  registry['operatorname'] = (node, options) =>
-      _buildOperatorName(node as OperatorNameNode, options);
+  registry['operatorname'] = (node, options) => _buildOperatorName(node as OperatorNameNode, options);
 }
 
 const Set<String> _noSuccessor = {r'\smallint'};
@@ -36,9 +34,7 @@ class _OpBase {
 _OpBase _buildOpBase(OpNode group, Options options) {
   final style = options.style;
   var large = false;
-  if (style.size == Style.DISPLAY.size &&
-      group.symbol &&
-      !_noSuccessor.contains(group.name)) {
+  if (style.size == Style.DISPLAY.size && group.symbol && !_noSuccessor.contains(group.name)) {
     large = true;
   }
 
@@ -73,8 +69,7 @@ _OpBase _buildOpBase(OpNode group, Options options) {
   var baseShift = 0.0;
   var slant = 0.0;
   if (group.symbol && !(group.suppressBaseShift ?? false)) {
-    baseShift =
-        (base.height - base.depth) / 2 - options.fontMetrics().axisHeight;
+    baseShift = (base.height - base.depth) / 2 - options.fontMetrics().axisHeight;
     slant = italic;
   }
   return _OpBase(base, slant, baseShift, italic);
@@ -112,10 +107,7 @@ BoxNode buildOpSupSub(SupSubNode grp, Options options) {
   // Mirror supsub.js's htmlBuilderDelegate: limits ops stack above/below when
   // in displaystyle or when they always handle their own scripts; otherwise
   // the scripts render to the side (the nolimits / integral case).
-  final useLimits =
-      group.limits &&
-      (options.style.size == Style.DISPLAY.size ||
-          (group.alwaysHandleSupSub ?? false));
+  final useLimits = group.limits && (options.style.size == Style.DISPLAY.size || (group.alwaysHandleSupSub ?? false));
 
   if (useLimits) {
     return _assembleSupSub(
@@ -139,11 +131,7 @@ BoxNode buildOpSupSub(SupSubNode grp, Options options) {
 // supsub builder can't see the glyph's italic correction; we apply it here as
 // the subscript's left margin (KaTeX's `marginLeft = -base.italic`) so the
 // subscript tucks under the slanted integral sign instead of overlapping it.
-BoxNode _buildOpSideSupSub(
-  SupSubNode grp,
-  _OpBase opBase,
-  Options options,
-) {
+BoxNode _buildOpSideSupSub(SupSubNode grp, _OpBase opBase, Options options) {
   final metrics = options.fontMetrics();
   // The op base carries its own vertical centering (baseShift) inside its box,
   // so we treat it as the supsub base directly. (KaTeX applies baseShift to the
@@ -161,21 +149,13 @@ BoxNode _buildOpSideSupSub(
     final newOptions = options.havingStyle(options.style.sup());
     supm = buildGroup(grp.sup, newOptions, options);
     // Rule 18a: the op base is never a character box.
-    supShift =
-        base.height -
-        newOptions.fontMetrics()['supDrop'] *
-            newOptions.sizeMultiplier /
-            options.sizeMultiplier;
+    supShift = base.height - newOptions.fontMetrics()['supDrop'] * newOptions.sizeMultiplier / options.sizeMultiplier;
   }
 
   if (grp.sub != null) {
     final newOptions = options.havingStyle(options.style.sub());
     subm = buildGroup(grp.sub, newOptions, options);
-    subShift =
-        base.depth +
-        newOptions.fontMetrics()['subDrop'] *
-            newOptions.sizeMultiplier /
-            options.sizeMultiplier;
+    subShift = base.depth + newOptions.fontMetrics()['subDrop'] * newOptions.sizeMultiplier / options.sizeMultiplier;
   }
 
   // Rule 18c: minimum sup shift.
@@ -361,13 +341,7 @@ BoxNode _assembleSupSub(
 
   final BoxNode finalGroup;
   if (supC != null && subC != null) {
-    final bottom =
-        fm.bigOpSpacing5 +
-        subElem!.height +
-        subElem.depth +
-        subKern +
-        base.depth +
-        baseShift;
+    final bottom = fm.bigOpSpacing5 + subElem!.height + subElem.depth + subKern + base.depth + baseShift;
     finalGroup = makeVList(
       positionType: VListPositionType.bottom,
       positionData: bottom,

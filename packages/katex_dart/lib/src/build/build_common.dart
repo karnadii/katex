@@ -91,8 +91,7 @@ GlyphNode? makeSymbol(
 GlyphNode? mathsym(String value, Mode mode, Options options) {
   // Special-case for boldsymbol with bold +/-, and for the `\` textord which
   // is not in the text symbol table.
-  if (options.font == 'boldsymbol' &&
-      lookupSymbol(value, 'Main-Bold', mode).metrics != null) {
+  if (options.font == 'boldsymbol' && lookupSymbol(value, 'Main-Bold', mode).metrics != null) {
     return makeSymbol(value, 'Main-Bold', mode, options: options);
   }
   final entry = Symbols.lookup(mode, value);
@@ -123,8 +122,7 @@ class _BoldSymbol {
 /// Faithful port of KaTeX's `boldSymbol`: choose `Math-BoldItalic`/`boldsymbol`
 /// when available, else fall back to `Main-Bold`/`mathbf`.
 _BoldSymbol _boldSymbol(String value, Mode mode, bool isTextord) {
-  if (!isTextord &&
-      lookupSymbol(value, 'Math-BoldItalic', mode).metrics != null) {
+  if (!isTextord && lookupSymbol(value, 'Math-BoldItalic', mode).metrics != null) {
     return const _BoldSymbol('Math-BoldItalic', 'boldsymbol');
   }
   return const _BoldSymbol('Main-Bold', 'mathbf');

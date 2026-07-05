@@ -50,8 +50,7 @@ Future<({ByteData rgba, int width, int height})> _rasterizeReveal(
     ),
   );
   await tester.pumpAndSettle();
-  final boundary =
-      key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+  final boundary = key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
   final result = await tester.runAsync(() async {
     final image = await boundary.toImage();
     final bytes = (await image.toByteData())!;
@@ -66,14 +65,10 @@ int _inkCount(
   required Rect region,
 }) {
   var count = 0;
-  for (var y = region.top.floor(); y < region.bottom.ceil() && y < img.height;
-      y++) {
-    for (var x = region.left.floor(); x < region.right.ceil() && x < img.width;
-        x++) {
+  for (var y = region.top.floor(); y < region.bottom.ceil() && y < img.height; y++) {
+    for (var x = region.left.floor(); x < region.right.ceil() && x < img.width; x++) {
       final i = (y * img.width + x) * 4;
-      if (img.rgba.getUint8(i) < 250 ||
-          img.rgba.getUint8(i + 1) < 250 ||
-          img.rgba.getUint8(i + 2) < 250) {
+      if (img.rgba.getUint8(i) < 250 || img.rgba.getUint8(i + 1) < 250 || img.rgba.getUint8(i + 2) < 250) {
         count++;
       }
     }
@@ -82,8 +77,9 @@ int _inkCount(
 }
 
 void main() {
-  testWidgets('renders and runs a left-to-right reveal without error',
-      (tester) async {
+  testWidgets('renders and runs a left-to-right reveal without error', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       const MaterialApp(home: Center(child: AnimatedMath(r'\frac{a}{b}'))),
     );
@@ -147,10 +143,7 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(
         home: Center(
-          child: AnimatedMath(
-            'a',
-            duration: Duration(milliseconds: 200),
-          ),
+          child: AnimatedMath('a', duration: Duration(milliseconds: 200)),
         ),
       ),
     );
@@ -160,10 +153,7 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(
         home: Center(
-          child: AnimatedMath(
-            'b',
-            duration: Duration(milliseconds: 200),
-          ),
+          child: AnimatedMath('b', duration: Duration(milliseconds: 200)),
         ),
       ),
     );
@@ -182,9 +172,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: Center(
-          child: AnimatedMath('x^2', controller: controller),
-        ),
+        home: Center(child: AnimatedMath('x^2', controller: controller)),
       ),
     );
 
@@ -215,8 +203,9 @@ void main() {
   });
 
   group('step pacing (stepDuration)', () {
-    testWidgets('reveals one element per step, sized to element count',
-        (tester) async {
+    testWidgets('reveals one element per step, sized to element count', (
+      tester,
+    ) async {
       // 'a + b' → glyphs a, +, b = 3 revealable leaves.
       const tex = 'a + b';
       final n = countRevealableLeaves(renderToBox(tex));
@@ -225,10 +214,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Center(
-            child: AnimatedMath(
-              tex,
-              stepDuration: Duration(seconds: 1),
-            ),
+            child: AnimatedMath(tex, stepDuration: Duration(seconds: 1)),
           ),
         ),
       );
@@ -246,8 +232,9 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('step pacing settles cleanly for every directional mode',
-        (tester) async {
+    testWidgets('step pacing settles cleanly for every directional mode', (
+      tester,
+    ) async {
       for (final mode in [
         MathAnimationMode.leftToRight,
         MathAnimationMode.rightToLeft,
@@ -310,8 +297,9 @@ void main() {
       );
     });
 
-    testWidgets('fully revealed at t=1 matches a static render',
-        (tester) async {
+    testWidgets('fully revealed at t=1 matches a static render', (
+      tester,
+    ) async {
       final animated = await _rasterizeReveal(
         tester,
         tex,

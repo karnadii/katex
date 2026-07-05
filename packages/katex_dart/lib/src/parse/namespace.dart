@@ -73,8 +73,7 @@ class Namespace<Value> {
 
   /// Detect whether [name] has a definition. Equivalent to
   /// `get(name) != null`.
-  bool has(String name) =>
-      current.containsKey(name) || builtins.containsKey(name);
+  bool has(String name) => current.containsKey(name) || builtins.containsKey(name);
 
   /// Get the current value of [name], or `null` if there is no value.
   ///

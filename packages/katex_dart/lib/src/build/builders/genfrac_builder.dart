@@ -13,8 +13,7 @@ import 'package:katex_dart/src/build/style.dart';
 
 /// Registers the genfrac builder into [registry].
 void registerGenfracBuilder(Map<String, GroupBuilder> registry) {
-  registry['genfrac'] = (node, options) =>
-      _buildGenfrac(node as GenfracNode, options);
+  registry['genfrac'] = (node, options) => _buildGenfrac(node as GenfracNode, options);
 }
 
 BoxNode _buildGenfrac(GenfracNode group, Options options) {
@@ -92,8 +91,7 @@ BoxNode _buildGenfrac(GenfracNode group, Options options) {
   final BoxNode frac;
   if (rule == null) {
     // Rule 15c.
-    final candidateClearance =
-        (numShift - numerm.depth) - (denomm.height - denomShift);
+    final candidateClearance = (numShift - numerm.depth) - (denomm.height - denomShift);
     if (candidateClearance < clearance) {
       numShift += 0.5 * (clearance - candidateClearance);
       denomShift += 0.5 * (clearance - candidateClearance);
@@ -108,17 +106,11 @@ BoxNode _buildGenfrac(GenfracNode group, Options options) {
   } else {
     // Rule 15d.
     final axisHeight = options.fontMetrics().axisHeight;
-    if ((numShift - numerm.depth) - (axisHeight + 0.5 * ruleWidth) <
-        clearance) {
-      numShift +=
-          clearance -
-          ((numShift - numerm.depth) - (axisHeight + 0.5 * ruleWidth));
+    if ((numShift - numerm.depth) - (axisHeight + 0.5 * ruleWidth) < clearance) {
+      numShift += clearance - ((numShift - numerm.depth) - (axisHeight + 0.5 * ruleWidth));
     }
-    if ((axisHeight - 0.5 * ruleWidth) - (denomm.height - denomShift) <
-        clearance) {
-      denomShift +=
-          clearance -
-          ((axisHeight - 0.5 * ruleWidth) - (denomm.height - denomShift));
+    if ((axisHeight - 0.5 * ruleWidth) - (denomm.height - denomShift) < clearance) {
+      denomShift += clearance - ((axisHeight - 0.5 * ruleWidth) - (denomm.height - denomShift));
     }
     final midShift = -(axisHeight - 0.5 * ruleWidth);
     // The rule has zero width from makeLineSpan; stretch it to the wider of

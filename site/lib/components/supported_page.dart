@@ -251,8 +251,8 @@ class SupportedPage extends StatelessComponent {
         css('.cell-cmd .issue-link').styles(
           margin: Margin.only(left: 6.px),
           color: const Color('#bbb'),
-          textDecoration: const TextDecoration(line: TextDecorationLine.none),
           fontSize: 0.75.rem,
+          textDecoration: const TextDecoration(line: TextDecorationLine.none),
         ),
       ];
 }
