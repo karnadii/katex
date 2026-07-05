@@ -5,6 +5,9 @@ A pure-Dart port of [KaTeX](https://katex.org). Parses LaTeX math into a backend
 server, and web/SSR contexts. For a Flutter widget, see
 [`katex`](https://pub.dev/packages/katex).
 
+
+See demo at [roszkowski.dev/katex](https://roszkowski.dev/katex).
+
 ## Usage
 
 ```dart
