@@ -33,3 +33,8 @@ identically.
 ## License
 
 MIT — see `LICENSE`. Ported from KaTeX (MIT). Bundled fonts are SIL OFL (`fonts/OFL.txt`).
+
+
+## Previous katex library
+
+The previous `katex` library is now deprecated and available [on GitHub](https://github.com/motorcityadam/katex.dart). The previous library was a wrapper around the original KaTeX JavaScript library. Thank you, Adam, for handing over the package to me. The new `katex` library is a pure Dart implementation of KaTeX, with no JavaScript dependency.
