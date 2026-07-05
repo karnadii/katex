@@ -16,10 +16,10 @@ ways side by side (KaTeX JS · katex Dart→SVG · katex_flutter), with a live e
 
 ## Packages
 
-| Package | Path | Description |
-|---------|------|-------------|
-| `katex` | [`packages/katex`](packages/katex) | Pure Dart, zero Flutter dep. Parser → box tree → SVG. |
-| `katex_flutter` | [`packages/katex_flutter`](packages/katex_flutter) | Flutter widget painting the box tree. |
+| Package         | Path                                               | Description                                           |
+| --------------- | -------------------------------------------------- | ----------------------------------------------------- |
+| `katex`         | [`packages/katex`](packages/katex)                 | Pure Dart, zero Flutter dep. Parser → box tree → SVG. |
+| `katex_flutter` | [`packages/katex_flutter`](packages/katex_flutter) | Flutter widget painting the box tree.                 |
 
 ## Reference oracle
 
@@ -44,19 +44,19 @@ Two established options take very different approaches from this one.
 [`flutter_math`](https://github.com/simpleclub/flutter_math) (now unmaintained) and its active
 community fork [`flutter_math_fork`](https://pub.dev/packages/flutter_math_fork) are the closest
 analog: like this project, **their TeX parser is a Dart port of KaTeX's parser**. The two diverge in
-*how they render*, which is the main reason this project exists.
+_how they render_, which is the main reason this project exists.
 
-| | flutter_math(_fork) | this project (`katex` + `katex_flutter`) |
-|---|---|---|
-| TeX parser | KaTeX parser ported to Dart | KaTeX parser freshly ported to Dart |
-| Layout / rendering | KaTeX layout reimplemented directly on Flutter **`RenderObject`s** | KaTeX layout ported to a **backend-agnostic box tree**, then SVG *or* a Flutter painter |
-| Runs without Flutter | No — Flutter-coupled | **Yes** — pure-Dart `katex` renders to **SVG** with zero Flutter dependency (CLI / server / web / SSR) |
-| Output targets | Flutter widgets only | **SVG** (pure Dart) **and** a Flutter widget |
-| Flutter web | tested on the legacy DomCanvas renderer; ["expected to break with CanvasKit"](https://github.com/simpleclub/flutter_math) | renders on **CanvasKit** (`TextPainter` + `Canvas`); the demo site embeds it via CanvasKit |
-| Selection / copy / TeX round-trip | **Yes** (`SelectableMath`, experimental) | not yet |
-| Coverage / maturity | **mature** — near-complete KaTeX coverage, years of development | **MVP** — broad but still growing (stretchy geometry, full macro set, more environments are incremental) |
-| Verification | — | layout **verified against original KaTeX** — per-box dimensions vs a pinned-KaTeX oracle (26/26), plus visual diffs |
-| Maintenance | original unmaintained; fork active | new / active |
+|                                   | flutter_math(\_fork)                                                                                                      | this project (`katex` + `katex_flutter`)                                                                            |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| TeX parser                        | KaTeX parser ported to Dart                                                                                               | KaTeX parser freshly ported to Dart                                                                                 |
+| Layout / rendering                | KaTeX layout reimplemented directly on Flutter **`RenderObject`s**                                                        | KaTeX layout ported to a **backend-agnostic box tree**, then SVG _or_ a Flutter painter                             |
+| Runs without Flutter              | No — Flutter-coupled                                                                                                      | **Yes** — pure-Dart `katex` renders to **SVG** with zero Flutter dependency (CLI / server / web / SSR)              |
+| Output targets                    | Flutter widgets only                                                                                                      | **SVG** (pure Dart) **and** a Flutter widget                                                                        |
+| Flutter web                       | tested on the legacy DomCanvas renderer; ["expected to break with CanvasKit"](https://github.com/simpleclub/flutter_math) | renders on **CanvasKit** (`TextPainter` + `Canvas`); the demo site embeds it via CanvasKit                          |
+| Selection / copy / TeX round-trip | **Yes** (`SelectableMath`, experimental)                                                                                  | not yet                                                                                                             |
+| Coverage / maturity               | **mature** — near-complete KaTeX coverage, years of development                                                           | **MVP** — broad but still growing (stretchy geometry, full macro set, more environments are incremental)            |
+| Verification                      | —                                                                                                                         | layout **verified against original KaTeX** — per-box dimensions vs a pinned-KaTeX oracle (26/26), plus visual diffs |
+| Maintenance                       | original unmaintained; fork active                                                                                        | new / active                                                                                                        |
 
 ### vs `flutter_tex`
 

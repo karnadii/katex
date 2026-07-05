@@ -4,6 +4,10 @@ A Flutter widget that renders LaTeX math by painting the backend-agnostic box tr
 the pure-Dart [`katex_dart`](https://pub.dev/packages/katex_dart) package. No re-parsing — the
 widget is a direct consumer of the same box tree the SVG serializer uses.
 
+See Flutter demo at [roszkowski.dev/katex](https://roszkowski.dev/katex).
+
+See [main README](https://github.com/orestesgaolin/katex) for a comparison with other Flutter math libraries, and for the architecture of the `katex_dart` + `katex` combo.
+
 ## Usage
 
 ```dart
