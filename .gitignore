@@ -1,6 +1,8 @@
 # Dart / Flutter
 .dart_tool/
 .packages
+# Local path overrides for monorepo development — never published.
+pubspec_overrides.yaml
 # Build OUTPUT only — NOT lib/src/build/, which is package source code.
 build/
 !**/lib/src/build/
