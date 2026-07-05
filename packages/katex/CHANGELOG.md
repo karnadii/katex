@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0
+## 1.0.0
 
 Initial release. A Flutter widget that renders LaTeX math using the pure-Dart
 [`katex_dart`](https://pub.dev/packages/katex_dart) package.
