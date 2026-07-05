@@ -1,0 +1,9 @@
+# Local development override (gitignored, never published). The comparison site
+# consumes both monorepo packages from source. `katex` declares a hosted
+# `katex_dart` constraint for publishing; force it (and katex) to the local
+# path copies so the whole repo builds against source.
+dependency_overrides:
+  katex_dart:
+    path: ../packages/katex_dart
+  katex:
+    path: ../packages/katex
