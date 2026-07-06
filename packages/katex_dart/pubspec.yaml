@@ -1,6 +1,6 @@
 name: katex_dart
 description: A pure-Dart port of KaTeX. Parses LaTeX math to a backend-agnostic box tree and serializes it to SVG — no Flutter dependency.
-version: 0.1.0
+version: 0.1.1
 repository: https://github.com/orestesgaolin/katex/tree/main/packages/katex_dart
 homepage: https://github.com/orestesgaolin/katex
 issue_tracker: https://github.com/orestesgaolin/katex/issues

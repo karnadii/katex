@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1
+
+- Bump `args` to ^2.7.0, `meta` to ^1.18.3
+
 ## 0.1.0
 
 Initial release. A fresh pure-Dart port of [KaTeX](https://katex.org) — no Flutter dependency.
