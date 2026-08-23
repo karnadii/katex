@@ -335,8 +335,19 @@ BoxNode _buildAccent(AccentNode group, Options options) {
     skew = _baseSymbol(body)?.scaledSkew ?? 0.0;
   }
 
+  // `\c` (cedilla) is the one accent that hangs BELOW its base. KaTeX marks it
+  // with `accentBelow` and gives it a clearance spanning the base's whole
+  // vertical extent (plus the accent's own depth, added once the glyph is
+  // built), so the `-clearance` kern below drops the accent past the baseline
+  // instead of lifting it over the base. Without this branch the cedilla was
+  // placed like an over-accent and sat on top of the letter — "ç" read as a
+  // c with a mark above it, and "Ç" as a struck-through C.
+  final accentBelow = group.label == r'\c';
+
   // Clearance between body and accent (rule 12): min of body height & xHeight.
-  final clearance = math.min(body.height, options.fontMetrics().xHeight);
+  var clearance = accentBelow
+      ? body.height + body.depth
+      : math.min(body.height, options.fontMetrics().xHeight);
 
   if (!isStretchy) {
     final BoxNode accent;
@@ -365,6 +376,11 @@ BoxNode _buildAccent(AccentNode group, Options options) {
       } else {
         accent = glyph ?? makeSpan(const []);
         accentWidth = accent.width;
+      }
+      // The below-accent glyph carries its own depth (the cedilla's hook hangs
+      // under the baseline); clear that too so it does not overlap the base.
+      if (accentBelow) {
+        clearance += accent.depth;
       }
     }
 

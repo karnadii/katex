@@ -542,6 +542,79 @@ void main() {
         );
       });
     }
+
+    // `\c` (cedilla) is the one accent KaTeX places BELOW the base
+    // (`accentBelow` in accent.ts): its clearance spans the base's whole
+    // vertical extent plus the accent glyph's own depth, so the `-clearance`
+    // kern drops the mark under the baseline instead of lifting it over the
+    // base. That branch was missing here, so ç rendered as a c with a mark on
+    // top and Ç looked struck through.
+    //
+    // Expected dimensions below are KaTeX 0.17.0's own, read from
+    // `__renderToDomTree(...)` on the `.base` span.
+    group(r'\c places the cedilla below the base', () {
+      test('root dimensions match KaTeX', () {
+        for (final (tex, height, depth) in <(String, double, double)>[
+          (r'\text{\c c}', 0.43056, 0.17014),
+          (r'\text{\c C}', 0.68333, 0.17014),
+          (r'\text{garçon}', 0.43056, 0.19444),
+        ]) {
+          final root = renderToBox(tex);
+          expect(root.height, closeTo(height, 1e-5), reason: 'height of $tex');
+          expect(root.depth, closeTo(depth, 1e-5), reason: 'depth of $tex');
+        }
+      });
+
+      test('the cedilla hangs below the baseline', () {
+        // A non-zero depth is the whole point: an over-accent leaves the base's
+        // depth untouched (0 for "c"), so any depth here comes from the mark
+        // sitting under the baseline.
+        expect(renderToBox(r'\text{\c c}').depth, greaterThan(0.1));
+        // Control: an over-accent adds height, not depth.
+        final acute = renderToBox(r"\text{\'e}");
+        expect(acute.depth, closeTo(0, 1e-9));
+        expect(acute.height, greaterThan(renderToBox(r'\text{e}').height));
+      });
+
+      test('the accent glyph ends up below the base glyph', () {
+        // Both vlist children sit on the same baseline (KaTeX puts both at
+        // `top: -3em`); what separates a below-accent from an over-accent is
+        // the mark glyph's own metrics. The clearance kern is what lands the
+        // mark on that baseline — get it wrong and the cedilla rides up over
+        // the letter. Assert the resulting geometry rather than the shift:
+        // the mark's lowest extent must fall below the base's.
+        double bottom(VListPosition p) => p.shift + p.box.depth;
+        double top(VListPosition p) => p.shift - p.box.height;
+
+        final ced = _flatten(renderToBox(r'\text{\c c}'))
+            .whereType<VList>()
+            .firstWhere((v) => v.positions.length >= 2);
+        expect(
+          bottom(ced.positions.last),
+          greaterThan(bottom(ced.positions.first)),
+          reason: 'the cedilla must extend below the base',
+        );
+
+        // Control: the circumflex extends above the base instead.
+        final hat = _flatten(renderToBox(r'\text{\^a}'))
+            .whereType<VList>()
+            .firstWhere((v) => v.positions.length >= 2);
+        expect(
+          top(hat.positions.last),
+          lessThan(top(hat.positions.first)),
+          reason: 'an over-accent must extend above the base',
+        );
+        expect(bottom(hat.positions.last), closeTo(0, 1e-9));
+      });
+
+      test('precomposed ç matches the explicit command', () {
+        final precomposed = renderToBox(r'\text{ç}');
+        final explicit = renderToBox(r'\text{\c c}');
+        expect(precomposed.height, closeTo(explicit.height, 1e-9));
+        expect(precomposed.depth, closeTo(explicit.depth, 1e-9));
+        expect(precomposed.width, closeTo(explicit.width, 1e-9));
+      });
+    });
   });
 
   // ---------------------------------------------------------------------------
