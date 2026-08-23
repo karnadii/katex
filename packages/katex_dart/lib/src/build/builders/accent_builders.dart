@@ -30,7 +30,7 @@ import 'package:katex_dart/src/ast/parse_node.dart' hide KernNode, RuleNode;
 import 'package:katex_dart/src/box/box_node.dart';
 import 'package:katex_dart/src/build/build_common.dart';
 import 'package:katex_dart/src/build/build_expression.dart';
-import 'package:katex_dart/src/build/builders/supsub_builder.dart' show isCharacterBox;
+import 'package:katex_dart/src/build/builders/supsub_builder.dart' show buildSupSub, isCharacterBox;
 import 'package:katex_dart/src/build/options.dart';
 import 'package:katex_dart/src/svg/svg_geometry.g.dart' as geom;
 
@@ -436,24 +436,23 @@ BoxNode buildAccentSupSub(SupSubNode grp, Options options) {
   final accentGroup = grp.base! as AccentNode;
   // Build the accent over the character base.
   final accented = _buildAccent(accentGroup, options);
-  // Re-run supsub with the accent's inner base as the supsub base, then
-  // overlay. For the MVP we attach scripts to the whole accented box, which
-  // keeps dimensions correct (the script-position-independent-of-accent
-  // nicety is a refinement for T-019).
+  // KaTeX attaches the scripts to the accent's INNER base, so their position
+  // does not move with the accent's height, and only then swaps the
+  // accent-wrapped base in for rendering. Running the generic supsub path on
+  // the bare base keeps its italic correction and skew (which drive the script
+  // offsets); `baseBox` then substitutes what is actually drawn.
+  //
+  // Passing the accented box as the supsub's base instead would be wrong twice
+  // over: the scripts would shift with the accent, and the built base would be
+  // emitted ALONGSIDE the accented one, drawing the letter twice
+  // (`\vec{u}_1` rendered as "u⃗u₁").
   final innerSupSub = SupSubNode(
     mode: grp.mode,
     base: accentGroup.base,
     sup: grp.sup,
     sub: grp.sub,
   );
-  // Build using the generic supsub path on the bare base, then wrap.
-  final built = buildGroup(innerSupSub, options);
-  // Use the accented box's height to keep vertical extent.
-  return withAtomClass(
-    makeFragment([accented, built]),
-    'mord',
-    options: options,
-  );
+  return buildSupSub(innerSupSub, options, baseBox: accented);
 }
 
 BoxNode _buildAccentUnder(AccentUnderNode group, Options options) {

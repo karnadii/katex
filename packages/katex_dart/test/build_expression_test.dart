@@ -644,6 +644,74 @@ void main() {
     //
     // Expected dimensions below are KaTeX 0.17.0's own, read from
     // `__renderToDomTree(...)` on the `.base` span.
+    // An accented base carrying a script (`\vec{u}_1`) used to draw its letter
+    // TWICE — "u⃗u₁". `buildAccentSupSub` built the accent over the base AND a
+    // complete supsub on the bare base, then emitted both side by side.
+    //
+    // KaTeX instead attaches the scripts to the accent's inner base (so their
+    // position does not move with the accent's height) and then SWAPS the
+    // accent-wrapped base in for rendering — `supSubGroup.children[0] =
+    // accentWrap`. Expected dimensions are KaTeX 0.17.0's own.
+    group('accent with sub/superscript', () {
+      int glyphCount(BoxNode root, int codepoint) => _flatten(root)
+          .whereType<GlyphNode>()
+          .where((g) => g.codepoint == codepoint)
+          .length;
+
+      const u = 0x75;
+
+      test('the base letter is drawn exactly once', () {
+        for (final tex in <String>[
+          r'\vec{u}_1',
+          r'\vec{u}^2',
+          r'\hat{u}_1',
+          r'\bar{u}_1',
+          r'\tilde{u}_1',
+          r'\widehat{u}_1',
+        ]) {
+          expect(
+            glyphCount(renderToBox(tex), u),
+            1,
+            reason: '$tex must contain a single "u"',
+          );
+        }
+      });
+
+      test('each term keeps its own single base', () {
+        // The reported expression: two accented vectors, so exactly two "u"s.
+        expect(glyphCount(renderToBox(r'\vec{u}_1 - \vec{u}_2'), u), 2);
+      });
+
+      test('root dimensions match KaTeX', () {
+        const display = KatexOptions(displayMode: true);
+        for (final (tex, height, depth) in <(String, double, double)>[
+          (r'\vec{u}_1', 0.71400, 0.15000),
+          (r'\vec{u}^2', 0.86411, 0.00000),
+          (r'\hat{u}_1', 0.69444, 0.15000),
+          (r'\bar{u}_1', 0.56778, 0.15000),
+          (r'\tilde{u}_1', 0.66786, 0.15000),
+          (r'\vec{AB}_1', 0.96633, 0.15000),
+        ]) {
+          final root = renderToBox(tex, options: display);
+          expect(root.height, closeTo(height, 1e-5), reason: 'height of $tex');
+          expect(root.depth, closeTo(depth, 1e-5), reason: 'depth of $tex');
+        }
+      });
+
+      test('the accent does not widen the term', () {
+        // The doubled base showed up as roughly double the advance; an accented
+        // base must be no wider than the same base scripted without an accent.
+        final accented = renderToBox(r'\vec{u}_1');
+        final plain = renderToBox(r'u_1');
+        expect(accented.width, closeTo(plain.width, 1e-6));
+      });
+
+      test('a bare accent is unaffected', () {
+        expect(glyphCount(renderToBox(r'\vec{u}'), u), 1);
+        expect(glyphCount(renderToBox(r'\hat{x}'), 0x78), 1);
+      });
+    });
+
     group(r'\c places the cedilla below the base', () {
       test('root dimensions match KaTeX', () {
         for (final (tex, height, depth) in <(String, double, double)>[
