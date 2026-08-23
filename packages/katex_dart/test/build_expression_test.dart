@@ -55,12 +55,18 @@ List<BoxNode> _flatten(BoxNode node) {
     case RuleNode():
     case SvgPathNode():
     case ImageNode():
+    case TextRunNode():
       break;
   }
   return out;
 }
 
 bool _isFinitePositive(double v) => v.isFinite && v > 0;
+
+/// A stand-in for a backend measurer, so a test can assert the reported
+/// dimensions reach the box tree rather than depending on the estimate.
+TextRunMetrics _fixedMeasurer(String text) =>
+    const TextRunMetrics(width: 7, height: 3, depth: 2);
 
 void main() {
   group('renderToBox builds every gallery expression', () {
@@ -240,6 +246,92 @@ void main() {
           reason: 'no array rules expected in $tex',
         );
       }
+    });
+  });
+
+  // Complex scripts (Arabic, Hebrew, …) inside `\text{}`.
+  //
+  // These have no KaTeX font metrics, so before TextRunNode existed every one
+  // of their characters built to nothing and the word vanished entirely. They
+  // also cannot be fixed by supplying fallback metrics: Arabic is cursive and
+  // right-to-left, so one box per character at a precomputed x yields isolated
+  // letterforms in reversed order. The whole word has to reach the backend as
+  // a single string for the platform to shape and reorder it.
+  group('complex-script text runs', () {
+    List<TextRunNode> runs(BoxNode root) =>
+        _flatten(root).whereType<TextRunNode>().toList();
+
+    test('an Arabic word becomes ONE run holding the whole word', () {
+      final found = runs(renderToBox(r'\text{مرة}'));
+      expect(found, hasLength(1), reason: 'must not split into per-character runs');
+      expect(found.single.text, 'مرة');
+      expect(found.single.rtl, isTrue);
+      // The old failure mode was silent disappearance; a real advance proves
+      // the run is actually reserved space in the layout.
+      expect(found.single.width, greaterThan(0));
+    });
+
+    test('Hebrew is handled the same way', () {
+      final found = runs(renderToBox(r'\text{שלום}'));
+      expect(found, hasLength(1));
+      expect(found.single.text, 'שלום');
+      expect(found.single.rtl, isTrue);
+    });
+
+    test('the run does not swallow neighbouring Latin', () {
+      // `\text{ مرة }n` — the reported case. The Arabic must form its own run
+      // and leave the surrounding spaces and `n` as ordinary glyphs.
+      final root = renderToBox(r'\text{ مرة }');
+      final found = runs(root);
+      expect(found, hasLength(1));
+      expect(found.single.text, 'مرة');
+      expect(
+        _flatten(root).whereType<GlyphNode>(),
+        isNotEmpty,
+        reason: 'the surrounding spaces still build as glyphs',
+      );
+    });
+
+    test('two words separated by Latin produce two runs', () {
+      final found = runs(renderToBox(r'\text{مرة a كتاب}'));
+      expect(found, hasLength(2));
+      expect(found.map((r) => r.text), ['مرة', 'كتاب']);
+    });
+
+    test('scripts KaTeX already handles are untouched', () {
+      // Latin, accented Latin, Greek, Cyrillic and CJK all keep the per-glyph
+      // path, so this change cannot regress anything that renders today.
+      for (final tex in <String>[
+        r'\text{abc}',
+        r'\text{café}',
+        r'\text{дом}',
+        r'\text{漢字}',
+        r'\alpha+\beta',
+      ]) {
+        expect(runs(renderToBox(tex)), isEmpty, reason: tex);
+      }
+    });
+
+    test('the measurer supplies the run dimensions', () {
+      const metrics = TextRunMetrics(width: 7, height: 3, depth: 2);
+      final root = renderToBox(
+        r'\text{مرة}',
+        options: const KatexOptions(measureTextRun: _fixedMeasurer),
+      );
+      final run = runs(root).single;
+      expect(run.width, closeTo(metrics.width, 1e-9));
+      expect(run.height, closeTo(metrics.height, 1e-9));
+      expect(run.depth, closeTo(metrics.depth, 1e-9));
+      // The run's box must actually drive the enclosing layout.
+      expect(root.width, greaterThanOrEqualTo(metrics.width));
+    });
+
+    test('SVG emits the run as one rtl <text> element', () {
+      final svg = renderToSvg(r'\text{مرة}');
+      expect(svg, contains('مرة'));
+      expect(svg, contains('direction="rtl"'));
+      // One element, not one per character.
+      expect(RegExp('<text').allMatches(svg).length, 1);
     });
   });
 
