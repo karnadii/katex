@@ -128,6 +128,8 @@ class KatexBoxPainter extends CustomPainter {
     this.inkPadEm = 0.0,
     this.animationMode = MathAnimationMode.none,
     this.progress,
+    this.haloColor,
+    this.haloWidth = 3.0,
   }) : super(repaint: progress);
 
   /// The root of the box tree to paint.
@@ -154,9 +156,39 @@ class KatexBoxPainter extends CustomPainter {
   /// `inkPadEm * fontSize`; size the canvas to [boxSizePxPadded] to match.
   final double inkPadEm;
 
+  /// Optional contrasting colour drawn as a glyph-level stroke *behind* every
+  /// item in the formula.
+  ///
+  /// Pass the plot's background colour so a label stays readable when it
+  /// crosses a curve, grid line, or axis. Set `null` (the default) to skip
+  /// the halo pass entirely.
+  ///
+  /// The halo is the same idea as RaTeX's `haloColor` and the plotter's
+  /// `paintTextWithHalo`: a stroke pass in the contrasting colour, then the
+  /// normal fill pass on top.
+  final Color? haloColor;
+
+  /// Halo stroke width in **logical pixels** (not em). Ignored when
+  /// [haloColor] is `null`. Defaults to `3.0`, matching RaTeX and the
+  /// plotter.
+  final double haloWidth;
+
+  /// Whether the current paint pass is the halo (stroke) pass.
+  ///
+  /// The halo is implemented as a second walk over the same tree with the
+  /// leaf painters in stroke mode, so the tree is traversed twice. A field
+  /// (rather than a parameter threaded through every method) keeps the
+  /// painter's public shape and the recursion signatures unchanged.
+  bool _strokePass = false;
+
   // Cache of laid-out TextPainters keyed by (text, family, variant, size, rgb)
   // so repeated glyphs (and repaints with the same content) reuse layout work.
   final Map<_GlyphKey, TextPainter> _glyphCache = {};
+
+  // Cache of the *stroked* TextPainters used by the halo pass. Separate from
+  // `_glyphCache` because the stroke paint changes the rendered style, and a
+  // stroked painter must never be reused for the fill pass.
+  final Map<_GlyphKey, TextPainter> _haloGlyphCache = {};
 
   /// Current reveal fraction, clamped to [0, 1]; 1.0 when there is no
   /// [progress] animation attached.
@@ -178,10 +210,12 @@ class KatexBoxPainter extends CustomPainter {
     final pad = inkPadEm * fontSize;
     final baselineY = root.height * fontSize + pad;
     final t = _t;
+    final hasHalo = haloColor != null && haloWidth > 0;
 
     // Fast path: no animation, or finished. This is also the pixel-correct
     // final frame (drawn in the tree's natural z-order).
     if (animationMode == MathAnimationMode.none || t >= 1.0) {
+      if (hasHalo) _paintHaloPass(canvas, pad, baselineY);
       _paintNode(canvas, root, pad, baselineY, color);
       return;
     }
@@ -198,6 +232,8 @@ class KatexBoxPainter extends CustomPainter {
     if (ops.isEmpty) {
       return;
     }
+    // The halo goes down first so the normal fill paints on top of it.
+    if (hasHalo) _paintHaloPass(canvas, pad, baselineY);
     _assignReveal(ops, animationMode);
 
     final n = ops.length;
@@ -245,6 +281,26 @@ class KatexBoxPainter extends CustomPainter {
     }
     for (var rank = 0; rank < n; rank++) {
       ops[order[rank]].revealStart = rank.toDouble();
+    }
+  }
+
+  /// Paints the halo (stroke) pass: the whole tree drawn as a stroke in
+  /// [haloColor] instead of a fill.
+  ///
+  /// The pass reuses the same tree walk as the animated reveal, so the halo
+  /// covers exactly the same set of leaves the fill pass does. The stroke
+  /// flag is a field rather than a parameter on every leaf painter, which
+  /// keeps the recursion signatures unchanged.
+  void _paintHaloPass(Canvas canvas, double pad, double baselineY) {
+    final ops = <_LeafOp>[];
+    _strokePass = true;
+    try {
+      _collect(root, pad, baselineY, color, ops);
+      for (final op in ops) {
+        op.draw(canvas);
+      }
+    } finally {
+      _strokePass = false;
     }
   }
 
@@ -416,6 +472,9 @@ class KatexBoxPainter extends CustomPainter {
     double baselineY,
     Color currentColor,
   ) {
+    if (_strokePass) {
+      return;
+    }
     final left = x;
     // A natural-width image (width == 0) has no reserved horizontal advance in
     // the box tree; draw the placeholder at its (height) square so it is still
@@ -459,6 +518,12 @@ class KatexBoxPainter extends CustomPainter {
     double baselineY,
     Color currentColor,
   ) {
+    // The enclose decorations are strokes in their own right; haloing them
+    // would double their weight without adding contrast. The inner content
+    // still gets its halo.
+    if (_strokePass) {
+      return;
+    }
     // The decorations span the child's box: box-x [x, x+width], box-y
     // [baselineY-height, baselineY+depth]. y grows downward.
     final left = x;
@@ -633,6 +698,22 @@ class KatexBoxPainter extends CustomPainter {
       ..color = currentColor
       ..style = PaintingStyle.fill
       ..isAntiAlias = true;
+    if (_strokePass) {
+      // Stroke the same path in the halo colour so the halo follows the
+      // surd/brace silhouette rather than boxing it.
+      canvas
+        ..drawPath(
+          path,
+          Paint()
+            ..color = haloColor ?? currentColor
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = haloWidth
+            ..strokeJoin = StrokeJoin.round
+            ..isAntiAlias = true,
+        )
+        ..restore();
+      return;
+    }
     canvas
       ..drawPath(path, paint)
       ..restore();
@@ -647,7 +728,7 @@ class KatexBoxPainter extends CustomPainter {
     double baselineY,
     Color currentColor,
   ) {
-    final tp = _textPainterFor(node, currentColor);
+    final tp = _strokePass ? _haloTextPainterFor(node) : _textPainterFor(node, currentColor);
     // A glyph paints at its box origin. `skew`/`italic` are metadata consumed
     // by builders (accent placement, supsub correction) and are baked into the
     // box tree — they must NOT offset the glyph here, or slanted glyphs
@@ -687,6 +768,46 @@ class KatexBoxPainter extends CustomPainter {
     return tp;
   }
 
+  /// The stroked [TextPainter] used by the halo pass.
+  ///
+  /// The stroke width is in **logical pixels** (not em) so the halo keeps a
+  /// constant weight at every font size — the same rule RaTeX and the
+  /// plotter's `paintTextWithHalo` follow.
+  TextPainter _haloTextPainterFor(GlyphNode node) {
+    final halo = haloColor ?? const Color(0xFF000000);
+    final key = _GlyphKey(
+      text: node.text,
+      family: node.font.cssFamily,
+      variant: node.font.variant,
+      sizePx: node.size * fontSize,
+      colorValue: halo.toARGB32(),
+    );
+    final cached = _haloGlyphCache[key];
+    if (cached != null) {
+      return cached;
+    }
+    // `foreground` replaces `color` in a TextStyle, so the stroke paint is
+    // the only thing that shows — exactly what the halo pass wants.
+    final style =
+        textStyleFor(
+          node.font,
+          node.size * fontSize,
+        ).copyWith(
+          foreground: Paint()
+            ..color = halo
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = haloWidth
+            ..strokeJoin = StrokeJoin.round
+            ..isAntiAlias = true,
+        );
+    final tp = TextPainter(
+      text: TextSpan(text: node.text, style: style),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    _haloGlyphCache[key] = tp;
+    return tp;
+  }
+
   // --- Rule -----------------------------------------------------------------
 
   void _paintRule(
@@ -708,10 +829,13 @@ class KatexBoxPainter extends CustomPainter {
       final isVertical = h >= w;
       final sw = isVertical ? w : h;
       final dash = sw * 3;
+      // In the halo pass the dash is drawn thicker, in the halo colour, so
+      // the halo follows the dash pattern (including its gaps) instead of
+      // boxing the whole rule.
       final paint = Paint()
-        ..color = currentColor
+        ..color = _strokePass ? (haloColor ?? currentColor) : currentColor
         ..style = PaintingStyle.stroke
-        ..strokeWidth = sw;
+        ..strokeWidth = _strokePass ? sw + haloWidth : sw;
       final double sx;
       final double sy;
       final double ex;
@@ -743,6 +867,16 @@ class KatexBoxPainter extends CustomPainter {
     final paint = Paint()
       ..color = currentColor
       ..style = PaintingStyle.fill;
+    if (_strokePass) {
+      // The halo band hugs the rule's silhouette uniformly: fill the rect
+      // grown by half the halo width on every side.
+      final grow = haloWidth / 2;
+      canvas.drawRect(
+        Rect.fromLTRB(left - grow, top - grow, right + grow, bottom + grow),
+        Paint()..color = haloColor ?? currentColor,
+      );
+      return;
+    }
     canvas.drawRect(Rect.fromLTRB(left, top, right, bottom), paint);
   }
 
@@ -874,6 +1008,8 @@ class KatexBoxPainter extends CustomPainter {
         oldDelegate.color != color ||
         oldDelegate.inkPadEm != inkPadEm ||
         oldDelegate.animationMode != animationMode ||
+        oldDelegate.haloColor != haloColor ||
+        oldDelegate.haloWidth != haloWidth ||
         !identical(oldDelegate.progress, progress);
   }
 }

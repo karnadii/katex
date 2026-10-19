@@ -22,6 +22,45 @@ Math(r'\frac{a}', throwOnError: false,         // graceful error handling
 
 See [`example/`](example/) for a runnable gallery demo.
 
+## RaTeX-compatible API (`mathnote` branch)
+
+This fork's `mathnote` branch adds a second, **drop-in-compatible** surface
+that mirrors `ratex_flutter`'s API, so an app can swap the two engines
+without touching call sites:
+
+```dart
+import 'package:katex/katex.dart';
+
+KaTeXWidget(latex: r'\frac{a}{b}', fontSize: 24, color: Colors.black);
+KaTeXWidget(
+  latex: r'\sum_{i=0}^n i',
+  displayMode: true,
+  maxWidth: 320,
+  onError: (e) => log(e.message),
+);
+
+await initKaTeX(); // no-op — KaTeX is pure Dart
+final dl = KaTeXEngine.instance.parseAndLayout(r'x^2');
+print(dl.width); // em
+```
+
+| `ratex_flutter`            | `katex` (`mathnote`)        | Notes                                      |
+| -------------------------- | --------------------------- | ------------------------------------------ |
+| `RaTeXWidget`              | `KaTeXWidget`               | Same parameter names and defaults          |
+| `RaTeXException`           | `KaTeXException`            | Both carry `.message`                      |
+| `RaTeXEngine.instance`     | `KaTeXEngine.instance`      | Same `parseAndLayout` signature            |
+| `RaTeXColor`               | Flutter `Color`             |                                             |
+| `initRaTeX()`              | `initKaTeX()`               | No-op — KaTeX is pure Dart                 |
+| `raTeXRenderCache`         | `kaTeXRenderCache`          | Same LRU shape, keyed on `(latex, mode)`   |
+| `DisplayList`              | `KaTeXDisplayList`          | Same em `width`/`height`/`depth` triple    |
+
+Two behavioural differences are deliberate:
+
+* **RaTeX wraps** a too-wide formula onto multiple lines; **KaTeX scales it
+  down** to fit (KaTeX.js has no automatic line breaking either).
+* RaTeX renders through FFI + an isolate hop, so it needs a frame before the
+  formula appears. KaTeX is pure Dart, so the formula is in the first frame.
+
 ## How it works
 
 The [`katex_dart`](https://pub.dev/packages/katex_dart) package parses the TeX into a `BoxNode`
