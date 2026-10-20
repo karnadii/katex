@@ -137,7 +137,7 @@ class _KaTeXWidgetState extends State<KaTeXWidget> {
     } on KaTeXException catch (e) {
       _box = null;
       _error = e;
-      widget.onError?.call(e);
+      _reportError(e);
     } catch (e) {
       // Non-KaTeXException failures (StateError, ArgumentError, …) must not
       // escape `build`; coerce them so `onError` and the fallback see a
@@ -145,8 +145,26 @@ class _KaTeXWidgetState extends State<KaTeXWidget> {
       final wrapped = coerceRenderError(e);
       _box = null;
       _error = wrapped;
-      widget.onError?.call(wrapped);
+      _reportError(wrapped);
     }
+  }
+
+  /// Delivers the failure to [KaTeXWidget.onError] *after* the current build.
+  ///
+  /// The parse happens in `initState` / `didUpdateWidget`, which run inside
+  /// a build — and a host's error handler typically calls `setState` (to
+  /// fall back to raw text). Calling that during a build is illegal, so the
+  /// notification is deferred to the end of the frame. The widget's own
+  /// fallback still renders immediately.
+  ///
+  /// The native engine this replaces reported errors asynchronously (it
+  /// parsed in an isolate), so a host never saw a build-phase callback.
+  void _reportError(KaTeXException error) {
+    final onError = widget.onError;
+    if (onError == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) onError(error);
+    });
   }
 
   /// The line-breaking budget in em, derived from [KaTeXWidget.maxWidth].
