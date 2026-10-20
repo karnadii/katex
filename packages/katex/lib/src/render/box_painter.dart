@@ -30,6 +30,7 @@ library;
 
 import 'package:flutter/widgets.dart';
 import 'package:katex/src/font_mapping.dart';
+import 'package:katex/src/render/text_run_painter.dart';
 import 'package:katex_dart/katex_dart.dart';
 
 /// How an animated render reveals the formula as its `progress` runs 0 → 1.
@@ -95,6 +96,7 @@ int countRevealableLeaves(BoxNode node) {
     case RuleNode():
     case SvgPathNode():
     case ImageNode():
+    case TextRunNode():
       return 1;
     case KernNode():
       return 0;
@@ -382,6 +384,15 @@ class KatexBoxPainter extends CustomPainter {
             (c) => _paintImage(c, node, x, baselineY, currentColor),
           ),
         );
+      case TextRunNode():
+        ops.add(
+          _leafOp(
+            node,
+            x,
+            baselineY,
+            (c) => _paintTextRun(c, node, x, baselineY, currentColor),
+          ),
+        );
     }
   }
 
@@ -455,7 +466,35 @@ class KatexBoxPainter extends CustomPainter {
         _paintEnclose(canvas, node, x, baselineY, currentColor);
       case ImageNode():
         _paintImage(canvas, node, x, baselineY, currentColor);
+      case TextRunNode():
+        _paintTextRun(canvas, node, x, baselineY, currentColor);
     }
+  }
+
+  // --- Complex-script text run ----------------------------------------------
+
+  /// Paints a whole [TextRunNode] in one `TextPainter` call.
+  ///
+  /// This is the point of the node: Arabic and Hebrew need contextual shaping
+  /// and bidi reordering, which only work on a complete string. Handing the
+  /// run to Flutter's text engine gets both, plus the system font fallback the
+  /// KaTeX faces cannot provide for these scripts.
+  void _paintTextRun(
+    Canvas canvas,
+    TextRunNode node,
+    double x,
+    double baselineY,
+    Color currentColor,
+  ) {
+    final tp = buildTextRunPainter(
+      node.text,
+      node.size * fontSize,
+      color: currentColor,
+      rtl: node.rtl,
+    );
+    // Place the run on the baseline, matching the glyph path.
+    final ascent = tp.computeDistanceToActualBaseline(TextBaseline.alphabetic);
+    tp.paint(canvas, Offset(x, baselineY - ascent));
   }
 
   // --- Image (\includegraphics) ---------------------------------------------
