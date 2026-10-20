@@ -33,6 +33,7 @@ class KatexOptions {
     this.maxWidth = double.infinity,
     this.startingEquationNumber = 1,
     this.leqno = false,
+    this.trust = false,
   });
 
   /// Whether to typeset as display math (`true`) or inline math (`false`,
@@ -75,6 +76,13 @@ class KatexOptions {
   /// KaTeX's `leqno`.
   final bool leqno;
 
+  /// Trust potentially-dangerous input (`\\href`, `\\url`,
+  /// `\\includegraphics`, `\\html*`), mirroring KaTeX's `trust`. Off by
+  /// default, like KaTeX: untrusted commands render their names in red
+  /// instead of their content. A host must only enable this for input it
+  /// already trusts — never for editor content.
+  final Object trust;
+
   /// First automatic equation number handed out in one render.
   ///
   /// KaTeX.js counts equations with a document-level CSS counter; this port
@@ -106,6 +114,7 @@ class KatexOptions {
   Settings toSettings() => Settings(
     displayMode: displayMode,
     leqno: leqno,
+    trust: trust,
     throwOnError: throwOnError,
     macros: macros,
     strict: strict,

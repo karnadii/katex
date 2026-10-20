@@ -23,35 +23,51 @@ void registerOpBuilders(Map<String, GroupBuilder> registry) {
 
 const Set<String> _noSuccessor = {r'\smallint'};
 
-/// The operators KaTeX draws from SVG paths rather than from a font glyph.
-///
-/// Port of KaTeX's `tt` table (src/symbols.js): name → (path name, height
-/// in em, depth in em). `\oiint` (U+222F) and `\oiiint` (U+2230) exist in
-/// **no** KaTeX font — KaTeX draws them as paths, with a Size1 variant for
-/// text style and a Size2 one for display style.
-const Map<String, List<Object>> _pathBackedOperators = <String, List<Object>>{
-  r'\oiint': <Object>['oiintSize1', 'oiintSize2', 0.957, 0.499, 1.472, 0.659],
-  r'\oiiint': <Object>['oiiintSize1', 'oiiintSize2', 1.304, 0.499, 1.98, 0.659],
+/// The base integrand glyph underlying each ringed integral: KaTeX has no
+/// font glyphs for `\oiint` / `\oiiint`, so it renders the plain multiple
+/// integral with an oval overlay (see KaTeX `op.js`).
+const Map<String, String> _overlayBaseName = <String, String>{
+  r'\oiint': r'\iint',
+  r'\oiiint': r'\iiint',
 };
 
-/// Builds the SVG-path box for a path-backed operator, or `null` when the
-/// operator is not one of them.
-BoxNode? _pathBackedOperator(String name, bool large) {
-  final entry = _pathBackedOperators[name];
-  if (entry == null) return null;
-  final pathName = entry[large ? 1 : 0] as String;
-  final height = entry[large ? 4 : 2] as double;
-  final depth = entry[large ? 5 : 3] as double;
-  final pathData = geom.svgPath[pathName];
-  if (pathData == null) return null;
-  return SvgPathNode(
-    pathName: pathName,
+/// Oval overlay dimensions (width, height) in em, verbatim from KaTeX's
+/// `svgData` table in `buildCommon.js`.
+const Map<String, (double, double)> _overlayOvalDims = <String, (double, double)>{
+  'oiintSize1': (0.957, 0.499),
+  'oiintSize2': (1.472, 0.659),
+  'oiiintSize1': (1.304, 0.499),
+  'oiiintSize2': (1.98, 0.659),
+};
+
+/// Builds a ringed integral (`\oiint` / `\oiiint`) the way KaTeX does: the
+/// plain multiple-integral glyph with an oval overlay, stacked in an
+/// individual-shift vlist (base at shift 0, oval at 0.08 in display style).
+/// Returns `null` when the overlay geometry is unavailable, letting the
+/// caller fall back to the bare base glyph.
+BoxNode? _overlayOval(
+  String name,
+  GlyphNode baseGlyph,
+  bool large,
+) {
+  final key = '${name.substring(1)}Size${large ? 2 : 1}';
+  final dims = _overlayOvalDims[key];
+  final pathData = geom.svgPath[key];
+  if (dims == null || pathData == null) return null;
+  final oval = SvgPathNode(
+    pathName: key,
     pathData: pathData,
-    viewBoxWidth: 1000 * height,
-    viewBoxHeight: 1000 * (height + depth),
-    width: height,
-    height: height,
-    depth: depth,
+    viewBoxWidth: 1000 * dims.$1,
+    viewBoxHeight: 1000 * dims.$2,
+    width: dims.$1,
+    height: dims.$2,
+  );
+  return makeVList(
+    positionType: VListPositionType.individualShift,
+    children: [
+      VListChild.elem(baseGlyph, shift: 0),
+      VListChild.elem(oval, shift: large ? 0.08 : 0),
+    ],
   );
 }
 
@@ -75,21 +91,42 @@ _OpBase _buildOpBase(OpNode group, Options options) {
   var italic = 0.0;
   if (group.symbol) {
     final fontName = large ? 'Size2-Regular' : 'Size1-Regular';
-    final glyph = makeSymbol(
-      group.name!,
-      fontName,
-      Mode.math,
-      options: options,
-    );
-    if (glyph != null) {
-      base = glyph;
-      italic = glyph.scaledItalic;
+    final overlayBase = _overlayBaseName[group.name];
+    if (overlayBase != null) {
+      // Ringed integrals have no font glyphs: the base multiple integral
+      // with an oval overlay. Falls back to the bare base glyph when the
+      // overlay geometry is unavailable.
+      final baseGlyph =
+          makeSymbol(
+            overlayBase,
+            fontName,
+            Mode.math,
+            options: options,
+          ) ??
+          missingMetricsGlyph(
+            value: overlayBase,
+            fontName: fontName,
+            mode: Mode.math,
+            options: options,
+          );
+      base = _overlayOval(group.name!, baseGlyph, large) ?? baseGlyph;
+      italic = baseGlyph.scaledItalic;
     } else {
-      // A few operators have no glyph in ANY KaTeX font: KaTeX draws them
-      // from SVG paths instead (its `tt` table in src/symbols.js). Without
-      // this they built to nothing and silently vanished from the formula.
-      final path = _pathBackedOperator(group.name!, large);
-      base = path ?? makeSpan(const []);
+      final glyph = makeSymbol(
+        group.name!,
+        fontName,
+        Mode.math,
+        options: options,
+      );
+      if (glyph != null) {
+        base = glyph;
+        italic = glyph.scaledItalic;
+      } else {
+        // No glyph in any KaTeX font and no overlay composition: an empty
+        // span so the formula still lays out (the character is unrenderable
+        // here, exactly as in KaTeX without its font).
+        base = makeSpan(const []);
+      }
     }
   } else if (group.body != null) {
     final inner = buildExpression(group.body!, options, isRealGroup: true);

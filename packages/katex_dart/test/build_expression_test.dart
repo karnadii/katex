@@ -909,6 +909,66 @@ void main() {
   // Mirrors KaTeX op.ts / supsub.ts: `\int` is `limits: false`, so its scripts
   // render as ordinary sup/sub even in displaystyle.
   // ---------------------------------------------------------------------------
+  group('ringed integrals compose base and oval', () {
+    const disp = KatexOptions(displayMode: true);
+    // KaTeX has no font glyphs for `\oiint` / `\oiiint`: it renders the
+    // plain multiple integral with an oval overlay (KaTeX op.js). The tree
+    // must therefore hold a base glyph plus an overlay SVG — never a lone
+    // invented path.
+    List<SvgPathNode> overlays(BoxNode root) => _flatten(root)
+        .whereType<SvgPathNode>()
+        .where(
+          (n) => n.pathName.contains('oiint') || n.pathName.contains('oiiint'),
+        )
+        .toList();
+
+    test(r'\oiint overlays oiintSize2 on iint in display mode', () {
+      final root = renderToBox(r'\oiint', options: disp);
+      final svg = overlays(root);
+      expect(svg, hasLength(1));
+      expect(svg.single.pathName, 'oiintSize2');
+      expect(root.width, closeTo(1.472, 0.01));
+    });
+
+    test(r'\oiiint overlays oiiintSize2 on iiint in display mode', () {
+      final root = renderToBox(r'\oiiint', options: disp);
+      final svg = overlays(root);
+      expect(svg, hasLength(1));
+      expect(svg.single.pathName, 'oiiintSize2');
+      expect(root.width, closeTo(1.98, 0.01));
+    });
+
+    test('inline style uses the Size1 overlays', () {
+      final root = renderToBox(r'\oiint');
+      final svg = overlays(root);
+      expect(svg, hasLength(1));
+      expect(svg.single.pathName, 'oiintSize1');
+    });
+  });
+
+  group('trust gates dangerous commands', () {
+    const disp = KatexOptions(displayMode: true);
+    test('untrusted html commands render red names, not content', () {
+      final root = renderToBox(r'\htmlClass{foo}{x}', options: disp);
+      final reds = _flatten(root)
+          .whereType<SpanNode>()
+          .where((n) => n.color == '#cc0000')
+          .toList();
+      expect(reds, isNotEmpty);
+    });
+
+    test('trust:true renders the content', () {
+      final root = renderToBox(
+        r'\htmlClass{foo}{x}',
+        options: const KatexOptions(displayMode: true, trust: true),
+      );
+      final reds = _flatten(root)
+          .whereType<SpanNode>()
+          .where((n) => n.color == '#cc0000')
+          .toList();
+      expect(reds, isEmpty);
+    });
+  });
   group('big-operator scripts (limits vs nolimits)', () {
     // Finds the .msupsub span (the side sup/sub column) if present.
     SpanNode? findMsupsub(BoxNode root) {
