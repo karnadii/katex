@@ -31,6 +31,7 @@ void registerExtraBuilders(Map<String, GroupBuilder> registry) {
   registry['raisebox'] = (node, options) => _buildRaiseBox(node as ast.RaiseBoxNode, options);
   registry['vcenter'] = (node, options) => _buildVcenter(node as ast.VcenterNode, options);
   registry['pmb'] = (node, options) => _buildPmb(node as ast.PmbNode, options);
+  registry['tag'] = (node, options) => _buildTag(node as ast.TagNode, options);
   registry['verb'] = (node, options) => _buildVerb(node as ast.VerbNode, options);
   registry['hbox'] = (node, options) => _buildHbox(node as ast.HboxNode, options);
 }
@@ -549,4 +550,20 @@ BoxNode _buildVerb(ast.VerbNode group, Options options) {
     'mord',
     options: newOptions,
   );
+}
+
+// ---- tag ------------------------------------------------------------------
+
+// A top-level `\tag{…}` and the formula it tags. Mirrors KaTeX's tag
+// handling in `buildHTML` (strip the wrapper, build the body, append the
+// built tag as the final child). The tag column placement matches the
+// array-environment tags (`leqno` is meaningless here — a bare formula has
+// no number column to mirror — so the tag always goes last, as in KaTeX).
+BoxNode _buildTag(ast.TagNode group, Options options) {
+  final body = buildExpression(group.body, options, isRealGroup: true);
+  final tag = buildExpression(group.tag, options, isRealGroup: true);
+  return makeFragment([
+    makeSpan(body),
+    makeSpan(tag, classes: const ['tag']),
+  ]);
 }

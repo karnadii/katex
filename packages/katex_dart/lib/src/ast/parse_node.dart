@@ -1328,6 +1328,27 @@ final class CdParentNode extends ParseNode {
   String get type => 'cdlabelparent';
 }
 
+/// `tag` — a top-level `\tag{…}` wrapping its formula. Mirrors KaTeX
+/// `TagNode` (produced by `parseTree`, not by any function).
+final class TagNode extends ParseNode {
+  /// Creates a tag node.
+  const TagNode({
+    required super.mode,
+    required this.body,
+    required this.tag,
+    super.loc,
+  });
+
+  /// The tagged formula.
+  final List<ParseNode> body;
+
+  /// The tag content.
+  final List<ParseNode> tag;
+
+  @override
+  String get type => 'tag';
+}
+
 /// `pmb` — `\pmb{body}` (poor-man's bold). Mirrors KaTeX `PmbNode`.
 final class PmbNode extends ParseNode {
   /// Creates a pmb node.

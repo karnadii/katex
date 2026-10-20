@@ -1341,5 +1341,28 @@ void main() {
       );
       expect(childIndex(right, 'tag'), 1);
     });
+
+    test('a top-level tag tags the whole formula', () {
+      final root = renderToBox(r'\tag{hi} x+y', options: disp);
+      expect(tagInk(root), '(hi)');
+    });
+
+    test(r'a top-level \tag* draws without parentheses', () {
+      final root = renderToBox(r'\tag*{hi} x+y', options: disp);
+      expect(tagInk(root), 'hi');
+    });
+
+    test(r'\tag outside display equations is a parse error', () {
+      expect(
+        () => renderToBox(r'\tag{hi} x+y'),
+        throwsA(
+          isA<ParseError>().having(
+            (e) => e.message,
+            'message',
+            contains('display equations'),
+          ),
+        ),
+      );
+    });
   });
 }
