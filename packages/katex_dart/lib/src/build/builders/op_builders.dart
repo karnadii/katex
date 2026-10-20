@@ -99,10 +99,7 @@ _OpBase _buildOpBase(OpNode group, Options options) {
     final output = <BoxNode>[];
     final name = group.name!;
     for (var i = 1; i < name.length; i++) {
-      final sym = mathsym(name[i], group.mode, options);
-      if (sym != null) {
-        output.add(sym);
-      }
+      output.add(mathsym(name[i], group.mode, options));
     }
     base = makeSpan(output, options: options);
   }

@@ -42,8 +42,7 @@ BoxNode _buildOrdgroup(OrdGroupNode group, Options options) {
 
 BoxNode _buildOrd(ParseNode node, Options options, {required bool isTextord}) {
   final text = (node as SymbolParseNode).text;
-  final ord = makeOrd(text, node.mode, options, isTextord: isTextord);
-  final body = ord ?? makeSpan(const []);
+  final body = makeOrd(text, node.mode, options, isTextord: isTextord);
   return withAtomClass(
     body,
     'mord',
@@ -53,8 +52,7 @@ BoxNode _buildOrd(ParseNode node, Options options, {required bool isTextord}) {
 }
 
 BoxNode _buildAtom(AtomNode group, Options options) {
-  final sym = mathsym(group.text, group.mode, options);
-  final body = sym ?? makeSpan(const []);
+  final body = mathsym(group.text, group.mode, options);
   return withAtomClass(
     body,
     mclassForFamily(group.family),
@@ -84,14 +82,14 @@ BoxNode _buildSpacing(SpacingNode group, Options options) {
     if (group.mode == Mode.text) {
       final ord = makeOrd(group.text, group.mode, options, isTextord: true);
       return withAtomClass(
-        ord ?? makeSpan(const []),
+        ord,
         'mord',
         extraClasses: extra,
         options: options,
       );
     }
     final sym = mathsym(group.text, group.mode, options);
-    return makeSpan([?sym], classes: ['mspace', ...extra], options: options);
+    return makeSpan([sym], classes: ['mspace', ...extra], options: options);
   } else if (_cssSpace.containsKey(group.text)) {
     return makeSpan(
       const [],

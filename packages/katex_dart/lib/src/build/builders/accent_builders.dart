@@ -372,7 +372,7 @@ BoxNode _buildAccent(AccentNode group, Options options) {
         );
         accentWidth = glyph.width;
       } else {
-        accent = glyph ?? makeSpan(const []);
+        accent = glyph;
         accentWidth = accent.width;
       }
       // The below-accent glyph carries its own depth (the cedilla's hook hangs

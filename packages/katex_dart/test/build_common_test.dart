@@ -1,8 +1,10 @@
+import 'package:katex_dart/src/ast/parse_node.dart' hide KernNode, RuleNode;
 import 'package:katex_dart/src/box/box_node.dart';
 import 'package:katex_dart/src/build/build_common.dart';
+import 'package:katex_dart/src/build/build_expression.dart';
 import 'package:katex_dart/src/build/options.dart';
 import 'package:katex_dart/src/build/style.dart';
-import 'package:katex_dart/src/types.dart';
+import 'package:katex_dart/src/symbols/symbols.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -115,8 +117,84 @@ void main() {
 
     test('mathsym routes a relation through Main-Regular', () {
       // '=' is a Main-font relation.
-      final eq = mathsym('=', Mode.math, Options.initial())!;
+      final eq = mathsym('=', Mode.math, Options.initial());
       expect(eq.font.fontName, 'Main-Regular');
+    });
+
+    test('a symbol without font metrics becomes a zero-size glyph', () {
+      // KaTeX.js emits a zero-size symbol holding the character (visible
+      // through system-font fallback); it never drops it. `\origof` has a
+      // symbol-table entry but no KaTeX font metrics, so it covers the path.
+      final sym = mathsym(r'\origof', Mode.math, Options.initial());
+      expect(sym.width, 0);
+      expect(sym.height, 0);
+      expect(sym.codepoint, 0x22b6);
+    });
+  });
+
+  group('every symbol-table entry builds to a glyph', () {
+    // A symbol the parser accepts must survive the builder: substituting an
+    // empty span drops user content silently (`A \origof B` rendered as
+    // "AB"). This sweeps every atom/ord entry in both modes through the
+    // real builder and asserts a glyph comes out — possibly zero-size (no
+    // font metrics), never nothing.
+    const atomGroups = {
+      Group.bin,
+      Group.rel,
+      Group.open,
+      Group.close,
+      Group.punct,
+      Group.inner,
+      Group.mathord,
+      Group.textord,
+    };
+
+    bool hasGlyph(BoxNode node) {
+      if (node is GlyphNode) return true;
+      final children = switch (node) {
+        HBox(:final children) => children,
+        SpanNode(:final children) => children,
+        _ => const <BoxNode>[],
+      };
+      for (final child in children) {
+        if (hasGlyph(child)) return true;
+      }
+      if (node is VList) {
+        for (final position in node.positions) {
+          if (hasGlyph(position.box)) return true;
+        }
+      }
+      if (node is EncloseNode) {
+        return hasGlyph(node.child);
+      }
+      return false;
+    }
+
+    test('no atom/ord entry builds to an empty span', () {
+      for (final mode in Mode.values) {
+        for (final entry in Symbols.table[mode]!.entries) {
+          if (!atomGroups.contains(entry.value.group)) continue;
+          final ParseNode node = switch (entry.value.group) {
+            Group.mathord => MathOrdNode(mode: mode, text: entry.key),
+            Group.textord => TextOrdNode(mode: mode, text: entry.key),
+            _ => AtomNode(
+              mode: mode,
+              text: entry.key,
+              family: entry.value.group,
+            ),
+          };
+          final built = buildExpression(
+            [node],
+            Options.initial(),
+            isRealGroup: true,
+          );
+          expect(
+            built.any(hasGlyph),
+            isTrue,
+            reason: '${entry.key} in $mode built to no glyph',
+          );
+        }
+      }
     });
   });
 

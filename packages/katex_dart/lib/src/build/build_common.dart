@@ -86,19 +86,70 @@ GlyphNode? makeSymbol(
   );
 }
 
+/// Builds the zero-size fallback glyph KaTeX emits when the font has no
+/// metrics for a character.
+///
+/// Faithful port of KaTeX's `makeSymbol` missing-metrics path: KaTeX logs a
+/// warning and emits a zero-size symbol holding the character, which lays out
+/// as nothing but still paints through system-font fallback. Callers that
+/// branch on a missing glyph for fallback logic (delimiter sizing via the
+/// nullable [makeSymbol]/[makeGlyph]) are unaffected — only the terminal
+/// symbol paths below use this.
+GlyphNode missingMetricsGlyph({
+  required String value,
+  required String fontName,
+  required Mode mode,
+  Options? options,
+}) {
+  final resolved = lookupSymbol(value, fontName, mode).value;
+  return GlyphNode(
+    codepoint: resolved.codeUnitAt(0),
+    font: _fontFromName(fontName),
+    metrics: const CharacterMetrics(
+      depth: 0,
+      height: 0,
+      italic: 0,
+      skew: 0,
+      width: 0,
+    ),
+    size: options?.sizeMultiplier ?? 1.0,
+  );
+}
+
 /// Makes a symbol in `Main-Regular` or `AMS-Regular`, used for rel, bin, open,
 /// close, inner, and punct. Faithful port of KaTeX's `mathsym`.
-GlyphNode? mathsym(String value, Mode mode, Options options) {
-  // Special-case for boldsymbol with bold +/-, and for the `\` textord which
+///
+/// Never returns `null`: like KaTeX, a character without font metrics becomes
+/// a zero-size glyph (see [missingMetricsGlyph]), not an empty span.
+GlyphNode mathsym(String value, Mode mode, Options options) {
+  // Special-case for boldsymbol with bold +/-, and for the `\\` textord which
   // is not in the text symbol table.
   if (options.font == 'boldsymbol' && lookupSymbol(value, 'Main-Bold', mode).metrics != null) {
-    return makeSymbol(value, 'Main-Bold', mode, options: options);
+    return makeSymbol(value, 'Main-Bold', mode, options: options) ??
+        missingMetricsGlyph(
+          value: value,
+          fontName: 'Main-Bold',
+          mode: mode,
+          options: options,
+        );
   }
   final entry = Symbols.lookup(mode, value);
-  if (value == r'\' || entry?.font == Font.main) {
-    return makeSymbol(value, 'Main-Regular', mode, options: options);
+  if (value == r'\\' || entry?.font == Font.main) {
+    return makeSymbol(value, 'Main-Regular', mode, options: options) ??
+        missingMetricsGlyph(
+          value: value,
+          fontName: 'Main-Regular',
+          mode: mode,
+          options: options,
+        );
   }
-  return makeSymbol(value, 'AMS-Regular', mode, options: options);
+  return makeSymbol(value, 'AMS-Regular', mode, options: options) ??
+      missingMetricsGlyph(
+        value: value,
+        fontName: 'AMS-Regular',
+        mode: mode,
+        options: options,
+      );
 }
 
 /// Makes a glyph directly (without symbol-table translation) from a [KatexFont]
@@ -139,7 +190,9 @@ _BoldSymbol _boldSymbol(String value, Mode mode, bool isTextord) {
 /// [isTextord] selects the textord vs mathord behaviour. Returns an [HBox] only
 /// when deconstructing a monospace ligature; otherwise a [GlyphNode] (or `null`
 /// if no metrics are available anywhere — should not happen for valid input).
-BoxNode? makeOrd(
+/// Never returns `null`: like KaTeX, a character without font metrics
+/// becomes a zero-size glyph (see [missingMetricsGlyph]), not an empty span.
+BoxNode makeOrd(
   String text,
   Mode mode,
   Options options, {
@@ -165,7 +218,16 @@ BoxNode? makeOrd(
     }
 
     if (lookupSymbol(text, fontName, mode).metrics != null) {
-      return makeSymbol(text, fontName, mode, options: options);
+      // Metrics were just confirmed present, so the fallback below is
+      // unreachable — it exists only because the type system cannot see
+      // through the two-step lookup.
+      return makeSymbol(text, fontName, mode, options: options) ??
+          missingMetricsGlyph(
+            value: text,
+            fontName: fontName,
+            mode: mode,
+            options: options,
+          );
     } else if (ligatures.contains(text) && fontName.startsWith('Typewriter')) {
       // Deconstruct ligatures in monospace fonts (\texttt, \tt).
       final parts = <BoxNode>[];
@@ -181,16 +243,34 @@ BoxNode? makeOrd(
 
   // Default font for mathords and textords.
   if (!isTextord) {
-    return makeSymbol(text, 'Math-Italic', mode, options: options);
+    return makeSymbol(text, 'Math-Italic', mode, options: options) ??
+        missingMetricsGlyph(
+          value: text,
+          fontName: 'Math-Italic',
+          mode: mode,
+          options: options,
+        );
   }
 
   final symFont = Symbols.lookup(mode, text)?.font;
   if (symFont == Font.ams) {
     final fontName = _retrieveTextFontName('amsrm', fontWeight, fontShape);
-    return makeSymbol(text, fontName, mode, options: options);
+    return makeSymbol(text, fontName, mode, options: options) ??
+        missingMetricsGlyph(
+          value: text,
+          fontName: fontName,
+          mode: mode,
+          options: options,
+        );
   }
   final fontName = _retrieveTextFontName('textrm', fontWeight, fontShape);
-  return makeSymbol(text, fontName, mode, options: options);
+  return makeSymbol(text, fontName, mode, options: options) ??
+      missingMetricsGlyph(
+        value: text,
+        fontName: fontName,
+        mode: mode,
+        options: options,
+      );
 }
 
 /// Monospace ligatures that must be deconstructed in `\texttt`/`\tt`.
