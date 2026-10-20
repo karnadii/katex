@@ -14,6 +14,7 @@ import 'package:katex_dart/src/build/build_expression.dart';
 import 'package:katex_dart/src/build/builders/units.dart';
 import 'package:katex_dart/src/build/options.dart';
 import 'package:katex_dart/src/build/style.dart';
+import 'package:katex_dart/src/symbols/symbols.dart';
 
 /// Registers the array builder into [registry].
 void registerArrayBuilder(Map<String, GroupBuilder> registry) {
@@ -290,23 +291,32 @@ BoxNode _buildArray(ArrayNode group, Options options) {
   }
 
   // Equation tags. The parser records a tag per row: an explicit `\tag{…}`
-  // (as a node list) or a boolean saying "number this row" (the automatic
-  // numbering of `{equation}` / `{align}`).
+  // (as a node list), `true` asking for an automatic number (the numbering
+  // of `{equation}` / `{align}`), or `false` for none (`\nonumber`).
   //
-  // The automatic number is NOT drawn: KaTeX.js lets the *browser* count
-  // equations with a CSS counter, and this port has no document-level
-  // counter to count with. An explicit `\tag{…}` IS drawn, so a formula
-  // that carries one never loses it.
+  // Automatic numbers count from `KatexOptions.startingEquationNumber`
+  // through the render-scoped [EquationCounter] — the port's equivalent of
+  // the document-level CSS counter KaTeX.js counts with. Only rows that
+  // draw a number consume one: like the CSS counter, a `\nonumber` row
+  // neither draws nor advances the count. An explicit `\tag{…}` never
+  // touches the counter.
   final tags = group.tags;
   if (tags != null && tags.isNotEmpty) {
     final tagSpans = <VListChild>[];
-    var hasExplicit = false;
+    var hasTag = false;
     for (var r = 0; r < tags.length && r < body.length; r++) {
       final tag = tags[r];
-      if (tag is! List) continue; // `true` = automatic number, `false` = none
-      hasExplicit = true;
+      final List<ParseNode>? tagBody;
+      if (tag is List) {
+        tagBody = tag.cast<ParseNode>();
+      } else if (tag == true) {
+        tagBody = _autoTagNodes(options.equationCounter.take(), group.mode);
+      } else {
+        continue; // `false` = no number, and it consumes none.
+      }
+      hasTag = true;
       final tagBox = makeSpan(
-        buildExpression(tag.cast<ParseNode>(), options, isRealGroup: true),
+        buildExpression(tagBody, options, isRealGroup: true),
       );
       tagSpans.add(
         VListChild.elem(
@@ -315,16 +325,16 @@ BoxNode _buildArray(ArrayNode group, Options options) {
         ),
       );
     }
-    if (hasExplicit) {
+    if (hasTag) {
       final tagColumn = makeVList(
         positionType: VListPositionType.individualShift,
         children: tagSpans,
       );
+      final tagCell = makeSpan([tagColumn], classes: const ['tag']);
+      // `leqno` puts the number on the left.
+      final row = group.leqno == true ? <BoxNode>[tagCell, tableBody] : <BoxNode>[tableBody, tagCell];
       return withAtomClass(
-        makeFragment([
-          tableBody,
-          makeSpan([tagColumn], classes: const ['tag']),
-        ]),
+        makeFragment(row),
         'mord',
         options: options,
       );
@@ -332,4 +342,41 @@ BoxNode _buildArray(ArrayNode group, Options options) {
   }
 
   return withAtomClass(makeFragment([tableBody]), 'mord', options: options);
+}
+
+/// Builds the `(n)` label of an automatic equation number as parse nodes.
+///
+/// Mirrors exactly what the parser produces for the same characters
+/// (`parseSymbol` → `_symbolNode`): the parentheses are open/close atoms
+/// and the digits are mathord, so the label lays out as if the user had
+/// typed it.
+List<ParseNode> _autoTagNodes(int number, Mode mode) {
+  final label = '($number)';
+  final nodes = <ParseNode>[];
+  for (var i = 0; i < label.length; i++) {
+    final char = label[i];
+    final data = Symbols.lookup(mode, char);
+    if (data == null) continue; // Cannot happen for `(`, `)`, digits.
+    final group = data.group;
+    switch (group) {
+      case Group.bin:
+      case Group.rel:
+      case Group.open:
+      case Group.close:
+      case Group.punct:
+      case Group.inner:
+        nodes.add(AtomNode(mode: mode, text: char, family: group));
+      case Group.mathord:
+        nodes.add(MathOrdNode(mode: mode, text: char));
+      case Group.textord:
+        nodes.add(TextOrdNode(mode: mode, text: char));
+      case Group.spacing:
+        nodes.add(SpacingNode(mode: mode, text: char));
+      case Group.accent:
+        nodes.add(AccentTokenNode(mode: mode, text: char));
+      case Group.op:
+        nodes.add(OpTokenNode(mode: mode, text: char));
+    }
+  }
+  return nodes;
 }

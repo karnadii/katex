@@ -1207,4 +1207,139 @@ void main() {
       );
     });
   });
+
+  group('equation numbering', () {
+    const disp = KatexOptions(displayMode: true);
+
+    /// The glyph ink inside every `tag`-classed span, in document order.
+    /// Only glyphs under a tag span are collected; the formula body has
+    /// glyphs too.
+    String tagInk(BoxNode root) {
+      final chars = <String>[];
+      void walk(BoxNode node, bool inTag) {
+        final nowInTag = inTag || (node is SpanNode && node.classes.contains('tag'));
+        if (node is GlyphNode) {
+          if (nowInTag) chars.add(String.fromCharCode(node.codepoint));
+          return;
+        }
+        switch (node) {
+          case HBox(:final children):
+            for (final child in children) {
+              walk(child, nowInTag);
+            }
+          case SpanNode(:final children):
+            for (final child in children) {
+              walk(child, nowInTag);
+            }
+          case VList(:final positions):
+            for (final position in positions) {
+              walk(position.box, nowInTag);
+            }
+          case EncloseNode(:final child):
+            walk(child, nowInTag);
+          case GlyphNode():
+          case KernNode():
+          case RuleNode():
+          case SvgPathNode():
+          case ImageNode():
+          case TextRunNode():
+            break;
+        }
+      }
+
+      walk(root, false);
+      return chars.join();
+    }
+
+    test('{equation} draws (1)', () {
+      final root = renderToBox(
+        r'\begin{equation} a = b \end{equation}',
+        options: disp,
+      );
+      expect(tagInk(root), '(1)');
+    });
+
+    test('{align} numbers each row', () {
+      final root = renderToBox(
+        r'\begin{align} x &= 1 \\ y &= 2 \end{align}',
+        options: disp,
+      );
+      expect(tagInk(root), '(1)(2)');
+    });
+
+    test(r'\nonumber neither draws nor consumes a number', () {
+      final root = renderToBox(
+        r'\begin{align} x &= 1 \nonumber \\ y &= 2 \end{align}',
+        options: disp,
+      );
+      // Like the CSS counter KaTeX.js counts with: only rows that draw a
+      // number advance the count.
+      expect(tagInk(root), '(1)');
+    });
+
+    test('{equation*} draws no tag', () {
+      final root = renderToBox(
+        r'\begin{equation*} a = b \end{equation*}',
+        options: disp,
+      );
+      expect(tagInk(root), isEmpty);
+      expect(
+        _flatten(root).whereType<SpanNode>().where(
+          (n) => n.classes.contains('tag'),
+        ),
+        isEmpty,
+      );
+    });
+
+    test('an explicit tag does not consume a number', () {
+      final root = renderToBox(
+        r'\begin{align} x &= 1 \tag{A} \\ y &= 2 \end{align}',
+        options: disp,
+      );
+      expect(tagInk(root), '(A)(1)');
+    });
+
+    test('startingEquationNumber shifts the count', () {
+      final root = renderToBox(
+        r'\begin{equation} a = b \end{equation}',
+        options: const KatexOptions(
+          displayMode: true,
+          startingEquationNumber: 7,
+        ),
+      );
+      expect(tagInk(root), '(7)');
+    });
+
+    test('leqno puts the tag column first', () {
+      BoxNode render(bool leqno) => renderToBox(
+        r'\begin{equation} a = b \end{equation}',
+        options: KatexOptions(displayMode: true, leqno: leqno),
+      );
+
+      /// Index of the first HBox child carrying [cls], or -1.
+      int childIndex(BoxNode root, String cls) {
+        for (final node in _flatten(root)) {
+          if (node is HBox) {
+            for (var i = 0; i < node.children.length; i++) {
+              final child = node.children[i];
+              if (child is SpanNode && child.classes.contains(cls)) return i;
+            }
+          }
+        }
+        return -1;
+      }
+
+      final left = render(true);
+      expect(childIndex(left, 'tag'), 0, reason: 'leqno draws the tag first');
+      expect(childIndex(left, 'mtable'), 1);
+
+      final right = render(false);
+      expect(
+        childIndex(right, 'mtable'),
+        0,
+        reason: 'default draws the table first',
+      );
+      expect(childIndex(right, 'tag'), 1);
+    });
+  });
 }

@@ -47,6 +47,31 @@ const List<double> _sizeMultipliers = [
 
 int _sizeAtStyle(int size, Style style) => style.size < 2 ? size : _sizeStyleMap[size - 1][style.size - 1];
 
+/// Counts automatic equation numbers (`{equation}`, `{align}`, ...) within
+/// one render.
+///
+/// KaTeX.js numbers equations with a document-level CSS counter; this port
+/// renders each formula independently, so the count lives in an explicit
+/// object instead: one counter is created per `renderToBox` call (starting
+/// from `KatexOptions.startingEquationNumber`) and every derived [Options]
+/// shares it, so auto-numbered rows across environments in one render count
+/// up exactly like the CSS counter would within one page fragment.
+///
+/// Deliberately mutable: [Options] itself stays an immutable value (all
+/// fields final, every derivation through [Options.extend]), and the counter
+/// reference is forwarded unchanged by `extend`, so the count is the one
+/// piece of render-scoped state the immutable tree carries.
+class EquationCounter {
+  /// Creates a counter starting at [first] (which is also the first number
+  /// handed out).
+  EquationCounter([this._next = 1]);
+
+  int _next;
+
+  /// The next automatic equation number, advancing the count.
+  int take() => _next++;
+}
+
 /// The main build options class, holding the current [style], color, size, and
 /// font selection. A faithful port of KaTeX's `Options`.
 ///
@@ -73,7 +98,9 @@ class Options {
     this.maxSize = double.infinity,
     this.minRuleThickness = 0,
     this.measureTextRun = defaultTextRunMeasurer,
+    EquationCounter? equationCounter,
   }) : size = size ?? baseSize,
+       equationCounter = equationCounter ?? EquationCounter(),
        textSize = textSize ?? size ?? baseSize,
        sizeMultiplier = _sizeMultipliers[(size ?? baseSize) - 1];
 
@@ -84,11 +111,13 @@ class Options {
     double maxSize = double.infinity,
     double minRuleThickness = 0,
     TextRunMeasurer measureTextRun = defaultTextRunMeasurer,
+    EquationCounter? equationCounter,
   }) => Options(
     style: style,
     maxSize: maxSize,
     minRuleThickness: minRuleThickness,
     measureTextRun: measureTextRun,
+    equationCounter: equationCounter,
   );
 
   /// The base size index (KaTeX's `BASESIZE`), `\normalsize`.
@@ -135,6 +164,10 @@ class Options {
   /// own so the reserved space matches what it draws.
   final TextRunMeasurer measureTextRun;
 
+  /// The automatic-equation counter shared by every [Options] derived during
+  /// one render (see [EquationCounter]). Forwarded unchanged by [extend].
+  final EquationCounter equationCounter;
+
   /// Clamps a rule [thickness] up to [minRuleThickness] (KaTeX floors every
   /// fraction bar / frame / array rule at the configured minimum).
   double floorRuleThickness(double thickness) => thickness > minRuleThickness ? thickness : minRuleThickness;
@@ -158,6 +191,7 @@ class Options {
     double? maxSize,
     double? minRuleThickness,
     TextRunMeasurer? measureTextRun,
+    EquationCounter? equationCounter,
   }) {
     return Options(
       style: style ?? this.style,
@@ -172,6 +206,7 @@ class Options {
       maxSize: maxSize ?? this.maxSize,
       minRuleThickness: minRuleThickness ?? this.minRuleThickness,
       measureTextRun: measureTextRun ?? this.measureTextRun,
+      equationCounter: equationCounter ?? this.equationCounter,
     );
   }
 

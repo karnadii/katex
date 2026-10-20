@@ -31,6 +31,8 @@ class KatexOptions {
     this.maxSize = double.infinity,
     this.measureTextRun = defaultTextRunMeasurer,
     this.maxWidth = double.infinity,
+    this.startingEquationNumber = 1,
+    this.leqno = false,
   });
 
   /// Whether to typeset as display math (`true`) or inline math (`false`,
@@ -69,6 +71,19 @@ class KatexOptions {
   /// measurer so the reserved space matches what it paints.
   final TextRunMeasurer measureTextRun;
 
+  /// Render display math with equation numbers on the left, mirroring
+  /// KaTeX's `leqno`.
+  final bool leqno;
+
+  /// First automatic equation number handed out in one render.
+  ///
+  /// KaTeX.js counts equations with a document-level CSS counter; this port
+  /// renders each formula independently, so `{equation}` / `{align}` rows
+  /// that ask for automatic numbering count from here instead (default 1).
+  /// A host that numbers equations across a document passes the running
+  /// count for each render.
+  final int startingEquationNumber;
+
   /// Width budget for **automatic line breaking**, in em. `double.infinity`
   /// (the default) never wraps.
   ///
@@ -90,6 +105,7 @@ class KatexOptions {
   /// Maps these options to the internal parser [Settings].
   Settings toSettings() => Settings(
     displayMode: displayMode,
+    leqno: leqno,
     throwOnError: throwOnError,
     macros: macros,
     strict: strict,
@@ -107,6 +123,7 @@ class KatexOptions {
       maxSize: settings.maxSize,
       minRuleThickness: settings.minRuleThickness,
       measureTextRun: measureTextRun,
+      equationCounter: EquationCounter(startingEquationNumber),
     );
     if (color != null) {
       options = options.withColor(color!);
