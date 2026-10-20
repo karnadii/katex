@@ -130,6 +130,38 @@ void main() {
       expect(sym.height, 0);
       expect(sym.codepoint, 0x22b6);
     });
+
+    test('an astral symbol keeps its full scalar, not a surrogate half', () {
+      // An emoji is two UTF-16 units; taking the first unit hands the
+      // painter a lone surrogate, which Flutter rejects. The golden suite
+      // caught two cases crashing exactly this way.
+      final built = buildExpression(
+        [TextOrdNode(mode: Mode.text, text: '😊')],
+        Options.initial(),
+        isRealGroup: true,
+      );
+      final glyphs = <GlyphNode>[];
+      void walk(BoxNode node) {
+        if (node is GlyphNode) {
+          glyphs.add(node);
+          return;
+        }
+        final children = switch (node) {
+          HBox(:final children) => children,
+          SpanNode(:final children) => children,
+          _ => const <BoxNode>[],
+        };
+        for (final child in children) {
+          walk(child);
+        }
+      }
+
+      for (final box in built) {
+        walk(box);
+      }
+      expect(glyphs, hasLength(1));
+      expect(glyphs.single.codepoint, 0x1F60A);
+    });
   });
 
   group('every symbol-table entry builds to a glyph', () {

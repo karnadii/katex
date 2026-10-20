@@ -102,8 +102,12 @@ GlyphNode missingMetricsGlyph({
   Options? options,
 }) {
   final resolved = lookupSymbol(value, fontName, mode).value;
+  // The first full scalar, not the first UTF-16 unit: an astral character
+  // (emoji, math alphanumerics) is two units, and handing a lone surrogate
+  // half to the painter crashes it.
+  final codepoint = resolved.runes.first;
   return GlyphNode(
-    codepoint: resolved.codeUnitAt(0),
+    codepoint: codepoint,
     font: _fontFromName(fontName),
     metrics: const CharacterMetrics(
       depth: 0,
