@@ -102,8 +102,7 @@ const List<int> _complexScriptBlocks = [
 /// Whether [codepoint] belongs to a script that needs whole-run shaping.
 bool isComplexScript(int codepoint) {
   for (var i = 0; i < _complexScriptBlocks.length; i += 2) {
-    if (codepoint >= _complexScriptBlocks[i] &&
-        codepoint <= _complexScriptBlocks[i + 1]) {
+    if (codepoint >= _complexScriptBlocks[i] && codepoint <= _complexScriptBlocks[i + 1]) {
       return true;
     }
   }

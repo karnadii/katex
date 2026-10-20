@@ -9,11 +9,10 @@ dynamic mathCellWidget(
   int heightPx = 0,
   String animation = 'none',
   int stepMillis = 0,
-}) =>
-    MathCell(
-      tex: tex,
-      displayMode: displayMode,
-      heightPx: heightPx,
-      animation: animation,
-      stepMillis: stepMillis,
-    );
+}) => MathCell(
+  tex: tex,
+  displayMode: displayMode,
+  heightPx: heightPx,
+  animation: animation,
+  stepMillis: stepMillis,
+);

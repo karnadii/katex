@@ -369,9 +369,7 @@ void _registerMatrix() {
           // and amsmath's narrow column separation — KaTeX's "a variant of
           // matrix with a smaller font size" means smaller glyphs.
           arraystretch: isSmallMatrix ? 0.5 : null,
-          colSeparationType: isSmallMatrix
-              ? ColSeparationType.small
-              : null,
+          colSeparationType: isSmallMatrix ? ColSeparationType.small : null,
         );
         if (context.envName.endsWith('*')) {
           parser.consumeSpaces();

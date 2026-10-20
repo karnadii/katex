@@ -130,8 +130,7 @@ class Math extends StatelessWidget {
     }
     // Wrapping needs the incoming width, which is only known at layout time.
     return LayoutBuilder(
-      builder: (context, constraints) =>
-          _buildMath(context, _emBudget(constraints.maxWidth, fontSizePx)),
+      builder: (context, constraints) => _buildMath(context, _emBudget(constraints.maxWidth, fontSizePx)),
     );
   }
 

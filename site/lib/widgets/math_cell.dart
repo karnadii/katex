@@ -80,8 +80,7 @@ class MathCell extends StatelessWidget {
           : AnimatedMath(
               tex,
               mode: mode,
-              stepDuration:
-                  stepMillis > 0 ? Duration(milliseconds: stepMillis) : null,
+              stepDuration: stepMillis > 0 ? Duration(milliseconds: stepMillis) : null,
               displayMode: displayMode,
               fontSize: _kEmPx,
             ),
@@ -211,9 +210,7 @@ class _OversampledMathState extends State<_OversampledMath> {
   @override
   void didUpdateWidget(_OversampledMath old) {
     super.didUpdateWidget(old);
-    if (old.tex != widget.tex ||
-        old.displayMode != widget.displayMode ||
-        old.fontSize != widget.fontSize) {
+    if (old.tex != widget.tex || old.displayMode != widget.displayMode || old.fontSize != widget.fontSize) {
       _render();
     }
   }

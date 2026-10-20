@@ -221,5 +221,4 @@ const List<ExampleGroup> kGroups = <ExampleGroup>[
 ];
 
 /// Flat view of every example (in group order).
-List<Example> get kAllExamples =>
-    kGroups.expand((ExampleGroup g) => g.examples).toList();
+List<Example> get kAllExamples => kGroups.expand((ExampleGroup g) => g.examples).toList();

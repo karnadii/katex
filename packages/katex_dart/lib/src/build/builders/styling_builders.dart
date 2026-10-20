@@ -168,10 +168,7 @@ List<BoxNode> _buildTextBody(List<ast.ParseNode> body, Options options) {
 BoxNode _buildText(ast.TextNode group, Options options) {
   final newOptions = _optionsWithFont(group, options);
   final hasComplexScript = group.body.any(
-    (n) =>
-        n is ast.SymbolParseNode &&
-        n.text.isNotEmpty &&
-        isComplexScript(n.text.runes.first),
+    (n) => n is ast.SymbolParseNode && n.text.isNotEmpty && isComplexScript(n.text.runes.first),
   );
   // The fast path is the normal one; only fall back to manual segmentation
   // when a complex script is actually present, so ordinary text keeps

@@ -67,8 +67,7 @@ bool _isFinitePositive(double v) => v.isFinite && v > 0;
 
 /// A stand-in for a backend measurer, so a test can assert the reported
 /// dimensions reach the box tree rather than depending on the estimate.
-TextRunMetrics _fixedMeasurer(String text) =>
-    const TextRunMetrics(width: 7, height: 3, depth: 2);
+TextRunMetrics _fixedMeasurer(String text) => const TextRunMetrics(width: 7, height: 3, depth: 2);
 
 void main() {
   group('renderToBox builds every gallery expression', () {
@@ -260,8 +259,7 @@ void main() {
   // letterforms in reversed order. The whole word has to reach the backend as
   // a single string for the platform to shape and reorder it.
   group('complex-script text runs', () {
-    List<TextRunNode> runs(BoxNode root) =>
-        _flatten(root).whereType<TextRunNode>().toList();
+    List<TextRunNode> runs(BoxNode root) => _flatten(root).whereType<TextRunNode>().toList();
 
     test('an Arabic word becomes ONE run holding the whole word', () {
       final found = runs(renderToBox(r'\text{مرة}'));
@@ -461,7 +459,8 @@ void main() {
             );
           }
         }
-      }    });
+      }
+    });
   });
 
   // T-033 (RC-3) — `\sqrt[n]{x}` root-index placement.
@@ -782,10 +781,8 @@ void main() {
     // accent-wrapped base in for rendering — `supSubGroup.children[0] =
     // accentWrap`. Expected dimensions are KaTeX 0.17.0's own.
     group('accent with sub/superscript', () {
-      int glyphCount(BoxNode root, int codepoint) => _flatten(root)
-          .whereType<GlyphNode>()
-          .where((g) => g.codepoint == codepoint)
-          .length;
+      int glyphCount(BoxNode root, int codepoint) =>
+          _flatten(root).whereType<GlyphNode>().where((g) => g.codepoint == codepoint).length;
 
       const u = 0x75;
 
@@ -875,9 +872,7 @@ void main() {
         double bottom(VListPosition p) => p.shift + p.box.depth;
         double top(VListPosition p) => p.shift - p.box.height;
 
-        final ced = _flatten(renderToBox(r'\text{\c c}'))
-            .whereType<VList>()
-            .firstWhere((v) => v.positions.length >= 2);
+        final ced = _flatten(renderToBox(r'\text{\c c}')).whereType<VList>().firstWhere((v) => v.positions.length >= 2);
         expect(
           bottom(ced.positions.last),
           greaterThan(bottom(ced.positions.first)),
@@ -885,9 +880,7 @@ void main() {
         );
 
         // Control: the circumflex extends above the base instead.
-        final hat = _flatten(renderToBox(r'\text{\^a}'))
-            .whereType<VList>()
-            .firstWhere((v) => v.positions.length >= 2);
+        final hat = _flatten(renderToBox(r'\text{\^a}')).whereType<VList>().firstWhere((v) => v.positions.length >= 2);
         expect(
           top(hat.positions.last),
           lessThan(top(hat.positions.first)),

@@ -28,12 +28,7 @@ export 'package:katex_dart/src/parse/parse_error.dart' show ParseError;
 // measure text supplies a `TextRunMeasurer` via `KatexOptions.measureTextRun`
 // so the space reserved for a `TextRunNode` matches what it paints.
 export 'package:katex_dart/src/build/text_run.dart'
-    show
-        TextRunMeasurer,
-        TextRunMetrics,
-        defaultTextRunMeasurer,
-        isComplexScript,
-        isRtl;
+    show TextRunMeasurer, TextRunMetrics, defaultTextRunMeasurer, isComplexScript, isRtl;
 // Glyph outline paths (font units, y-up) keyed by font name → codepoint, plus
 // the units-per-em they're authored at. Part of the public model so backends
 // that render glyphs as filled paths (e.g. the SVG serializer, or an external

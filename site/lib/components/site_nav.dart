@@ -55,34 +55,34 @@ class SiteNav extends StatelessComponent {
 
   @css
   static List<StyleRule> get styles => [
-        css('.site-nav', [
-          css('&').styles(
-            display: Display.flex,
-            padding: Padding.symmetric(vertical: 12.px),
-            margin: Margin.only(bottom: 8.px),
-            border: Border.only(
-              bottom: BorderSide(color: const Color('#e2e2e2'), width: 1.px),
-            ),
-            alignItems: AlignItems.center,
-            gap: Gap.all(8.px),
-          ),
-          css('.nav-link', [
-            css('&').styles(
-              padding: Padding.symmetric(horizontal: 12.px, vertical: 6.px),
-              radius: BorderRadius.circular(6.px),
-              color: const Color('#1a4fa0'),
-              fontSize: 0.95.rem,
-              fontWeight: FontWeight.w500,
-              textDecoration: const TextDecoration(line: TextDecorationLine.none),
-            ),
-            css('&:hover').styles(backgroundColor: const Color('#eef3ff')),
-            css('&.active').styles(
-              color: const Color('#fff'),
-              backgroundColor: const Color('#1a4fa0'),
-            ),
-            // Push the cross-site link to the far right of the bar.
-            css('&.external').styles(margin: Margin.only(left: Unit.auto)),
-          ]),
-        ]),
-      ];
+    css('.site-nav', [
+      css('&').styles(
+        display: Display.flex,
+        padding: Padding.symmetric(vertical: 12.px),
+        margin: Margin.only(bottom: 8.px),
+        border: Border.only(
+          bottom: BorderSide(color: const Color('#e2e2e2'), width: 1.px),
+        ),
+        alignItems: AlignItems.center,
+        gap: Gap.all(8.px),
+      ),
+      css('.nav-link', [
+        css('&').styles(
+          padding: Padding.symmetric(horizontal: 12.px, vertical: 6.px),
+          radius: BorderRadius.circular(6.px),
+          color: const Color('#1a4fa0'),
+          fontSize: 0.95.rem,
+          fontWeight: FontWeight.w500,
+          textDecoration: const TextDecoration(line: TextDecorationLine.none),
+        ),
+        css('&:hover').styles(backgroundColor: const Color('#eef3ff')),
+        css('&.active').styles(
+          color: const Color('#fff'),
+          backgroundColor: const Color('#1a4fa0'),
+        ),
+        // Push the cross-site link to the far right of the bar.
+        css('&.external').styles(margin: Margin.only(left: Unit.auto)),
+      ]),
+    ]),
+  ];
 }

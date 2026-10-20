@@ -57,142 +57,145 @@ class Editor extends StatefulComponent {
 
   @css
   static List<StyleRule> get styles => [
-        css('.editor', [
-          css('&').styles(
-            padding: Padding.all(20.px),
-            margin: Margin.only(bottom: 28.px),
-            border: Border.all(color: const Color('#ddd'), width: 1.px),
-            radius: BorderRadius.circular(8.px),
-            backgroundColor: const Color('#fcfcfc'),
-          ),
-          css('h2').styles(margin: Margin.only(top: .zero, bottom: 4.px), fontSize: 1.3.rem),
-          css('.editor-hint').styles(
-            margin: Margin.only(top: .zero, bottom: 12.px),
-            color: const Color('#555'),
-            fontSize: 0.85.rem,
-          ),
-          css('.editor-controls').styles(
-            display: Display.flex,
-            margin: Margin.only(bottom: 16.px),
-            flexWrap: FlexWrap.wrap,
-            alignItems: AlignItems.center,
-            gap: Gap.all(12.px),
-          ),
-          css('.editor-input', [
-            css('&').styles(
-              padding: Padding.symmetric(horizontal: 10.px, vertical: 8.px),
-              border: Border.all(color: const Color('#bbb'), width: 1.px),
-              radius: BorderRadius.circular(6.px),
-              flex: Flex(grow: 1, shrink: 1, basis: 260.px),
-              fontFamily: const FontFamily.list([
-                FontFamily('SFMono-Regular'),
-                FontFamily('Menlo'),
-                FontFamilies.monospace,
-              ]),
-              fontSize: 0.95.rem,
-            ),
+    css('.editor', [
+      css('&').styles(
+        padding: Padding.all(20.px),
+        margin: Margin.only(bottom: 28.px),
+        border: Border.all(color: const Color('#ddd'), width: 1.px),
+        radius: BorderRadius.circular(8.px),
+        backgroundColor: const Color('#fcfcfc'),
+      ),
+      css('h2').styles(
+        margin: Margin.only(top: .zero, bottom: 4.px),
+        fontSize: 1.3.rem,
+      ),
+      css('.editor-hint').styles(
+        margin: Margin.only(top: .zero, bottom: 12.px),
+        color: const Color('#555'),
+        fontSize: 0.85.rem,
+      ),
+      css('.editor-controls').styles(
+        display: Display.flex,
+        margin: Margin.only(bottom: 16.px),
+        flexWrap: FlexWrap.wrap,
+        alignItems: AlignItems.center,
+        gap: Gap.all(12.px),
+      ),
+      css('.editor-input', [
+        css('&').styles(
+          padding: Padding.symmetric(horizontal: 10.px, vertical: 8.px),
+          border: Border.all(color: const Color('#bbb'), width: 1.px),
+          radius: BorderRadius.circular(6.px),
+          flex: Flex(grow: 1, shrink: 1, basis: 260.px),
+          fontFamily: const FontFamily.list([
+            FontFamily('SFMono-Regular'),
+            FontFamily('Menlo'),
+            FontFamilies.monospace,
           ]),
-          css('.editor-toggle').styles(
-            display: Display.flex,
-            userSelect: UserSelect.none,
-            alignItems: AlignItems.center,
-            color: const Color('#333'),
-            fontSize: 0.85.rem,
+          fontSize: 0.95.rem,
+        ),
+      ]),
+      css('.editor-toggle').styles(
+        display: Display.flex,
+        userSelect: UserSelect.none,
+        alignItems: AlignItems.center,
+        color: const Color('#333'),
+        fontSize: 0.85.rem,
+      ),
+      // Reveal-animation controls (katex_flutter cell only).
+      css('.anim-controls').styles(
+        display: Display.flex,
+        margin: Margin.only(bottom: 16.px),
+        flexWrap: FlexWrap.wrap,
+        alignItems: AlignItems.center,
+        gap: Gap.all(10.px),
+      ),
+      css('.anim-label').styles(
+        color: const Color('#555'),
+        fontSize: 0.82.rem,
+        fontWeight: FontWeight.bold,
+      ),
+      css('.anim-segmented', [
+        css('&').styles(
+          display: Display.flex,
+          border: Border.all(color: const Color('#bbb'), width: 1.px),
+          radius: BorderRadius.circular(6.px),
+          overflow: Overflow.hidden,
+        ),
+        css('.anim-btn').styles(
+          padding: Padding.symmetric(horizontal: 10.px, vertical: 6.px),
+          border: Border.unset,
+          cursor: Cursor.pointer,
+          color: const Color('#333'),
+          fontSize: 0.8.rem,
+          backgroundColor: const Color('#fff'),
+        ),
+        css('.anim-btn + .anim-btn').styles(
+          border: Border.only(
+            left: BorderSide(color: const Color('#ddd'), width: 1.px),
           ),
-          // Reveal-animation controls (katex_flutter cell only).
-          css('.anim-controls').styles(
-            display: Display.flex,
-            margin: Margin.only(bottom: 16.px),
-            flexWrap: FlexWrap.wrap,
-            alignItems: AlignItems.center,
-            gap: Gap.all(10.px),
-          ),
-          css('.anim-label').styles(
-            color: const Color('#555'),
-            fontSize: 0.82.rem,
-            fontWeight: FontWeight.bold,
-          ),
-          css('.anim-segmented', [
-            css('&').styles(
-              display: Display.flex,
-              border: Border.all(color: const Color('#bbb'), width: 1.px),
-              radius: BorderRadius.circular(6.px),
-              overflow: Overflow.hidden,
-            ),
-            css('.anim-btn').styles(
-              padding: Padding.symmetric(horizontal: 10.px, vertical: 6.px),
-              border: Border.unset,
-              cursor: Cursor.pointer,
-              color: const Color('#333'),
-              fontSize: 0.8.rem,
-              backgroundColor: const Color('#fff'),
-            ),
-            css('.anim-btn + .anim-btn').styles(
-              border: Border.only(
-                left: BorderSide(color: const Color('#ddd'), width: 1.px),
-              ),
-            ),
-            css('.anim-btn.active').styles(
-              color: const Color('#fff'),
-              backgroundColor: const Color('#3b82f6'),
-            ),
+        ),
+        css('.anim-btn.active').styles(
+          color: const Color('#fff'),
+          backgroundColor: const Color('#3b82f6'),
+        ),
+      ]),
+      css('.anim-replay').styles(
+        padding: Padding.symmetric(horizontal: 12.px, vertical: 6.px),
+        border: Border.all(color: const Color('#bbb'), width: 1.px),
+        radius: BorderRadius.circular(6.px),
+        cursor: Cursor.pointer,
+        color: const Color('#333'),
+        fontSize: 0.8.rem,
+        backgroundColor: const Color('#fff'),
+      ),
+      // Three side-by-side preview cells (collapse to a column when narrow).
+      css('.editor-outputs').styles(
+        display: Display.grid,
+        gridTemplate: GridTemplate(
+          columns: GridTracks([
+            GridTrack(TrackSize.fr(1)),
+            GridTrack(TrackSize.fr(1)),
+            GridTrack(TrackSize.fr(1)),
           ]),
-          css('.anim-replay').styles(
-            padding: Padding.symmetric(horizontal: 12.px, vertical: 6.px),
-            border: Border.all(color: const Color('#bbb'), width: 1.px),
-            radius: BorderRadius.circular(6.px),
-            cursor: Cursor.pointer,
-            color: const Color('#333'),
-            fontSize: 0.8.rem,
-            backgroundColor: const Color('#fff'),
-          ),
-          // Three side-by-side preview cells (collapse to a column when narrow).
-          css('.editor-outputs').styles(
-            display: Display.grid,
-            gridTemplate: GridTemplate(
-              columns: GridTracks([
-                GridTrack(TrackSize.fr(1)),
-                GridTrack(TrackSize.fr(1)),
-                GridTrack(TrackSize.fr(1)),
-              ]),
-            ),
-            gap: Gap.all(12.px),
-          ),
-          css('.editor-cell', [
-            css('&').styles(
-              display: Display.flex,
-              border: Border.all(color: const Color('#e3e3e3'), width: 1.px),
-              radius: BorderRadius.circular(6.px),
-              overflow: Overflow.hidden,
-              flexDirection: FlexDirection.column,
-            ),
-            css('.editor-cell-head').styles(
-              padding: Padding.symmetric(horizontal: 8.px, vertical: 4.px),
-              color: const Color('#555'),
-              fontSize: 0.72.rem,
-              fontWeight: FontWeight.bold,
-              textTransform: TextTransform.upperCase,
-              backgroundColor: const Color('#f3f3f3'),
-            ),
-            css('.editor-cell-body').styles(
-              display: Display.flex,
-              position: const Position.relative(),
-              minHeight: 96.px,
-              padding: Padding.all(10.px),
-              justifyContent: JustifyContent.center,
-              alignItems: AlignItems.center,
-              backgroundColor: const Color('#fafafa'),
-            ),
-            // The Flutter embed host must fill the cell so its view gets a real
-            // height (same chain as the comparison rows' .flutter-cell).
-            css('.editor-cell-body > *').styles(
-              width: 100.percent,
-              height: 100.percent,
-              minHeight: 96.px,
-            ),
-          ]),
-        ]),
-      ];
+        ),
+        gap: Gap.all(12.px),
+      ),
+      css('.editor-cell', [
+        css('&').styles(
+          display: Display.flex,
+          border: Border.all(color: const Color('#e3e3e3'), width: 1.px),
+          radius: BorderRadius.circular(6.px),
+          overflow: Overflow.hidden,
+          flexDirection: FlexDirection.column,
+        ),
+        css('.editor-cell-head').styles(
+          padding: Padding.symmetric(horizontal: 8.px, vertical: 4.px),
+          color: const Color('#555'),
+          fontSize: 0.72.rem,
+          fontWeight: FontWeight.bold,
+          textTransform: TextTransform.upperCase,
+          backgroundColor: const Color('#f3f3f3'),
+        ),
+        css('.editor-cell-body').styles(
+          display: Display.flex,
+          position: const Position.relative(),
+          minHeight: 96.px,
+          padding: Padding.all(10.px),
+          justifyContent: JustifyContent.center,
+          alignItems: AlignItems.center,
+          backgroundColor: const Color('#fafafa'),
+        ),
+        // The Flutter embed host must fill the cell so its view gets a real
+        // height (same chain as the comparison rows' .flutter-cell).
+        css('.editor-cell-body > *').styles(
+          width: 100.percent,
+          height: 100.percent,
+          minHeight: 96.px,
+        ),
+      ]),
+    ]),
+  ];
 }
 
 /// The reveal-animation modes offered for the `katex_flutter` cell, as
@@ -366,9 +369,7 @@ class _EditorState extends State<Editor> {
           input<bool>(
             type: InputType.checkbox,
             checked: _slow,
-            attributes: _animation == 'none' || _animation == 'fadeIn'
-                ? const {'disabled': ''}
-                : const {},
+            attributes: _animation == 'none' || _animation == 'fadeIn' ? const {'disabled': ''} : const {},
             onChange: _toggleSlow,
           ),
           .text(' slow (1 elem/sec)'),
@@ -398,10 +399,8 @@ class _EditorState extends State<Editor> {
             // Pin the view height to the input's full math height so the
             // multi-view scene isn't bottom-clipped (same fix as the rows).
             constraints: ViewConstraints(
-              minHeight:
-                  mathCellHeightPx(_tex, displayMode: _displayMode).toDouble(),
-              maxHeight:
-                  mathCellHeightPx(_tex, displayMode: _displayMode).toDouble(),
+              minHeight: mathCellHeightPx(_tex, displayMode: _displayMode).toDouble(),
+              maxHeight: mathCellHeightPx(_tex, displayMode: _displayMode).toDouble(),
             ),
             widget: mathCellWidget(
               _tex,

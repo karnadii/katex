@@ -345,9 +345,7 @@ BoxNode _buildAccent(AccentNode group, Options options) {
   final accentBelow = group.label == r'\c';
 
   // Clearance between body and accent (rule 12): min of body height & xHeight.
-  var clearance = accentBelow
-      ? body.height + body.depth
-      : math.min(body.height, options.fontMetrics().xHeight);
+  var clearance = accentBelow ? body.height + body.depth : math.min(body.height, options.fontMetrics().xHeight);
 
   if (!isStretchy) {
     final BoxNode accent;

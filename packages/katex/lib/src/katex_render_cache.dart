@@ -29,8 +29,7 @@ class KaTeXRenderCache {
   final int _maxSize;
   final _cache = <String, BoxNode>{};
 
-  String _key(String latex, bool displayMode, double? maxWidthEm) =>
-      '$latex\x00$displayMode\x00${maxWidthEm ?? 'inf'}';
+  String _key(String latex, bool displayMode, double? maxWidthEm) => '$latex\x00$displayMode\x00${maxWidthEm ?? 'inf'}';
 
   /// Returns the cached box tree for the given inputs, or `null` on a miss. A
   /// hit refreshes the entry's recency.

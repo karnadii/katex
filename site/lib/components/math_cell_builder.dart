@@ -2,5 +2,4 @@
 /// so the static prerender never imports `package:flutter`.
 library;
 
-export 'math_cell_builder_io.dart'
-    if (dart.library.js_interop) 'math_cell_builder_web.dart';
+export 'math_cell_builder_io.dart' if (dart.library.js_interop) 'math_cell_builder_web.dart';

@@ -554,13 +554,15 @@ BoxNode _buildLeftRight(LeftRightNode group, Options options) {
     return parts;
   }
 
-  final inner = hasMiddle ? buildParts() : buildExpression(
-    group.body,
-    options,
-    isRealGroup: true,
-    surroundingLeft: 'mopen',
-    surroundingRight: 'mclose',
-  );
+  final inner = hasMiddle
+      ? buildParts()
+      : buildExpression(
+          group.body,
+          options,
+          isRealGroup: true,
+          surroundingLeft: 'mopen',
+          surroundingRight: 'mclose',
+        );
 
   var innerHeight = inner.fold<double>(0, (m, n) => math.max(m, n.height));
   var innerDepth = inner.fold<double>(0, (m, n) => math.max(m, n.depth));

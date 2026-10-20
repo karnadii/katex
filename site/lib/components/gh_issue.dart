@@ -17,11 +17,10 @@ const int _kTitleTexMax = 60;
 /// Returns a `https://github.com/orestesgaolin/katex/issues/new?...` URL with
 /// the title and body pre-filled for the given [tex] and [displayMode].
 String ghIssueUrl(String tex, {required bool displayMode}) {
-  final truncated = tex.length > _kTitleTexMax
-      ? '${tex.substring(0, _kTitleTexMax)}…'
-      : tex;
+  final truncated = tex.length > _kTitleTexMax ? '${tex.substring(0, _kTitleTexMax)}…' : tex;
   final title = 'Rendering issue: $truncated';
-  final body = '''
+  final body =
+      '''
 **TeX input:**
 ```
 $tex

@@ -102,8 +102,10 @@ void main(List<String> args) {
   }
 
   stdout.write(_emit(entries));
-  stderr.writeln('Parsed ${entries.length} entries across '
-      '${entries.map((e) => e.category).toSet().length} categories.');
+  stderr.writeln(
+    'Parsed ${entries.length} entries across '
+    '${entries.map((e) => e.category).toSet().length} categories.',
+  );
 }
 
 /// Splits a markdown table row into cell strings, dropping the leading/trailing
@@ -249,10 +251,6 @@ String _dartStr(String s) {
   if (!s.contains("'") && !s.contains(r'$') && !s.contains('\n')) {
     return "r'$s'";
   }
-  final esc = s
-      .replaceAll(r'\', r'\\')
-      .replaceAll("'", r"\'")
-      .replaceAll(r'$', r'\$')
-      .replaceAll('\n', r'\n');
+  final esc = s.replaceAll(r'\', r'\\').replaceAll("'", r"\'").replaceAll(r'$', r'\$').replaceAll('\n', r'\n');
   return "'$esc'";
 }

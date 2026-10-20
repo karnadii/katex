@@ -70,20 +70,26 @@ class App extends StatelessComponent {
           strong([.text('SVG with no Flutter dependency')]),
           .text(' (CLI / server / web / SSR) and as a '),
           strong([.text('Flutter widget')]),
-          .text('. This page renders every example three ways — original '
-              'KaTeX (JS), our Dart → SVG, and the Flutter widget — side by '
-              'side, so divergences are obvious at a glance.'),
+          .text(
+            '. This page renders every example three ways — original '
+            'KaTeX (JS), our Dart → SVG, and the Flutter widget — side by '
+            'side, so divergences are obvious at a glance.',
+          ),
         ]),
         p([
           .text('How it differs from existing packages: tools like '),
           em([.text('flutter_math_fork')]),
-          .text(' bolt rendering directly onto Flutter render objects and '
-              "can't run outside Flutter. "),
+          .text(
+            ' bolt rendering directly onto Flutter render objects and '
+            "can't run outside Flutter. ",
+          ),
           strong([.text('katex')]),
-          .text(' instead keeps a shared, backend-agnostic box tree as its '
-              'core, so the exact same layout drives both the no-Flutter SVG '
-              'output and the Flutter widget — and box dimensions are verified '
-              'against original KaTeX.'),
+          .text(
+            ' instead keeps a shared, backend-agnostic box tree as its '
+            'core, so the exact same layout drives both the no-Flutter SVG '
+            'output and the Flutter widget — and box dimensions are verified '
+            'against original KaTeX.',
+          ),
         ]),
         p([
           .text('That portable core is reused elsewhere: '),
@@ -92,8 +98,10 @@ class App extends StatelessComponent {
             attributes: const {'target': '_blank', 'rel': 'noopener noreferrer'},
             [.text('mermaid dart')],
           ),
-          .text(', a pure-Dart port of mermaid.js, renders the TeX math labels '
-              'in its diagrams with '),
+          .text(
+            ', a pure-Dart port of mermaid.js, renders the TeX math labels '
+            'in its diagrams with ',
+          ),
           strong([.text('katex')]),
           .text('.'),
         ]),
@@ -119,9 +127,11 @@ class App extends StatelessComponent {
       ]),
       footer(classes: 'foot', [
         p([
-          .text('Each row renders the same TeX three ways — KaTeX JS '
-              '(ground truth), katex Dart → SVG, and katex_flutter — so any '
-              'divergence is visible at a glance.'),
+          .text(
+            'Each row renders the same TeX three ways — KaTeX JS '
+            '(ground truth), katex Dart → SVG, and katex_flutter — so any '
+            'divergence is visible at a glance.',
+          ),
         ]),
       ]),
     ]);
@@ -129,227 +139,227 @@ class App extends StatelessComponent {
 
   @css
   static List<StyleRule> get styles => [
-        css('.page').styles(
-          maxWidth: 1500.px,
-          padding: Padding.all(24.px),
-          margin: Margin.symmetric(horizontal: Unit.auto),
-        ),
-        css('.site-header', [
-          css('&').styles(margin: Margin.only(bottom: 24.px)),
-          // Title row: heading on the left, GitHub pill on the right.
-          css('.header-top').styles(
-            display: Display.flex,
-            flexWrap: FlexWrap.wrap,
-            justifyContent: JustifyContent.spaceBetween,
-            alignItems: AlignItems.baseline,
-            gap: Gap.all(12.px),
-          ),
-          css('h1').styles(
-            margin: Margin.only(bottom: 4.px),
-            color: const Color('#1a4fa0'),
-            fontSize: 2.4.rem,
-          ),
-          css('.subtitle').styles(
-            margin: Margin.only(top: 4.px, bottom: .zero),
-            color: const Color('#555566'),
-            fontSize: 1.05.rem,
-          ),
-          css('.legend').styles(
-            margin: Margin.only(top: 10.px),
-            color: const Color('#555'),
-            fontSize: 0.85.rem,
-          ),
+    css('.page').styles(
+      maxWidth: 1500.px,
+      padding: Padding.all(24.px),
+      margin: Margin.symmetric(horizontal: Unit.auto),
+    ),
+    css('.site-header', [
+      css('&').styles(margin: Margin.only(bottom: 24.px)),
+      // Title row: heading on the left, GitHub pill on the right.
+      css('.header-top').styles(
+        display: Display.flex,
+        flexWrap: FlexWrap.wrap,
+        justifyContent: JustifyContent.spaceBetween,
+        alignItems: AlignItems.baseline,
+        gap: Gap.all(12.px),
+      ),
+      css('h1').styles(
+        margin: Margin.only(bottom: 4.px),
+        color: const Color('#1a4fa0'),
+        fontSize: 2.4.rem,
+      ),
+      css('.subtitle').styles(
+        margin: Margin.only(top: 4.px, bottom: .zero),
+        color: const Color('#555566'),
+        fontSize: 1.05.rem,
+      ),
+      css('.legend').styles(
+        margin: Margin.only(top: 10.px),
+        color: const Color('#555'),
+        fontSize: 0.85.rem,
+      ),
+    ]),
+    // GitHub pill in the header (shared shape with the mermaid site).
+    css('.gh-link', [
+      css('&').styles(
+        padding: Padding.symmetric(horizontal: 14.px, vertical: 6.px),
+        border: Border.all(color: const Color('#b9ccef'), width: 1.px),
+        radius: BorderRadius.circular(16.px),
+        color: const Color('#1a4fa0'),
+        fontSize: 0.95.rem,
+        fontWeight: FontWeight.w600,
+        textDecoration: const TextDecoration(line: TextDecorationLine.none),
+        whiteSpace: WhiteSpace.noWrap,
+        backgroundColor: const Color('#ffffff'),
+      ),
+      css('&:hover').styles(backgroundColor: const Color('#eef3ff')),
+    ]),
+    // Badges.
+    css('.badge', [
+      css('&').styles(
+        display: Display.inlineBlock,
+        padding: Padding.symmetric(horizontal: 6.px, vertical: 2.px),
+        margin: Margin.symmetric(horizontal: 4.px),
+        radius: BorderRadius.circular(4.px),
+        fontSize: 0.7.rem,
+        fontWeight: FontWeight.bold,
+        textTransform: TextTransform.upperCase,
+      ),
+      css('&.mode').styles(
+        color: const Color('#1a4fa0'),
+        backgroundColor: const Color('#e0ecff'),
+      ),
+      css('&.approx').styles(
+        cursor: Cursor.help,
+        color: const Color('#9a5b00'),
+        backgroundColor: const Color('#fff0d6'),
+      ),
+    ]),
+    css('.compare').styles(
+      display: Display.flex,
+      flexDirection: FlexDirection.column,
+    ),
+    // The shared 4-column grid: TeX source | JS | Dart SVG | Flutter.
+    css('.col-headings').styles(
+      display: Display.grid,
+      padding: Padding.symmetric(vertical: 8.px),
+      gridTemplate: GridTemplate(
+        columns: GridTracks([
+          GridTrack(TrackSize.fr(1.2)),
+          GridTrack(TrackSize.fr(1)),
+          GridTrack(TrackSize.fr(1)),
+          GridTrack(TrackSize.fr(1)),
         ]),
-        // GitHub pill in the header (shared shape with the mermaid site).
-        css('.gh-link', [
-          css('&').styles(
-            padding: Padding.symmetric(horizontal: 14.px, vertical: 6.px),
-            border: Border.all(color: const Color('#b9ccef'), width: 1.px),
-            radius: BorderRadius.circular(16.px),
-            color: const Color('#1a4fa0'),
-            fontSize: 0.95.rem,
-            fontWeight: FontWeight.w600,
-            textDecoration: const TextDecoration(line: TextDecorationLine.none),
-            whiteSpace: WhiteSpace.noWrap,
-            backgroundColor: const Color('#ffffff'),
-          ),
-          css('&:hover').styles(backgroundColor: const Color('#eef3ff')),
-        ]),
-        // Badges.
-        css('.badge', [
-          css('&').styles(
-            display: Display.inlineBlock,
-            padding: Padding.symmetric(horizontal: 6.px, vertical: 2.px),
-            margin: Margin.symmetric(horizontal: 4.px),
-            radius: BorderRadius.circular(4.px),
-            fontSize: 0.7.rem,
-            fontWeight: FontWeight.bold,
-            textTransform: TextTransform.upperCase,
-          ),
-          css('&.mode').styles(
-            color: const Color('#1a4fa0'),
-            backgroundColor: const Color('#e0ecff'),
-          ),
-          css('&.approx').styles(
-            cursor: Cursor.help,
-            color: const Color('#9a5b00'),
-            backgroundColor: const Color('#fff0d6'),
-          ),
-        ]),
-        css('.compare').styles(
-          display: Display.flex,
-          flexDirection: FlexDirection.column,
+      ),
+      gap: Gap.all(8.px),
+      fontWeight: FontWeight.bold,
+    ),
+    css('.col-head').styles(
+      padding: Padding.symmetric(horizontal: 8.px, vertical: 4.px),
+      radius: BorderRadius.circular(4.px),
+      textAlign: TextAlign.center,
+      fontSize: 0.85.rem,
+      backgroundColor: const Color('#f3f3f3'),
+    ),
+    css('.group-heading').styles(
+      display: Display.flex,
+      margin: Margin.zero,
+      border: Border.only(
+        bottom: BorderSide(color: const Color('#222'), width: 2.px),
+      ),
+      alignItems: AlignItems.center,
+      fontSize: 1.3.rem,
+    ),
+    // One comparison row: the 4-column grid.
+    css('.cmp-row', [
+      css('&').styles(
+        display: Display.grid,
+        padding: Padding.symmetric(vertical: 8.px),
+        border: Border.only(
+          bottom: BorderSide(color: const Color('#eee'), width: 1.px),
         ),
-        // The shared 4-column grid: TeX source | JS | Dart SVG | Flutter.
-        css('.col-headings').styles(
-          display: Display.grid,
-          padding: Padding.symmetric(vertical: 8.px),
-          gridTemplate: GridTemplate(
-            columns: GridTracks([
-              GridTrack(TrackSize.fr(1.2)),
-              GridTrack(TrackSize.fr(1)),
-              GridTrack(TrackSize.fr(1)),
-              GridTrack(TrackSize.fr(1)),
-            ]),
-          ),
-          gap: Gap.all(8.px),
-          fontWeight: FontWeight.bold,
-        ),
-        css('.col-head').styles(
-          padding: Padding.symmetric(horizontal: 8.px, vertical: 4.px),
-          radius: BorderRadius.circular(4.px),
-          textAlign: TextAlign.center,
-          fontSize: 0.85.rem,
-          backgroundColor: const Color('#f3f3f3'),
-        ),
-        css('.group-heading').styles(
-          display: Display.flex,
-          margin: Margin.zero,
-          border: Border.only(
-            bottom: BorderSide(color: const Color('#222'), width: 2.px),
-          ),
-          alignItems: AlignItems.center,
-          fontSize: 1.3.rem,
-        ),
-        // One comparison row: the 4-column grid.
-        css('.cmp-row', [
-          css('&').styles(
-            display: Display.grid,
-            padding: Padding.symmetric(vertical: 8.px),
-            border: Border.only(
-              bottom: BorderSide(color: const Color('#eee'), width: 1.px),
-            ),
-            alignItems: AlignItems.stretch,
-            gridTemplate: GridTemplate(
-              columns: GridTracks([
-                GridTrack(TrackSize.fr(1.2)),
-                GridTrack(TrackSize.fr(1)),
-                GridTrack(TrackSize.fr(1)),
-                GridTrack(TrackSize.fr(1)),
-              ]),
-            ),
-            gap: Gap.all(8.px),
-          ),
-          // Column 1: TeX source.
-          css('.cmp-source').styles(
-            display: Display.flex,
-            padding: Padding.symmetric(horizontal: 4.px),
-            flexWrap: FlexWrap.wrap,
-            alignItems: AlignItems.center,
-            fontSize: 0.8.rem,
-          ),
-          css('.cmp-source code').styles(
-            padding: Padding.symmetric(horizontal: 5.px, vertical: 2.px),
-            radius: BorderRadius.circular(4.px),
-            color: const Color('#24292f'),
-            fontFamily: const FontFamily.list([
-              FontFamily('SFMono-Regular'),
-              FontFamily('Menlo'),
-              FontFamilies.monospace,
-            ]),
-            backgroundColor: const Color('#f6f8fa'),
-          ),
-          // Columns 2-4: render cells.
-          css('.cmp-cell').styles(
-            display: Display.flex,
-            minHeight: kRowMinHeight.px,
-            padding: Padding.all(8.px),
-            radius: BorderRadius.circular(4.px),
-            overflow: Overflow.auto,
-            justifyContent: JustifyContent.center,
-            alignItems: AlignItems.center,
-            backgroundColor: const Color('#fafafa'),
-          ),
-          // Flutter cell: override the .cmp-cell flex-centering (which collapses
-          // the embed host to content height, leaving the flutter-view 0px tall)
-          // with a block whose child fills the grid-stretched cell. The cell is
-          // stretched to the row height (set by the JS/SVG cells), so a height:100%
-          // chain down to the FlutterEmbedView host gives the view a real height.
-          //
-          // SITE-clip: the embedded Flutter view is sized to its DOM host's box,
-          // and the math is vertically centred inside it. The row height is set
-          // by the JS/SVG cells, so the host must be at least as tall as the
-          // *full* Flutter math (height + DEPTH — descenders, fraction
-          // denominators, `cases`). `overflow:visible` lets the view paint past
-          // the (stretched) cell box if a row is slightly shorter than the math,
-          // so nothing is clipped along the bottom. The flutter column now also
-          // renders at the JS em-scale (see MathCell), so heights track closely.
-          css('.flutter-cell', [
-            css('&').styles(
-              display: Display.block,
-              position: const Position.relative(),
-              minHeight: kRowMinHeight.px,
-              padding: Padding.zero,
-              overflow: Overflow.visible,
-            ),
-            // FlutterEmbedView wrapper (div) + the loading placeholder.
-            css('& > *').styles(width: 100.percent, height: 100.percent),
-            css('.flutter-loading').styles(minHeight: kRowMinHeight.px),
+        alignItems: AlignItems.stretch,
+        gridTemplate: GridTemplate(
+          columns: GridTracks([
+            GridTrack(TrackSize.fr(1.2)),
+            GridTrack(TrackSize.fr(1)),
+            GridTrack(TrackSize.fr(1)),
+            GridTrack(TrackSize.fr(1)),
           ]),
-        ]),
-        css('.render-error').styles(
-          color: const Color('#cc0000'),
-          fontSize: 0.75.rem,
         ),
-        // "Report issue" link — small/subtle, used in comparison rows and the
-        // live editor.
-        css('.issue-link', [
-          css('&').styles(
-            margin: Margin.symmetric(horizontal: 4.px),
-            color: const Color('#999'),
-            fontSize: 0.7.rem,
-            textDecoration: const TextDecoration(line: TextDecorationLine.none),
-          ),
-          css('&:hover').styles(
-            color: const Color('#cc0000'),
-            textDecoration: const TextDecoration(
-              line: TextDecorationLine.underline,
-            ),
-          ),
+        gap: Gap.all(8.px),
+      ),
+      // Column 1: TeX source.
+      css('.cmp-source').styles(
+        display: Display.flex,
+        padding: Padding.symmetric(horizontal: 4.px),
+        flexWrap: FlexWrap.wrap,
+        alignItems: AlignItems.center,
+        fontSize: 0.8.rem,
+      ),
+      css('.cmp-source code').styles(
+        padding: Padding.symmetric(horizontal: 5.px, vertical: 2.px),
+        radius: BorderRadius.circular(4.px),
+        color: const Color('#24292f'),
+        fontFamily: const FontFamily.list([
+          FontFamily('SFMono-Regular'),
+          FontFamily('Menlo'),
+          FontFamilies.monospace,
         ]),
-        // Intro / "what is this" section above the editor.
-        css('.intro', [
-          css('&').styles(
-            maxWidth: 880.px,
-            margin: Margin.only(bottom: 24.px),
-          ),
-          css('p').styles(
-            margin: Margin.only(bottom: 10.px),
-            color: const Color('#444'),
-            fontSize: 1.rem,
-            lineHeight: 1.6.em,
-          ),
-          css('a').styles(color: const Color('#1a4fa0')),
-        ]),
-        // Footer (shared shape with the mermaid site).
-        css('.foot').styles(
-          padding: Padding.only(top: 16.px),
-          margin: Margin.only(top: 32.px),
-          border: Border.only(
-            top: BorderSide(color: const Color('#e2e2e2'), width: 1.px),
-          ),
-          color: const Color('#777788'),
-          fontSize: 0.9.rem,
+        backgroundColor: const Color('#f6f8fa'),
+      ),
+      // Columns 2-4: render cells.
+      css('.cmp-cell').styles(
+        display: Display.flex,
+        minHeight: kRowMinHeight.px,
+        padding: Padding.all(8.px),
+        radius: BorderRadius.circular(4.px),
+        overflow: Overflow.auto,
+        justifyContent: JustifyContent.center,
+        alignItems: AlignItems.center,
+        backgroundColor: const Color('#fafafa'),
+      ),
+      // Flutter cell: override the .cmp-cell flex-centering (which collapses
+      // the embed host to content height, leaving the flutter-view 0px tall)
+      // with a block whose child fills the grid-stretched cell. The cell is
+      // stretched to the row height (set by the JS/SVG cells), so a height:100%
+      // chain down to the FlutterEmbedView host gives the view a real height.
+      //
+      // SITE-clip: the embedded Flutter view is sized to its DOM host's box,
+      // and the math is vertically centred inside it. The row height is set
+      // by the JS/SVG cells, so the host must be at least as tall as the
+      // *full* Flutter math (height + DEPTH — descenders, fraction
+      // denominators, `cases`). `overflow:visible` lets the view paint past
+      // the (stretched) cell box if a row is slightly shorter than the math,
+      // so nothing is clipped along the bottom. The flutter column now also
+      // renders at the JS em-scale (see MathCell), so heights track closely.
+      css('.flutter-cell', [
+        css('&').styles(
+          display: Display.block,
+          position: const Position.relative(),
+          minHeight: kRowMinHeight.px,
+          padding: Padding.zero,
+          overflow: Overflow.visible,
         ),
-      ];
+        // FlutterEmbedView wrapper (div) + the loading placeholder.
+        css('& > *').styles(width: 100.percent, height: 100.percent),
+        css('.flutter-loading').styles(minHeight: kRowMinHeight.px),
+      ]),
+    ]),
+    css('.render-error').styles(
+      color: const Color('#cc0000'),
+      fontSize: 0.75.rem,
+    ),
+    // "Report issue" link — small/subtle, used in comparison rows and the
+    // live editor.
+    css('.issue-link', [
+      css('&').styles(
+        margin: Margin.symmetric(horizontal: 4.px),
+        color: const Color('#999'),
+        fontSize: 0.7.rem,
+        textDecoration: const TextDecoration(line: TextDecorationLine.none),
+      ),
+      css('&:hover').styles(
+        color: const Color('#cc0000'),
+        textDecoration: const TextDecoration(
+          line: TextDecorationLine.underline,
+        ),
+      ),
+    ]),
+    // Intro / "what is this" section above the editor.
+    css('.intro', [
+      css('&').styles(
+        maxWidth: 880.px,
+        margin: Margin.only(bottom: 24.px),
+      ),
+      css('p').styles(
+        margin: Margin.only(bottom: 10.px),
+        color: const Color('#444'),
+        fontSize: 1.rem,
+        lineHeight: 1.6.em,
+      ),
+      css('a').styles(color: const Color('#1a4fa0')),
+    ]),
+    // Footer (shared shape with the mermaid site).
+    css('.foot').styles(
+      padding: Padding.only(top: 16.px),
+      margin: Margin.only(top: 32.px),
+      border: Border.only(
+        top: BorderSide(color: const Color('#e2e2e2'), width: 1.px),
+      ),
+      color: const Color('#777788'),
+      fontSize: 0.9.rem,
+    ),
+  ];
 }

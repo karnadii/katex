@@ -148,8 +148,7 @@ void main() {
       expect(find.textContaining('KaTeX error'), findsOneWidget);
     });
 
-    testWidgets('matches the Math widget box tree for the same formula',
-        (tester) async {
+    testWidgets('matches the Math widget box tree for the same formula', (tester) async {
       const tex = r'\sum_{i=0}^{n} i';
       final widgetBox = KaTeXEngine.instance.parseBox(tex, displayMode: true);
       final mathBox = KaTeXEngine.instance.parseBox(tex, displayMode: true);
@@ -170,8 +169,7 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('a width budget wraps the formula onto several lines',
-        (tester) async {
+    testWidgets('a width budget wraps the formula onto several lines', (tester) async {
       const tex = r'a+b+c+d=e+f+g+h';
       await tester.pumpWidget(
         const MaterialApp(

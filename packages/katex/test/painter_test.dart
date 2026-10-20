@@ -387,7 +387,8 @@ void main() {
         _inkCount(img, region: trailing),
         0,
         reason: 'the phantom tail must be blank',
-      );    });
+      );
+    });
   });
 
   test('shouldRepaint reacts to root / fontSize / color changes', () {
