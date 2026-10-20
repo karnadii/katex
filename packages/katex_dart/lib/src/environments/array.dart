@@ -4,6 +4,7 @@
 library;
 
 import 'package:katex_dart/src/ast/parse_node.dart';
+import 'package:katex_dart/src/environments/cd.dart';
 import 'package:katex_dart/src/environments/environment_spec.dart';
 import 'package:katex_dart/src/parse/parse_error.dart';
 import 'package:katex_dart/src/parse/parser.dart';
@@ -18,6 +19,7 @@ void registerArrayEnvironments() {
   }
   _registered = true;
   _registerArray();
+  registerCdEnvironment();
   _registerSubarray();
   _registerMatrix();
   _registerCases();

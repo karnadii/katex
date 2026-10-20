@@ -56,7 +56,11 @@ BoxNode _buildArray(ArrayNode group, Options options) {
     arraycolsep = 0.2778 * (localMultiplier / options.sizeMultiplier);
   }
 
-  final baselineskip = 12 * pt;
+  // CD rows are spaced 3ex apart (KaTeX array.ts), not the 12pt of
+  // ordinary arrays.
+  final baselineskip = group.colSeparationType == ColSeparationType.cd
+      ? calculateSize(const Measurement(3, 'ex'), options)
+      : 12 * pt;
   final jot = 3 * pt;
   final arrayskip = group.arraystretch * baselineskip;
   final arstrutHeight = 0.7 * arrayskip;

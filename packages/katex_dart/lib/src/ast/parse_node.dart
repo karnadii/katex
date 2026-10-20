@@ -1281,6 +1281,53 @@ final class VcenterNode extends ParseNode {
   String get type => 'vcenter';
 }
 
+/// Which side of a vertical CD arrow a label sits on.
+enum CdLabelSide {
+  /// Label to the left of the arrow (`\cdleft`).
+  left,
+
+  /// Label to the right of the arrow (`\cdright`).
+  right,
+}
+
+/// `cdlabel` — a label beside a vertical `{CD}` arrow (internal `\cdleft` /
+/// `\cdright`). Mirrors KaTeX `CDLabelNode`.
+final class CdLabelNode extends ParseNode {
+  /// Creates a CD label node.
+  const CdLabelNode({
+    required super.mode,
+    required this.side,
+    required this.label,
+    super.loc,
+  });
+
+  /// Which side of the arrow the label sits on.
+  final CdLabelSide side;
+
+  /// The label body.
+  final ParseNode label;
+
+  @override
+  String get type => 'cdlabel';
+}
+
+/// `cdlabelparent` — wraps a vertical `{CD}` arrow with its labels (internal
+/// `\cdparent`). Mirrors KaTeX `CDLabelParentNode`.
+final class CdParentNode extends ParseNode {
+  /// Creates a CD parent node.
+  const CdParentNode({
+    required super.mode,
+    required this.fragment,
+    super.loc,
+  });
+
+  /// The wrapped arrow group.
+  final ParseNode fragment;
+
+  @override
+  String get type => 'cdlabelparent';
+}
+
 /// `pmb` — `\pmb{body}` (poor-man's bold). Mirrors KaTeX `PmbNode`.
 final class PmbNode extends ParseNode {
   /// Creates a pmb node.

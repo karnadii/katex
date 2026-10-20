@@ -66,6 +66,7 @@ void ensureRegistered() {
   includegraphics_fn.registerIncludegraphics();
   cr_fn.registerCr();
   array_env.registerArrayEnvironments();
+  _registerCd();
   ensureMacrosRegistered();
 }
 
@@ -1763,6 +1764,43 @@ void _registerXArrow() {
           label: context.funcName,
           body: args[0],
           below: optArgs[0],
+        );
+      },
+    ),
+  );
+}
+
+// ---------------------------------------------------------------------------
+// cd.ts — internal \cdleft / \cdright / \cdparent, for `{CD}` labels
+// next to vertical arrows. Not for general use.
+// ---------------------------------------------------------------------------
+
+void _registerCd() {
+  defineFunction(
+    <String>[r'\\cdleft', r'\\cdright'],
+    FunctionSpec(
+      type: 'cdlabel',
+      numArgs: 1,
+      handler: (context, args, optArgs) {
+        return CdLabelNode(
+          mode: context.parser.mode,
+          side: context.funcName == r'\\cdleft'
+              ? CdLabelSide.left
+              : CdLabelSide.right,
+          label: args[0],
+        );
+      },
+    ),
+  );
+  defineFunction(
+    <String>[r'\\cdparent'],
+    FunctionSpec(
+      type: 'cdlabelparent',
+      numArgs: 1,
+      handler: (context, args, optArgs) {
+        return CdParentNode(
+          mode: context.parser.mode,
+          fragment: args[0],
         );
       },
     ),
