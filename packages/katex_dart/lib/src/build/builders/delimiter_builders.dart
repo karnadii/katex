@@ -9,9 +9,10 @@
 /// (`makeStackedDelim` + `tallDelim`); this port now emits a real
 /// [SvgPathNode] for those SVG-labeled stacked delimiters (parentheses,
 /// brackets, floor/ceil, single/double vertical bars), sized per
-/// `makeStackedDelim`'s math. Stacked delimiters that KaTeX assembles from
-/// individual font glyphs (braces, groups, moustaches, arrows) still fall back
-/// to the Size4 glyph — noted for a later slice.
+/// `makeStackedDelim`'s math. Delimiters KaTeX assembles from individual
+/// font glyphs plus an extender bar (single arrows) stack the same way
+/// ([_makeGlyphStackedDelim]); braces, groups, moustaches, and double
+/// arrows still fall back to the Size4 glyph — noted for a later slice.
 library;
 
 import 'dart:math' as math;
@@ -127,7 +128,40 @@ class _Stacked {
   String? get middle => null;
 }
 
-// Only the delimiters KaTeX renders as a single SVG (`svgLabel.length > 0`).
+// Glyph-stacked delimiters: arrows, whose extenders have no tallDelim SVG
+// geometry in KaTeX. Mirrors the glyph-stacking branches of `makeStackedDelim`
+// (`top`/`repeat`/`bottom` part names in `Size1-Regular`).
+class _GlyphStack {
+  const _GlyphStack({
+    required this.top,
+    required this.repeat,
+    required this.bottom,
+  });
+  final String top;
+  final String repeat;
+  final String bottom;
+}
+
+// Only the delimiters KaTeX stacks from glyphs. (The double arrows need the
+// ‖ extender, which has no KaTeX font metrics — like KaTeX itself, which
+// renders them from zero-size parts, they keep the Size4-glyph fallback.)
+const Map<String, _GlyphStack> _glyphStacks = {
+  r'\uparrow': _GlyphStack(
+    top: r'\uparrow',
+    repeat: '\u{23D0}',
+    bottom: '\u{23D0}',
+  ),
+  r'\downarrow': _GlyphStack(
+    top: '\u{23D0}',
+    repeat: '\u{23D0}',
+    bottom: r'\downarrow',
+  ),
+  r'\updownarrow': _GlyphStack(
+    top: r'\uparrow',
+    repeat: '\u{23D0}',
+    bottom: r'\downarrow',
+  ),
+};
 // Braces / groups / moustaches / arrows use glyph stacking in KaTeX and are not
 // covered here (they fall back to the Size4 glyph).
 _Stacked? _stackedFor(String delim) {
@@ -245,6 +279,82 @@ _Stacked? _stackedFor(String delim) {
 // single [SvgPathNode] (via `tallDelim`) sized to at least [heightTotal],
 // centered on the axis. Returns `null` for delimiters KaTeX stacks from glyphs
 // (caller falls back to the Size4 glyph).
+/// Builds a stacked arrow delimiter (`\big\uparrow` etc.) from Size1-Regular
+/// glyph parts: tip glyph(s) plus a solid extender bar.
+///
+/// Mirrors the glyph-stacking branch of KaTeX's `makeStackedDelim`: the
+/// extender is a plain bar (KaTeX draws it as an SVG rect via `makeInner`;
+/// a [RuleNode] paints identically) sized to the extender's font width, and
+/// the total is quantized to whole extender units exactly like KaTeX's
+/// `repeatCount` math. The 0.008em lap kerns are skipped: at subpixel size
+/// they only hide hairline cracks between browser DOM spans, which the box
+/// tree does not produce.
+BoxNode _makeGlyphStackedDelim(
+  _GlyphStack parts,
+  double heightTotal, {
+  required bool center,
+  required Options options,
+  required Mode mode,
+}) {
+  BoxNode part(String symbol) {
+    final glyph = makeSymbol(symbol, 'Size1-Regular', mode);
+    // All parts carry Size1 metrics (verified against the font data), so
+    // this is unreachable — it exists only because the type system cannot
+    // see through the metrics lookup.
+    final node =
+        glyph ??
+        missingMetricsGlyph(
+          value: symbol,
+          fontName: 'Size1-Regular',
+          mode: mode,
+        );
+    return makeSpan(
+      [node],
+      classes: const ['delimsizinginner', 'delim-size1'],
+    );
+  }
+
+  double partHeightTotal(BoxNode box) => box.height + box.depth;
+
+  final top = part(parts.top);
+  final bottom = part(parts.bottom);
+  final repeatMetrics = getCharacterMetrics(parts.repeat, 'Size1-Regular', mode)!;
+  final repeatHeightTotal = repeatMetrics.height + repeatMetrics.depth;
+  final minHeight = partHeightTotal(top) + partHeightTotal(bottom);
+  final repeatCount = math.max(
+    0,
+    ((heightTotal - minHeight) / repeatHeightTotal).ceil(),
+  );
+  final realHeightTotal = minHeight + repeatCount * repeatHeightTotal;
+
+  var axisHeight = options.fontMetrics().axisHeight;
+  if (center) {
+    axisHeight *= options.sizeMultiplier;
+  }
+  final depth = realHeightTotal / 2 - axisHeight;
+
+  // The extender bar, as wide as the extender glyph. (KaTeX reads the
+  // Size4 width first and falls back to Size1; the extenders used here
+  // only exist in Size1, which the lookup below prefers in the same way.)
+  final extWidth = getCharacterMetrics(parts.repeat, 'Size4-Regular', mode)?.width ?? repeatMetrics.width;
+  final innerHeight = realHeightTotal - partHeightTotal(top) - partHeightTotal(bottom);
+  final inner = RuleNode(width: extWidth, height: innerHeight);
+  return makeSpan(
+    [
+      makeVList(
+        positionType: VListPositionType.bottom,
+        positionData: depth,
+        children: [
+          VListChild.elem(bottom),
+          VListChild.elem(inner),
+          VListChild.elem(top),
+        ],
+      ),
+    ],
+    classes: const ['delimsizing', 'mult'],
+  );
+}
+
 BoxNode? _makeStackedDelim(
   String delim,
   double heightTotal, {
@@ -252,6 +362,16 @@ BoxNode? _makeStackedDelim(
   required Options options,
   required Mode mode,
 }) {
+  final glyphs = _glyphStacks[delim];
+  if (glyphs != null) {
+    return _makeGlyphStackedDelim(
+      glyphs,
+      heightTotal,
+      center: center,
+      options: options,
+      mode: mode,
+    );
+  }
   final spec = _stackedFor(delim);
   if (spec == null) {
     return null;
