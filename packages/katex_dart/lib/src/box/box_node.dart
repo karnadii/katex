@@ -147,8 +147,11 @@ class GlyphNode extends BoxNode {
   /// The raw, unscaled per-glyph metrics.
   CharacterMetrics get metrics => _metrics;
 
-  /// The character as a Dart string (the rendered text).
-  String get text => String.fromCharCode(codepoint);
+  /// The character as a Dart string (the rendered text). Uses the
+  /// codepoint-list form so astral characters (emoji, math alphanumerics)
+  /// come out as a well-formed surrogate pair — `fromCharCode` would hand
+  /// painters a lone surrogate, which Flutter rejects.
+  String get text => String.fromCharCodes([codepoint]);
 
   @override
   double get height => _metrics.height * size;

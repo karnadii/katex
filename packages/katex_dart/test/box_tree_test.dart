@@ -8,6 +8,27 @@ void main() {
   const tol = 1e-9;
 
   group('GlyphNode', () {
+    test('astral codepoints come out as well-formed strings', () {
+      // `String.fromCharCode` yields a lone surrogate past U+FFFF, which
+      // Flutter's paragraph builder rejects ("string is not well-formed
+      // UTF-16"). The golden suite caught two cases crashing this way when
+      // metric-less astral symbols (math alphanumerics, emoji) started
+      // reaching the painter as zero-size fallback glyphs.
+      const metrics = CharacterMetrics(
+        depth: 0,
+        height: 0,
+        italic: 0,
+        skew: 0,
+        width: 0,
+      );
+      final glyph = GlyphNode(
+        codepoint: 0x1D400, // MATHEMATICAL BOLD CAPITAL A
+        font: const KatexFont(KatexFontFamily.math, KatexFontVariant.italic),
+        metrics: metrics,
+      );
+      expect(glyph.text.runes.single, 0x1D400);
+    });
+
     test('derives dimensions from explicit metrics scaled by size', () {
       const metrics = CharacterMetrics(
         depth: 0.2,
