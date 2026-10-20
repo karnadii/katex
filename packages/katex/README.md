@@ -56,11 +56,34 @@ print(dl.width); // em
 
 Two behavioural differences are deliberate:
 
-* **RaTeX wraps** a too-wide formula onto multiple lines; **KaTeX scales it
-  down** to fit (KaTeX.js has no automatic line breaking either).
+* **Line breaking.** The core gained opt-in automatic line breaking in the
+  upstream PR #7 (`softWrap` / `maxWidth`, see "Line breaking" below) — KaTeX
+  itself never breaks a line. `KaTeXWidget` has not been wired to it yet, so
+  the compat widget still **scales** a too-wide formula down to fit, where
+  `RaTeXWidget` **wraps** it onto multiple lines.
 * RaTeX renders through FFI + an isolate hop, so it needs a frame before the
   formula appears. KaTeX is pure Dart, so the formula is in the first frame.
 
+### Line breaking
+
+A long expression stays on one line and overflows by default — KaTeX's own behaviour.
+Pass `softWrap: true` to break it across lines instead:
+
+```dart
+Math(r'a + b + c = d + e + f + g + h', softWrap: true);   // wraps to the parent
+Math(r'a + b + c = d', maxWidth: 200);                     // wraps at 200px
+```
+
+Breaks land only where TeX allows one — after a top-level binary operator (`+`, `-`,
+`\times`, …), a top-level relation (`=`, `<`, `\rightarrow`, …), or an explicit
+`\allowbreak`; the operator ends the line rather than starting the next. `\nobreak`
+(and `~`) suppresses the opportunity beside it. Nothing inside `{...}`, a fraction, or
+a `\left…\right` pair is ever broken, so a single over-wide `\frac` still overflows —
+there is nowhere legal to cut it.
+
+`softWrap` needs a bounded width constraint; under an unbounded one (a horizontal
+`ListView`, an unconstrained `Row`) it has nothing to wrap to and the expression stays
+on one line. `maxWidth` takes precedence and works anywhere.
 ## How it works
 
 The [`katex_dart`](https://pub.dev/packages/katex_dart) package parses the TeX into a `BoxNode`
