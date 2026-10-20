@@ -361,13 +361,17 @@ void _registerMatrix() {
         final baseName = context.envName.replaceAll('*', '');
         final delimiters = _matrixDelimiters[baseName];
         var colAlign = 'c';
+        final isSmallMatrix = baseName == 'smallmatrix';
         final payload = _ArrayPayload(
           hskipBeforeAndAfter: false,
           cols: <AlignSpec>[AlignSpec.align(colAlign)],
-          // `smallmatrix` is a matrix with the same glyph size but half the
-          // row spacing — KaTeX's "a variant of matrix with a smaller font
-          // size" reads as tighter, not smaller.
-          arraystretch: baseName == 'smallmatrix' ? 0.5 : null,
+          // `smallmatrix` is set in SCRIPT style with half the row spacing
+          // and amsmath's narrow column separation — KaTeX's "a variant of
+          // matrix with a smaller font size" means smaller glyphs.
+          arraystretch: isSmallMatrix ? 0.5 : null,
+          colSeparationType: isSmallMatrix
+              ? ColSeparationType.small
+              : null,
         );
         if (context.envName.endsWith('*')) {
           parser.consumeSpaces();
@@ -387,7 +391,11 @@ void _registerMatrix() {
             payload.cols = <AlignSpec>[AlignSpec.align(colAlign)];
           }
         }
-        final res = _parseArray(parser, payload, _dCellStyle(context.envName));
+        final res = _parseArray(
+          parser,
+          payload,
+          isSmallMatrix ? StyleStr.script : _dCellStyle(context.envName),
+        );
         final numCols = res.body.fold<int>(
           0,
           (max, row) => row.length > max ? row.length : max,
@@ -564,15 +572,21 @@ ArrayNode _gatherHandler(
   List<ParseNode> args, {
   required bool autoTag,
   required bool singleRow,
+  bool requireDisplayMode = true,
+  bool centred = true,
+  int? maxNumCols,
 }) {
-  _validateAmsEnvironmentContext(context);
+  if (requireDisplayMode) {
+    _validateAmsEnvironmentContext(context);
+  }
   final res = _parseArray(
     context.parser,
     _ArrayPayload(
-      cols: <AlignSpec>[AlignSpec.align('c')],
-      addJot: true,
+      cols: centred ? <AlignSpec>[AlignSpec.align('c')] : null,
+      addJot: centred,
       autoTag: autoTag,
       emptySingleRow: true,
+      maxNumCols: maxNumCols,
       leqno: context.parser.settings.leqno,
     )..singleRow = singleRow,
     StyleStr.display,
@@ -589,7 +603,10 @@ ArrayNode _gatherHandler(
 
 void _registerGather() {
   defineEnvironment(
-    <String>['gather', 'gather*'],
+    // `gathered` is the same environment without the display-mode
+    // requirement and without numbering — upstream registers all three
+    // together.
+    <String>['gathered', 'gather', 'gather*'],
     EnvSpec(
       type: 'array',
       numArgs: 0,
@@ -598,6 +615,7 @@ void _registerGather() {
         args,
         autoTag: false,
         singleRow: false,
+        requireDisplayMode: !context.envName.contains('ed'),
       ),
     ),
   );
@@ -612,6 +630,10 @@ void _registerGather() {
         args,
         autoTag: !context.envName.endsWith('*'),
         singleRow: true,
+        // Upstream's {equation} is a single row with at most one column and
+        // no centred column of its own.
+        centred: false,
+        maxNumCols: 1,
       ),
     ),
   );

@@ -162,6 +162,12 @@ void ensureMacrosRegistered() {
   // phantom.ts — \hphantom is a macro.
   defineMacro(r'\hphantom', r'\smash{\phantom{#1}}');
 
+  // array.ts (KaTeX 0.17) — \nonumber and \notag suppress the equation
+  // number of the row they appear in. amsmath does it by flipping the
+  // \@eqnsw flag; KaTeX ports that flag directly.
+  defineMacro(r'\nonumber', r'\gdef\@eqnsw{0}');
+  defineMacro(r'\notag', r'\nonumber');
+
   // -------------------------------------------------------------------------
   // operatorname.ts
   defineMacro(

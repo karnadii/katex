@@ -289,5 +289,47 @@ BoxNode _buildArray(ArrayNode group, Options options) {
     );
   }
 
+  // Equation tags. The parser records a tag per row: an explicit `\tag{…}`
+  // (as a node list) or a boolean saying "number this row" (the automatic
+  // numbering of `{equation}` / `{align}`).
+  //
+  // The automatic number is NOT drawn: KaTeX.js lets the *browser* count
+  // equations with a CSS counter, and this port has no document-level
+  // counter to count with. An explicit `\tag{…}` IS drawn, so a formula
+  // that carries one never loses it.
+  final tags = group.tags;
+  if (tags != null && tags.isNotEmpty) {
+    final tagSpans = <VListChild>[];
+    var hasExplicit = false;
+    for (var r = 0; r < tags.length && r < body.length; r++) {
+      final tag = tags[r];
+      if (tag is! List) continue; // `true` = automatic number, `false` = none
+      hasExplicit = true;
+      final tagBox = makeSpan(
+        buildExpression(tag.cast<ParseNode>(), options, isRealGroup: true),
+      );
+      tagSpans.add(
+        VListChild.elem(
+          tagBox,
+          shift: body[r].pos - offset,
+        ),
+      );
+    }
+    if (hasExplicit) {
+      final tagColumn = makeVList(
+        positionType: VListPositionType.individualShift,
+        children: tagSpans,
+      );
+      return withAtomClass(
+        makeFragment([
+          tableBody,
+          makeSpan([tagColumn], classes: const ['tag']),
+        ]),
+        'mord',
+        options: options,
+      );
+    }
+  }
+
   return withAtomClass(makeFragment([tableBody]), 'mord', options: options);
 }

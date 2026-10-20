@@ -531,7 +531,30 @@ BoxNode makeLeftRightDelim(
 // ---------------------------------------------------------------------------
 
 BoxNode _buildLeftRight(LeftRightNode group, Options options) {
-  final inner = buildExpression(
+  // A `\middle` delimiter is sized to the height of the *rest* of the
+  // group, so the content around it is measured first. When there is no
+  // `\middle` this is the ordinary single-pass build.
+  final middles = group.body.whereType<MiddleNode>().toList();
+  final hasMiddle = middles.isNotEmpty;
+
+  List<BoxNode> buildParts() {
+    final parts = <BoxNode>[];
+    for (final node in group.body) {
+      if (node is MiddleNode) continue;
+      parts.addAll(
+        buildExpression(
+          <ParseNode>[node],
+          options,
+          isRealGroup: true,
+          surroundingLeft: 'mopen',
+          surroundingRight: 'mclose',
+        ),
+      );
+    }
+    return parts;
+  }
+
+  final inner = hasMiddle ? buildParts() : buildExpression(
     group.body,
     options,
     isRealGroup: true,
@@ -543,6 +566,28 @@ BoxNode _buildLeftRight(LeftRightNode group, Options options) {
   var innerDepth = inner.fold<double>(0, (m, n) => math.max(m, n.depth));
   innerHeight *= options.sizeMultiplier;
   innerDepth *= options.sizeMultiplier;
+
+  // The `\middle` delimiters, sized to the group and put back where they
+  // were written.
+  final middleBoxes = <BoxNode>[];
+  if (hasMiddle) {
+    for (final node in group.body) {
+      if (node is! MiddleNode) continue;
+      middleBoxes.add(
+        withAtomClass(
+          makeLeftRightDelim(
+            node.delim,
+            innerHeight,
+            innerDepth,
+            options,
+            group.mode,
+          ),
+          'mbin',
+          options: options,
+        ),
+      );
+    }
+  }
 
   final BoxNode leftDelim;
   if (group.left == '.') {
@@ -571,10 +616,32 @@ BoxNode _buildLeftRight(LeftRightNode group, Options options) {
     );
   }
 
+  final content = <BoxNode>[];
+  if (hasMiddle) {
+    var middleIndex = 0;
+    for (final node in group.body) {
+      if (node is MiddleNode) {
+        content.add(middleBoxes[middleIndex++]);
+        continue;
+      }
+      content.addAll(
+        buildExpression(
+          <ParseNode>[node],
+          options,
+          isRealGroup: true,
+          surroundingLeft: 'mopen',
+          surroundingRight: 'mclose',
+        ),
+      );
+    }
+  } else {
+    content.addAll(inner);
+  }
+
   return withAtomClass(
     makeFragment([
       withAtomClass(leftDelim, 'mopen', options: options),
-      ...inner,
+      ...content,
       withAtomClass(rightDelim, 'mclose', options: options),
     ]),
     'minner',

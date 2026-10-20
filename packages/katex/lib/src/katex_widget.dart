@@ -108,6 +108,10 @@ class _KaTeXWidgetState extends State<KaTeXWidget> {
   BoxNode? _box;
   KaTeXException? _error;
 
+  /// Bumped on every parse, so a queued error notification can tell whether
+  /// it still belongs to the current formula.
+  int _parseGeneration = 0;
+
   @override
   void initState() {
     super.initState();
@@ -126,6 +130,7 @@ class _KaTeXWidgetState extends State<KaTeXWidget> {
   }
 
   void _parse() {
+    _parseGeneration++;
     try {
       final box = KaTeXEngine.instance.parseBox(
         widget.latex,
@@ -162,8 +167,14 @@ class _KaTeXWidgetState extends State<KaTeXWidget> {
   void _reportError(KaTeXException error) {
     final onError = widget.onError;
     if (onError == null) return;
+    final generation = _parseGeneration;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) onError(error);
+      // A post-frame callback cannot be cancelled, so a formula that was
+      // replaced (or fixed) between the parse and the delivery must not
+      // report the stale error.
+      if (!mounted) return;
+      if (generation != _parseGeneration) return;
+      onError(error);
     });
   }
 
