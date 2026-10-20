@@ -23,10 +23,20 @@ import 'package:meta/meta.dart';
 
 /// Base class for every node in the box tree.
 ///
-/// Sealed so that consumers (SVG serializer, Flutter painter) can exhaustively
-/// switch over the concrete node types. Each subclass exposes its computed
-/// [height], [depth], and [width] in em units.
-sealed class BoxNode {
+/// `base` rather than `sealed`, so that a *consumer compiled against an older
+/// core* keeps compiling when a new node type is added. The box tree is a
+/// public API that other packages switch over — `mermaid_core` renders maths
+/// through it — and a `sealed` class makes every such consumer break the
+/// moment this package adds a node type (a `sealed` switch must be
+/// exhaustive, and an exhaustive switch over an older core is not exhaustive
+/// over a newer one).
+///
+/// The trade-off: this package's own switches over [BoxNode] are still
+/// exhaustive over its node types, but the compiler no longer *requires* them
+/// to be, so a new node type must be handled deliberately rather than being
+/// forced by the type system. Each subclass exposes its computed [height],
+/// [depth], and [width] in em units.
+abstract class BoxNode {
   const BoxNode();
 
   /// Distance from the baseline to the top of the box, in em.

@@ -255,6 +255,9 @@ void main() {
         EncloseNode() => 'enclose',
         ImageNode() => 'image',
         TextRunNode() => 'textrun',
+        // `BoxNode` is not sealed, so a new node type is possible: the
+        // switch must stay total without the compiler forcing it.
+        _ => 'other',
       };
       expect(label, isNotEmpty);
     }
