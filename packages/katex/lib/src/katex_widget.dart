@@ -1,5 +1,5 @@
 /// The public `KaTeXWidget` — the user-facing entry point for rendering LaTeX
-/// math with KaTeX in Flutter.
+/// math with KaTeX.
 ///
 /// This widget is the **drop-in twin** of `ratex_flutter`'s `RaTeXWidget`:
 /// same constructor parameter names, same defaults, same error contract, same
@@ -14,15 +14,18 @@
 /// KaTeXWidget(latex: r'\frac{a}{b}', fontSize: 20, color: Colors.black)
 /// ```
 ///
-/// The two differences worth knowing about:
+/// The differences worth knowing about:
 ///
 ///  * **Where the work happens.** RaTeX is native (FFI) and renders through
 ///    an isolate hop; KaTeX here is pure Dart and renders on the calling
 ///    isolate. A KaTeX formula therefore appears in its first frame, with no
 ///    loading placeholder.
-///  * **What `maxWidth` does.** RaTeX *wraps* a too-wide formula onto
-///    multiple lines. KaTeX (like KaTeX.js) has no automatic line breaking,
-///    so a too-wide formula is *scaled down* to fit instead.
+///
+///  * **What a width budget does.** Both engines *wrap* a long formula at
+///    TeX's break opportunities, then scale it down to fit — but only to
+///    0.75× natural size. Below that the glyphs stop being legible, so the
+///    formula keeps its natural width and the host is expected to scroll it.
+///    This is the behaviour `LatexHorizontalScroll` in mathnote relies on.
 library;
 
 import 'package:flutter/widgets.dart';
@@ -31,6 +34,14 @@ import 'package:katex_dart/katex_dart.dart';
 import 'katex_engine.dart';
 import 'katex_exception.dart';
 import 'render/box_painter.dart';
+
+/// The smallest scale a formula may be shrunk to before it is left at its
+/// natural size and allowed to overflow.
+///
+/// Matches `RaTeXWidget`: below 0.75× the glyphs stop being legible, so the
+/// engine gives up and returns the natural width — the host then scrolls it
+/// rather than showing unreadable maths.
+const double kMinScale = 0.75;
 
 /// A widget that renders a LaTeX math [latex] string with KaTeX.
 ///
@@ -67,8 +78,12 @@ class KaTeXWidget extends StatefulWidget {
   /// expression (e.g. `\textcolor`) still override this for their sub-tree.
   final Color? color;
 
-  /// Available width in logical pixels. A formula wider than this is scaled
-  /// down to fit.
+  /// Available width in logical pixels.
+  ///
+  /// A formula wider than this is **wrapped** onto several lines at TeX's
+  /// break opportunities, then scaled down to fit — but only down to
+  /// [kMinScale]. Below that it keeps its natural width and overflows, which
+  /// the host is expected to scroll.
   final double? maxWidth;
 
   /// Optional contrasting colour drawn as a glyph-level stroke behind every
@@ -102,7 +117,10 @@ class _KaTeXWidgetState extends State<KaTeXWidget> {
   @override
   void didUpdateWidget(KaTeXWidget old) {
     super.didUpdateWidget(old);
-    if (old.latex != widget.latex || old.displayMode != widget.displayMode) {
+    if (old.latex != widget.latex ||
+        old.displayMode != widget.displayMode ||
+        old.maxWidth != widget.maxWidth ||
+        old.fontSize != widget.fontSize) {
       _parse();
     }
   }
@@ -112,6 +130,7 @@ class _KaTeXWidgetState extends State<KaTeXWidget> {
       final box = KaTeXEngine.instance.parseBox(
         widget.latex,
         displayMode: widget.displayMode,
+        maxWidthEm: _emBudget,
       );
       _box = box;
       _error = null;
@@ -130,7 +149,21 @@ class _KaTeXWidgetState extends State<KaTeXWidget> {
     }
   }
 
-  Color get _inheritedColor => DefaultTextStyle.of(context).style.color ?? const Color(0xFF000000);
+  /// The line-breaking budget in em, derived from [KaTeXWidget.maxWidth].
+  ///
+  /// The painted canvas is the box grown by [kInkOverflowPadEm] on each side,
+  /// so the box itself may only use what is left after that pad. A
+  /// non-finite or degenerate (≤ 0) budget disables wrapping rather than
+  /// putting every chunk on its own line.
+  double? get _emBudget {
+    final maxWidth = widget.maxWidth;
+    if (maxWidth == null || !maxWidth.isFinite || maxWidth <= 0) return null;
+    final em = maxWidth / widget.fontSize - 2 * kInkOverflowPadEm;
+    return em > 0 ? em : null;
+  }
+
+  Color get _inheritedColor =>
+      DefaultTextStyle.of(context).style.color ?? const Color(0xFF000000);
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +196,8 @@ class _KaTeXWidgetState extends State<KaTeXWidget> {
     final naturalHeight = (box.height + box.depth) * widget.fontSize + 2 * pad;
 
     final maxWidth = widget.maxWidth;
-    final scale = (maxWidth != null && maxWidth.isFinite && maxWidth > 0 && naturalWidth > 0)
+    final scale = (maxWidth != null && maxWidth.isFinite && maxWidth > 0 &&
+            naturalWidth > 0)
         ? (maxWidth / naturalWidth).clamp(0.0, 1.0)
         : 1.0;
 
@@ -172,37 +206,36 @@ class _KaTeXWidgetState extends State<KaTeXWidget> {
       painter: painter,
     );
 
-    if (scale >= 1.0) {
+    // Shrink to fit — but not past [kMinScale]. Below that the formula keeps
+    // its natural size and overflows, and the host scrolls it. (RaTeX does
+    // exactly this.)
+    if (scale < 1.0 && scale >= kMinScale) {
       return Semantics(
         label: widget.latex,
         child: SizedBox(
-          width: naturalWidth,
-          height: naturalHeight,
-          child: canvas,
-        ),
-      );
-    }
-
-    // Shrink to fit. The child keeps its natural size and is scaled at paint
-    // time; `Align` (not `Transform` alone) keeps the overflow out of the
-    // parent's layout, which is what stops a `Column` from reporting it.
-    return Semantics(
-      label: widget.latex,
-      child: SizedBox(
-        width: maxWidth,
-        height: naturalHeight * scale,
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: Transform.scale(
+          width: maxWidth,
+          height: naturalHeight * scale,
+          child: Align(
             alignment: Alignment.centerLeft,
-            scale: scale,
-            child: SizedBox(
-              width: naturalWidth,
-              height: naturalHeight,
-              child: canvas,
+            child: Transform.scale(
+              alignment: Alignment.centerLeft,
+              scale: scale,
+              child: SizedBox(
+                width: naturalWidth,
+                height: naturalHeight,
+                child: canvas,
+              ),
             ),
           ),
         ),
+      );
+    }
+    return Semantics(
+      label: widget.latex,
+      child: SizedBox(
+        width: naturalWidth,
+        height: naturalHeight,
+        child: canvas,
       ),
     );
   }

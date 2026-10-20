@@ -22,6 +22,7 @@ import 'package:katex_dart/katex_dart.dart';
 import 'katex_display_list.dart';
 import 'katex_exception.dart';
 import 'katex_render_cache.dart';
+import 'render/text_run_painter.dart';
 
 /// Coerces any render-time failure into a [KaTeXException] so the `onError`
 /// callback and raw-value fallback receive a uniform type.
@@ -53,13 +54,16 @@ class KaTeXEngine {
   /// colour change costs nothing. Colours set inside the expression
   /// (`\textcolor{red}{x}`) still win for their own sub-tree.
   ///
-  /// [maxWidthEm] is an optional width budget in em units. KaTeX (like
-  /// KaTeX.js) does not implement automatic line breaking, so the budget is
-  /// honoured by **scaling the formula down** to fit instead of wrapping it:
-  /// the returned display list carries a [KaTeXDisplayList.scale] factor
-  /// (`1.0` when the formula already fits). RaTeX, by contrast, wraps onto
-  /// multiple lines for the same budget — the one behavioural divergence
-  /// between the two engines.
+  /// [maxWidthEm] is an optional width budget in em units. A finite budget
+  /// makes the core **wrap** the expression onto as many lines as it needs,
+  /// breaking only at TeX's break opportunities (after a top-level binary
+  /// operator or relation, or at an explicit `\allowbreak`); nothing inside
+  /// `{...}`, a fraction, or a `\left…\right` pair is ever broken, so a
+  /// single over-wide `\frac` overflows the budget rather than being cut.
+  ///
+  /// The returned display list also carries a [KaTeXDisplayList.scale]: the
+  /// factor that fits the result into the budget, when the result is still
+  /// too wide after wrapping. `1.0` means it fits.
   ///
   /// Throws [KaTeXException] when the formula cannot be parsed.
   KaTeXDisplayList parseAndLayout(
@@ -68,31 +72,46 @@ class KaTeXEngine {
     Color color = const Color(0xFF000000),
     double? maxWidthEm,
   }) {
-    final box = parseBox(latex, displayMode: displayMode);
-    var scale = 1.0;
-    if (maxWidthEm != null && maxWidthEm.isFinite && maxWidthEm > 0) {
-      final natural = box.width;
-      if (natural > maxWidthEm && natural > 0) {
-        scale = maxWidthEm / natural;
-      }
-    }
-    return KaTeXDisplayList(box: box, color: color, scale: scale);
+    final box = parseBox(
+      latex,
+      displayMode: displayMode,
+      maxWidthEm: maxWidthEm,
+    );
+    return KaTeXDisplayList(
+      box: box,
+      color: color,
+      scale: fitScale(naturalWidth: box.width, maxWidthEm: maxWidthEm),
+    );
   }
 
   /// Parses [latex] and lays it out, returning the raw box tree.
   ///
   /// The tree is colour-neutral and cached in [kaTeXRenderCache], so repeated
-  /// calls with the same `(latex, displayMode)` are a hash lookup.
+  /// calls with the same inputs are a hash lookup.
   ///
   /// Throws [KaTeXException] when the formula cannot be parsed.
-  BoxNode parseBox(String latex, {bool displayMode = true}) {
-    final cached = kaTeXRenderCache.get(latex, displayMode);
+  BoxNode parseBox(
+    String latex, {
+    bool displayMode = true,
+    double? maxWidthEm,
+  }) {
+    final cached = kaTeXRenderCache.get(latex, displayMode, maxWidthEm);
     if (cached != null) return cached;
     final BoxNode box;
     try {
       box = renderToBox(
         latex,
-        options: KatexOptions(displayMode: displayMode, throwOnError: true),
+        options: KatexOptions(
+          displayMode: displayMode,
+          throwOnError: true,
+          // A finite budget makes the core wrap; an infinite one keeps
+          // KaTeX's own single-line behaviour.
+          maxWidth: maxWidthEm ?? double.infinity,
+          // Measure complex-script runs (Arabic, Hebrew, …) with the same
+          // TextPainter that will paint them, so the box tree reserves
+          // exactly the space they occupy.
+          measureTextRun: flutterTextRunMeasurer,
+        ),
       );
     } on ParseError catch (e) {
       throw KaTeXException(e.message);
@@ -101,7 +120,7 @@ class KaTeXEngine {
     } on Object catch (e) {
       throw KaTeXException(e.toString());
     }
-    kaTeXRenderCache.put(latex, displayMode, box);
+    kaTeXRenderCache.put(latex, displayMode, box, maxWidthEm);
     return box;
   }
 }
@@ -111,8 +130,8 @@ class KaTeXEngine {
 ///
 /// Exposed for callers that need the same "shrink to fit" arithmetic the
 /// widget applies, without going through [KaTeXEngine.parseAndLayout].
-double fitScale({required double naturalWidth, required double maxWidthEm}) {
-  if (!maxWidthEm.isFinite || maxWidthEm <= 0) return 1.0;
+double fitScale({required double naturalWidth, required double? maxWidthEm}) {
+  if (maxWidthEm == null || !maxWidthEm.isFinite || maxWidthEm <= 0) return 1.0;
   if (!naturalWidth.isFinite || naturalWidth <= 0) return 1.0;
   return math.min(1.0, maxWidthEm / naturalWidth);
 }

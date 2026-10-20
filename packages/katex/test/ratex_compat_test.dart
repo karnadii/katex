@@ -3,7 +3,8 @@
 // The point of this surface is drop-in parity with `ratex_flutter`, so the
 // tests assert the *contract* a caller relies on: the same constructor
 // parameter names, the same error type with a `message`, the same
-// parseAndLayout shape, and a cache that makes a repeat parse free.
+// parseAndLayout shape, a cache that makes a repeat parse free, and — the
+// subtle one — the same width-budget semantics.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -45,24 +46,30 @@ void main() {
       expect(display.totalHeight, greaterThan(inline.totalHeight));
     });
 
-    test('parseAndLayout applies a shrink-to-fit scale for maxWidthEm', () {
-      final natural = KaTeXEngine.instance.parseAndLayout('x + y + z');
-      final fitted = KaTeXEngine.instance.parseAndLayout(
-        'x + y + z',
-        maxWidthEm: natural.width / 2,
+    test('a finite width budget wraps the expression', () {
+      const tex = r'a+b+c+d=e+f+g+h';
+      final unwrapped = KaTeXEngine.instance.parseAndLayout(tex);
+      final wrapped = KaTeXEngine.instance.parseAndLayout(
+        tex,
+        maxWidthEm: 6,
       );
-      expect(fitted.scale, lessThan(1.0));
-      expect(fitted.scaledWidth, closeTo(natural.width / 2, 1e-9));
-      // The natural dimensions are untouched — only the scale differs.
-      expect(fitted.width, closeTo(natural.width, 1e-9));
+      // Wrapping trades width for height: the result is narrower and taller.
+      expect(wrapped.width, lessThan(unwrapped.width));
+      expect(wrapped.totalHeight, greaterThan(unwrapped.totalHeight));
+      // And it fits the budget, so no further scaling is needed.
+      expect(wrapped.scale, 1.0);
     });
 
-    test('parseAndLayout leaves the scale at 1 when the formula fits', () {
-      final dl = KaTeXEngine.instance.parseAndLayout(
-        'x',
-        maxWidthEm: 100,
-      );
+    test('an unwrapped formula is not scaled', () {
+      final dl = KaTeXEngine.instance.parseAndLayout('x');
       expect(dl.scale, 1.0);
+    });
+
+    test('fitScale shrinks only when the formula is too wide', () {
+      expect(fitScale(naturalWidth: 10, maxWidthEm: 20), 1.0);
+      expect(fitScale(naturalWidth: 10, maxWidthEm: 5), closeTo(0.5, 1e-9));
+      expect(fitScale(naturalWidth: 10, maxWidthEm: null), 1.0);
+      expect(fitScale(naturalWidth: 0, maxWidthEm: 5), 1.0);
     });
 
     test('parseAndLayout throws KaTeXException on a malformed formula', () {
@@ -83,6 +90,18 @@ void main() {
       final inline = KaTeXEngine.instance.parseBox('a+b', displayMode: false);
       final display = KaTeXEngine.instance.parseBox('a+b', displayMode: true);
       expect(identical(inline, display), isFalse);
+      expect(kaTeXRenderCache.length, 2);
+    });
+
+    test('parseBox caches per width budget', () {
+      // A different budget wraps differently, so it is a different layout and
+      // must not share a cache entry.
+      final unwrapped = KaTeXEngine.instance.parseBox('a+b+c+d=e+f+g+h');
+      final wrapped = KaTeXEngine.instance.parseBox(
+        'a+b+c+d=e+f+g+h',
+        maxWidthEm: 6,
+      );
+      expect(identical(unwrapped, wrapped), isFalse);
       expect(kaTeXRenderCache.length, 2);
     });
   });
@@ -129,7 +148,8 @@ void main() {
       expect(find.textContaining('KaTeX error'), findsOneWidget);
     });
 
-    testWidgets('matches the Math widget box tree for the same formula', (tester) async {
+    testWidgets('matches the Math widget box tree for the same formula',
+        (tester) async {
       const tex = r'\sum_{i=0}^{n} i';
       final widgetBox = KaTeXEngine.instance.parseBox(tex, displayMode: true);
       final mathBox = KaTeXEngine.instance.parseBox(tex, displayMode: true);
@@ -146,6 +166,29 @@ void main() {
             ),
           ),
         ),
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('a width budget wraps the formula onto several lines',
+        (tester) async {
+      const tex = r'a+b+c+d=e+f+g+h';
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: KaTeXWidget(latex: tex, fontSize: 20, maxWidth: 120),
+          ),
+        ),
+      );
+      final wrapped = KaTeXEngine.instance.parseBox(
+        tex,
+        displayMode: true,
+        maxWidthEm: 120 / 20 - 2 * kInkOverflowPadEm,
+      );
+      final unwrapped = KaTeXEngine.instance.parseBox(tex, displayMode: true);
+      expect(
+        wrapped.height + wrapped.depth,
+        greaterThan(unwrapped.height + unwrapped.depth),
       );
       expect(tester.takeException(), isNull);
     });

@@ -1,10 +1,15 @@
 /// A process-scoped LRU cache of parsed KaTeX box trees.
 ///
-/// Keyed on `(latex, displayMode)` — the two inputs that fully determine the
-/// resulting tree. **Colour is intentionally excluded**: the tree is
-/// colour-neutral and the colour is applied at paint time, so recolouring a
-/// formula never invalidates the cache. The same reasoning RaTeX uses for its
-/// own render cache.
+/// Keyed on `(latex, displayMode, maxWidthEm)` — the three inputs that fully
+/// determine the resulting tree. **Colour is intentionally excluded**: the
+/// tree is colour-neutral and the colour is applied at paint time, so
+/// recolouring a formula never invalidates the cache. The same reasoning
+/// RaTeX uses for its own render cache.
+///
+/// The width budget is part of the key because it changes the *layout*, not
+/// just the scale: a finite budget makes the core wrap the expression onto
+/// several lines, and a different budget wraps it differently. Caching a
+/// wrapped tree under an unwrapped key would paint the wrong number of lines.
 ///
 /// The cache is a pure-Dart map, so a hit is a hash lookup — orders of
 /// magnitude cheaper than re-running the lexer/parser. That matters for a
@@ -15,7 +20,8 @@ library;
 
 import 'package:katex_dart/katex_dart.dart';
 
-/// A cache of parsed KaTeX box trees, keyed on `(latex, displayMode)`.
+/// A cache of parsed KaTeX box trees, keyed on `(latex, displayMode,
+/// maxWidthEm)`.
 class KaTeXRenderCache {
   /// Creates a cache holding at most [maxSize] entries.
   KaTeXRenderCache({int maxSize = 64}) : _maxSize = maxSize;
@@ -23,22 +29,23 @@ class KaTeXRenderCache {
   final int _maxSize;
   final _cache = <String, BoxNode>{};
 
-  String _key(String latex, bool displayMode) => '$latex\x00$displayMode';
+  String _key(String latex, bool displayMode, double? maxWidthEm) =>
+      '$latex\x00$displayMode\x00${maxWidthEm ?? 'inf'}';
 
-  /// Returns the cached box tree for `(latex, displayMode)`, or `null` on a
-  /// miss. A hit refreshes the entry's recency.
-  BoxNode? get(String latex, bool displayMode) {
-    final key = _key(latex, displayMode);
+  /// Returns the cached box tree for the given inputs, or `null` on a miss. A
+  /// hit refreshes the entry's recency.
+  BoxNode? get(String latex, bool displayMode, [double? maxWidthEm]) {
+    final key = _key(latex, displayMode, maxWidthEm);
     final box = _cache.remove(key);
     if (box == null) return null;
     _cache[key] = box; // move to end (most-recently-used)
     return box;
   }
 
-  /// Stores [box] for `(latex, displayMode)`, evicting the least-recently-used
+  /// Stores [box] for the given inputs, evicting the least-recently-used
   /// entry when the cache is full.
-  void put(String latex, bool displayMode, BoxNode box) {
-    final key = _key(latex, displayMode);
+  void put(String latex, bool displayMode, BoxNode box, [double? maxWidthEm]) {
+    final key = _key(latex, displayMode, maxWidthEm);
     _cache.remove(key); // remove old entry if present
     _cache[key] = box;
     if (_cache.length > _maxSize) {

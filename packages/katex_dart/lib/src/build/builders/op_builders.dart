@@ -12,6 +12,7 @@ import 'package:katex_dart/src/build/build_expression.dart';
 import 'package:katex_dart/src/build/builders/supsub_builder.dart' show isCharacterBox;
 import 'package:katex_dart/src/build/options.dart';
 import 'package:katex_dart/src/build/style.dart';
+import 'package:katex_dart/src/svg/svg_geometry.g.dart' as geom;
 import 'package:katex_dart/src/types.dart';
 
 /// Registers the op/operatorname builders into [registry].
@@ -21,6 +22,38 @@ void registerOpBuilders(Map<String, GroupBuilder> registry) {
 }
 
 const Set<String> _noSuccessor = {r'\smallint'};
+
+/// The operators KaTeX draws from SVG paths rather than from a font glyph.
+///
+/// Port of KaTeX's `tt` table (src/symbols.js): name → (path name, height
+/// in em, depth in em). `\oiint` (U+222F) and `\oiiint` (U+2230) exist in
+/// **no** KaTeX font — KaTeX draws them as paths, with a Size1 variant for
+/// text style and a Size2 one for display style.
+const Map<String, List<Object>> _pathBackedOperators = <String, List<Object>>{
+  r'\oiint': <Object>['oiintSize1', 'oiintSize2', 0.957, 0.499, 1.472, 0.659],
+  r'\oiiint': <Object>['oiiintSize1', 'oiiintSize2', 1.304, 0.499, 1.98, 0.659],
+};
+
+/// Builds the SVG-path box for a path-backed operator, or `null` when the
+/// operator is not one of them.
+BoxNode? _pathBackedOperator(String name, bool large) {
+  final entry = _pathBackedOperators[name];
+  if (entry == null) return null;
+  final pathName = entry[large ? 1 : 0] as String;
+  final height = entry[large ? 4 : 2] as double;
+  final depth = entry[large ? 5 : 3] as double;
+  final pathData = geom.svgPath[pathName];
+  if (pathData == null) return null;
+  return SvgPathNode(
+    pathName: pathName,
+    pathData: pathData,
+    viewBoxWidth: 1000 * height,
+    viewBoxHeight: 1000 * (height + depth),
+    width: height,
+    height: height,
+    depth: depth,
+  );
+}
 
 // The base box of an op, plus its slant (italic) and the requested base shift.
 class _OpBase {
@@ -48,8 +81,16 @@ _OpBase _buildOpBase(OpNode group, Options options) {
       Mode.math,
       options: options,
     );
-    base = glyph ?? makeSpan(const []);
-    italic = glyph?.scaledItalic ?? 0.0;
+    if (glyph != null) {
+      base = glyph;
+      italic = glyph.scaledItalic;
+    } else {
+      // A few operators have no glyph in ANY KaTeX font: KaTeX draws them
+      // from SVG paths instead (its `tt` table in src/symbols.js). Without
+      // this they built to nothing and silently vanished from the formula.
+      final path = _pathBackedOperator(group.name!, large);
+      base = path ?? makeSpan(const []);
+    }
   } else if (group.body != null) {
     final inner = buildExpression(group.body!, options, isRealGroup: true);
     base = makeSpan(inner, options: options);

@@ -22,6 +22,7 @@ void registerArrayEnvironments() {
   _registerMatrix();
   _registerCases();
   _registerAligned();
+  _registerGather();
 }
 
 SymbolParseNode? _checkSymbolNode(ParseNode? node) => node is SymbolParseNode ? node : null;
@@ -93,9 +94,11 @@ class _ArrayPayload {
   bool? autoTag;
 
   /// Whether the environment is a single-row environment (e.g. {equation}).
-  /// Not used by the MVP environment set, but retained for the `parseArray`
-  /// port; equation/CD environments are deferred.
-  final bool singleRow = false;
+  ///
+  /// A single-row environment does not define `\cr`, so a `\\` inside it is
+  /// a parse error rather than a row break — which is what KaTeX does for
+  /// `{equation}`.
+  bool singleRow = false;
   bool emptySingleRow;
   int? maxNumCols;
   bool? leqno;
@@ -330,6 +333,7 @@ const Map<String, List<String>?> _matrixDelimiters = <String, List<String>?>{
   'Bmatrix': <String>[r'\{', r'\}'],
   'vmatrix': <String>['|', '|'],
   'Vmatrix': <String>[r'\Vert', r'\Vert'],
+  'smallmatrix': null,
 };
 
 void _registerMatrix() {
@@ -341,6 +345,7 @@ void _registerMatrix() {
       'Bmatrix',
       'vmatrix',
       'Vmatrix',
+      'smallmatrix',
       'matrix*',
       'pmatrix*',
       'bmatrix*',
@@ -359,6 +364,10 @@ void _registerMatrix() {
         final payload = _ArrayPayload(
           hskipBeforeAndAfter: false,
           cols: <AlignSpec>[AlignSpec.align(colAlign)],
+          // `smallmatrix` is a matrix with the same glyph size but half the
+          // row spacing — KaTeX's "a variant of matrix with a smaller font
+          // size" reads as tighter, not smaller.
+          arraystretch: baseName == 'smallmatrix' ? 0.5 : null,
         );
         if (context.envName.endsWith('*')) {
           parser.consumeSpaces();
@@ -536,6 +545,74 @@ void _registerAligned() {
       type: 'array',
       numArgs: 1,
       handler: (context, args, optArgs) => _alignedHandler(context, args),
+    ),
+  );
+}
+
+// ---------------------------------------------------------------------------
+// gather / equation family
+// ---------------------------------------------------------------------------
+
+/// Parses the body of a `gather`/`gather*`/`equation`/`equation*`.
+///
+/// Both are *centred* environments: every row is a single centred cell, and
+/// `&` is not an alignment point (KaTeX rejects it). `gather` is not
+/// numbered; `equation` is, and is a single-row environment (a `\\` inside it
+/// is an error, not a row break).
+ArrayNode _gatherHandler(
+  EnvContext context,
+  List<ParseNode> args, {
+  required bool autoTag,
+  required bool singleRow,
+}) {
+  _validateAmsEnvironmentContext(context);
+  final res = _parseArray(
+    context.parser,
+    _ArrayPayload(
+      cols: <AlignSpec>[AlignSpec.align('c')],
+      addJot: true,
+      autoTag: autoTag,
+      emptySingleRow: true,
+      leqno: context.parser.settings.leqno,
+    )..singleRow = singleRow,
+    StyleStr.display,
+  );
+  for (final row in res.body) {
+    if (row.length > 1) {
+      throw ParseError(
+        '{${context.envName}} does not allow & alignment points',
+      );
+    }
+  }
+  return res;
+}
+
+void _registerGather() {
+  defineEnvironment(
+    <String>['gather', 'gather*'],
+    EnvSpec(
+      type: 'array',
+      numArgs: 0,
+      handler: (context, args, optArgs) => _gatherHandler(
+        context,
+        args,
+        autoTag: false,
+        singleRow: false,
+      ),
+    ),
+  );
+
+  defineEnvironment(
+    <String>['equation', 'equation*'],
+    EnvSpec(
+      type: 'array',
+      numArgs: 0,
+      handler: (context, args, optArgs) => _gatherHandler(
+        context,
+        args,
+        autoTag: !context.envName.endsWith('*'),
+        singleRow: true,
+      ),
     ),
   );
 }
