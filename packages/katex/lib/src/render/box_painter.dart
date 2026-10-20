@@ -109,6 +109,12 @@ int countRevealableLeaves(BoxNode node) {
     case EncloseNode():
       // One op for the frame/fill/strike decorations, plus the child's leaves.
       return 1 + countRevealableLeaves(node.child);
+    default:
+      // `BoxNode` is not sealed, so a node type this package does not know
+      // about can still arrive. Count it as one leaf rather than throwing:
+      // the reveal animation steps per leaf, and an unknown leaf is still
+      // something that has to appear.
+      return 1;
   }
 }
 
