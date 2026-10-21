@@ -127,22 +127,26 @@ void main() {
     test('an unknown arrow character is a parse error', () {
       expect(
         () => renderToBox(r'\begin{CD} A @? B \end{CD}', options: disp),
-        throwsA(isA<ParseError>().having(
-          (e) => e.message,
-          'message',
-          contains('Expected one of'),
-        )),
+        throwsA(
+          isA<ParseError>().having(
+            (e) => e.message,
+            'message',
+            contains('Expected one of'),
+          ),
+        ),
       );
     });
 
     test('an unterminated arrow is a parse error', () {
       expect(
         () => renderToBox(r'\begin{CD} A @> B \end{CD}', options: disp),
-        throwsA(isA<ParseError>().having(
-          (e) => e.message,
-          'message',
-          contains('to complete a CD arrow'),
-        )),
+        throwsA(
+          isA<ParseError>().having(
+            (e) => e.message,
+            'message',
+            contains('to complete a CD arrow'),
+          ),
+        ),
       );
     });
 

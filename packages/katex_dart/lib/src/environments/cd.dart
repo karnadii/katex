@@ -43,8 +43,7 @@ StylingNode _newCell(Mode mode) {
   return StylingNode(mode: mode, style: StyleStr.display, body: [], resetFont: true);
 }
 
-bool _isStartOfArrow(ParseNode node) =>
-    node is TextOrdNode && node.text == '@';
+bool _isStartOfArrow(ParseNode node) => node is TextOrdNode && node.text == '@';
 
 bool _isLabelEnd(ParseNode node, String endChar) {
   final text = node is SymbolParseNode ? node.text : null;

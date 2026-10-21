@@ -950,10 +950,7 @@ void main() {
     const disp = KatexOptions(displayMode: true);
     test('untrusted html commands render red names, not content', () {
       final root = renderToBox(r'\htmlClass{foo}{x}', options: disp);
-      final reds = _flatten(root)
-          .whereType<SpanNode>()
-          .where((n) => n.color == '#cc0000')
-          .toList();
+      final reds = _flatten(root).whereType<SpanNode>().where((n) => n.color == '#cc0000').toList();
       expect(reds, isNotEmpty);
     });
 
@@ -962,10 +959,7 @@ void main() {
         r'\htmlClass{foo}{x}',
         options: const KatexOptions(displayMode: true, trust: true),
       );
-      final reds = _flatten(root)
-          .whereType<SpanNode>()
-          .where((n) => n.color == '#cc0000')
-          .toList();
+      final reds = _flatten(root).whereType<SpanNode>().where((n) => n.color == '#cc0000').toList();
       expect(reds, isEmpty);
     });
   });

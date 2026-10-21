@@ -1784,9 +1784,7 @@ void _registerCd() {
       handler: (context, args, optArgs) {
         return CdLabelNode(
           mode: context.parser.mode,
-          side: context.funcName == r'\\cdleft'
-              ? CdLabelSide.left
-              : CdLabelSide.right,
+          side: context.funcName == r'\\cdleft' ? CdLabelSide.left : CdLabelSide.right,
           label: args[0],
         );
       },
