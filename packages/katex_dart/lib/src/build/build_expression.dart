@@ -91,7 +91,8 @@ String? atomClassOf(BoxNode? node) {
   return _atomClassNames.contains(first) ? first : null;
 }
 
-bool _hasClass(BoxNode node, String cls) => node is SpanNode && node.classes.contains(cls);
+bool _hasClass(BoxNode node, String cls) =>
+    node is SpanNode && node.classes.contains(cls);
 
 // Maps a symbol [Group] / explicit [MathClass] to the mclass class name.
 const Map<Group, String> _groupToMclass = {
@@ -206,8 +207,12 @@ List<BoxNode> buildExpression(
 
   // Bin cancellation pass.
   _traverseNonSpace(groups, dummyPrev, dummyNext, isRoot, (node, prev) {
-    final prevType = prev is SpanNode && prev.classes.isNotEmpty ? prev.classes.first : null;
-    final type = node is SpanNode && node.classes.isNotEmpty ? node.classes.first : null;
+    final prevType = prev is SpanNode && prev.classes.isNotEmpty
+        ? prev.classes.first
+        : null;
+    final type = node is SpanNode && node.classes.isNotEmpty
+        ? node.classes.first
+        : null;
     if (prevType == 'mbin' && _binRightCanceller.contains(type)) {
       _reclass(prev, 'mord');
     } else if (type == 'mbin' && _binLeftCanceller.contains(prevType)) {

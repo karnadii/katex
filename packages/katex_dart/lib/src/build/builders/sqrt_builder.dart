@@ -25,7 +25,8 @@ import 'package:katex_dart/src/ast/parse_node.dart' hide KernNode, RuleNode;
 import 'package:katex_dart/src/box/box_node.dart';
 import 'package:katex_dart/src/build/build_common.dart';
 import 'package:katex_dart/src/build/build_expression.dart';
-import 'package:katex_dart/src/build/builders/delimiter_builders.dart' show sizeToMaxHeight;
+import 'package:katex_dart/src/build/builders/delimiter_builders.dart'
+    show sizeToMaxHeight;
 import 'package:katex_dart/src/build/options.dart';
 import 'package:katex_dart/src/build/style.dart';
 import 'package:katex_dart/src/svg/svg_geometry.g.dart' as geom;
@@ -63,11 +64,8 @@ const double _vbPad = 80;
 // [contentWidth] is the radicand width; the surd path is made that-much-plus-
 // advanceWidth wide so its long vinculum runs over the whole radicand (KaTeX's
 // 400em-wide, top-left-anchored, sliced SVG).
-({SvgPathNode span, double height, double ruleWidth, double advanceWidth}) _makeSurd(
-  double height,
-  double contentWidth,
-  Options options,
-) {
+({SvgPathNode span, double height, double ruleWidth, double advanceWidth})
+_makeSurd(double height, double contentWidth, Options options) {
   // Remove the effect of size changes (e.g. \Huge) — KaTeX scales up rather
   // than picking a taller surd. We keep the style (e.g. \scriptstyle).
   final newOptions = options.havingBaseSizing();
@@ -87,7 +85,8 @@ const double _vbPad = 80;
     Mode.math,
     options: newOptions,
   );
-  if (mainGlyph != null && (mainGlyph.height + mainGlyph.depth) > scaledTarget) {
+  if (mainGlyph != null &&
+      (mainGlyph.height + mainGlyph.depth) > scaledTarget) {
     kind = _SurdKind.small;
   } else {
     var matched = false;
@@ -150,7 +149,9 @@ const double _vbPad = 80;
       advanceWidth = 1.056;
   }
 
-  final ruleWidth = (options.fontMetrics().sqrtRuleThickness + extraVinculum) * sizeMultiplier;
+  final ruleWidth =
+      (options.fontMetrics().sqrtRuleThickness + extraVinculum) *
+      sizeMultiplier;
 
   final pathData = geom.sqrtPath(sqrtName, extraVinculum, viewBoxHeight);
 

@@ -27,7 +27,8 @@ void registerArrayEnvironments() {
   _registerGather();
 }
 
-SymbolParseNode? _checkSymbolNode(ParseNode? node) => node is SymbolParseNode ? node : null;
+SymbolParseNode? _checkSymbolNode(ParseNode? node) =>
+    node is SymbolParseNode ? node : null;
 
 SymbolParseNode _assertSymbolNode(ParseNode node) {
   final sym = _checkSymbolNode(node);
@@ -39,7 +40,8 @@ SymbolParseNode _assertSymbolNode(ParseNode node) {
 
 TextOrdNode _assertTextord(ParseNode node) => assertNodeType(node, 'textord');
 
-OrdGroupNode _assertOrdgroup(ParseNode node) => assertNodeType(node, 'ordgroup');
+OrdGroupNode _assertOrdgroup(ParseNode node) =>
+    assertNodeType(node, 'ordgroup');
 
 StylingNode _assertStyling(ParseNode node) => assertNodeType(node, 'styling');
 
@@ -72,7 +74,8 @@ bool? _getAutoTag(String name) {
 }
 
 /// Cell style based on whether the env name starts with 'd'.
-StyleStr _dCellStyle(String envName) => envName.startsWith('d') ? StyleStr.display : StyleStr.text;
+StyleStr _dCellStyle(String envName) =>
+    envName.startsWith('d') ? StyleStr.display : StyleStr.text;
 
 /// Parse-array payload, mirroring KaTeX's options object to `parseArray`.
 class _ArrayPayload {
@@ -252,7 +255,9 @@ void _registerArray() {
       numArgs: 1,
       handler: (context, args, optArgs) {
         final symNode = _checkSymbolNode(args[0]);
-        final colalign = symNode != null ? <ParseNode>[args[0]] : _assertOrdgroup(args[0]).body;
+        final colalign = symNode != null
+            ? <ParseNode>[args[0]]
+            : _assertOrdgroup(args[0]).body;
         final cols = colalign.map((nde) {
           final node = _assertSymbolNode(nde);
           final ca = node.text;
@@ -292,7 +297,9 @@ void _registerSubarray() {
       handler: (context, args, optArgs) {
         // Parsing of {subarray} is similar to {array}.
         final symNode = _checkSymbolNode(args[0]);
-        final colalign = symNode != null ? <ParseNode>[args[0]] : _assertOrdgroup(args[0]).body;
+        final colalign = symNode != null
+            ? <ParseNode>[args[0]]
+            : _assertOrdgroup(args[0]).body;
         final cols = colalign.map((nde) {
           final node = _assertSymbolNode(nde);
           final ca = node.text;
@@ -477,7 +484,9 @@ ArrayNode _alignedHandler(EnvContext context, List<ParseNode> args) {
       addJot: true,
       autoTag: isSplit ? null : _getAutoTag(context.envName),
       emptySingleRow: true,
-      colSeparationType: context.envName.contains('at') ? ColSeparationType.alignat : null,
+      colSeparationType: context.envName.contains('at')
+          ? ColSeparationType.alignat
+          : null,
       maxNumCols: isSplit ? 2 : null,
       leqno: context.parser.settings.leqno,
     ),
@@ -533,7 +542,9 @@ ArrayNode _alignedHandler(EnvContext context, List<ParseNode> args) {
 
   return res.copyWith(
     cols: cols,
-    colSeparationType: isAligned ? ColSeparationType.align : ColSeparationType.alignat,
+    colSeparationType: isAligned
+        ? ColSeparationType.align
+        : ColSeparationType.alignat,
   );
 }
 

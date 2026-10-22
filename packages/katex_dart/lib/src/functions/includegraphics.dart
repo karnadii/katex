@@ -28,9 +28,8 @@ Measurement _sizeData(String str) {
   if (RegExp(r'^[-+]? *(\d+(\.\d*)?|\.\d+)$').hasMatch(str)) {
     return Measurement(double.parse(str), 'bp');
   }
-  final match = RegExp(
-    r'([-+]?) *(\d+(?:\.\d*)?|\.\d+) *([a-z]{2})',
-  ).firstMatch(str);
+  final match = RegExp(r'([-+]?) *(\d+(?:\.\d*)?|\.\d+) *([a-z]{2})')
+      .firstMatch(str);
   if (match == null) {
     throw ParseError("Invalid size: '$str' in \\includegraphics");
   }

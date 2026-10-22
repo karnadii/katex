@@ -27,12 +27,11 @@ class EnvContext {
 }
 
 /// An environment handler producing a [ParseNode] from `\begin{name}` args.
-typedef EnvHandler =
-    ParseNode Function(
-      EnvContext context,
-      List<ParseNode> args,
-      List<ParseNode?> optArgs,
-    );
+typedef EnvHandler = ParseNode Function(
+  EnvContext context,
+  List<ParseNode> args,
+  List<ParseNode?> optArgs,
+);
 
 /// Final environment spec, mirroring KaTeX's `EnvSpec`.
 class EnvSpec {

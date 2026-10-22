@@ -35,7 +35,8 @@ class UnicodeAccent {
   final String? math;
 
   @override
-  bool operator ==(Object other) => other is UnicodeAccent && other.text == text && other.math == math;
+  bool operator ==(Object other) =>
+      other is UnicodeAccent && other.text == text && other.math == math;
 
   @override
   int get hashCode => Object.hash(text, math);

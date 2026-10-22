@@ -7,7 +7,8 @@ import 'package:katex_dart/src/types.dart';
 import 'package:test/test.dart';
 
 /// Builds a [MacroExpander] over [input] in math mode with default settings.
-MacroExpander expander(String input, [Settings? settings]) => MacroExpander(input, settings ?? Settings(), Mode.math);
+MacroExpander expander(String input, [Settings? settings]) =>
+    MacroExpander(input, settings ?? Settings(), Mode.math);
 
 /// Fully expands [input] and returns the resulting (forward-order) token texts,
 /// stopping at EOF.

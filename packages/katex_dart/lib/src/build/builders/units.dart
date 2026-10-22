@@ -29,11 +29,16 @@ double calculateSize(Measurement sizeValue, Options options) {
   final double scale;
   final unit = sizeValue.unit;
   if (_ptPerUnit.containsKey(unit)) {
-    scale = _ptPerUnit[unit]! / options.fontMetrics().ptPerEm / options.sizeMultiplier;
+    scale =
+        _ptPerUnit[unit]! /
+        options.fontMetrics().ptPerEm /
+        options.sizeMultiplier;
   } else if (unit == 'mu') {
     scale = options.fontMetrics().cssEmPerMu;
   } else {
-    final unitOptions = options.style.isTight() ? options.havingStyle(options.style.text()) : options;
+    final unitOptions = options.style.isTight()
+        ? options.havingStyle(options.style.text())
+        : options;
     final double baseScale;
     if (unit == 'ex') {
       baseScale = unitOptions.fontMetrics().xHeight;
@@ -42,7 +47,9 @@ double calculateSize(Measurement sizeValue, Options options) {
     } else {
       throw ParseError("Invalid unit: '$unit'");
     }
-    scale = unitOptions != options ? baseScale * unitOptions.sizeMultiplier / options.sizeMultiplier : baseScale;
+    scale = unitOptions != options
+        ? baseScale * unitOptions.sizeMultiplier / options.sizeMultiplier
+        : baseScale;
   }
   return sizeValue.number * scale;
 }

@@ -130,7 +130,8 @@ class Math extends StatelessWidget {
     }
     // Wrapping needs the incoming width, which is only known at layout time.
     return LayoutBuilder(
-      builder: (context, constraints) => _buildMath(context, _emBudget(constraints.maxWidth, fontSizePx)),
+      builder: (context, constraints) =>
+          _buildMath(context, _emBudget(constraints.maxWidth, fontSizePx)),
     );
   }
 
@@ -149,7 +150,10 @@ class Math extends StatelessWidget {
   }
 
   Widget _buildMath(BuildContext context, double maxWidthEm) {
-    final baseColor = color ?? DefaultTextStyle.of(context).style.color ?? const Color(0xFF000000);
+    final baseColor =
+        color ??
+        DefaultTextStyle.of(context).style.color ??
+        const Color(0xFF000000);
     final fontSizePx = fontSize ?? kDefaultMathFontSize;
 
     final BoxNode box;

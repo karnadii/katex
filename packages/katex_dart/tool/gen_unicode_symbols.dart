@@ -89,7 +89,9 @@ process.stdout.write(JSON.stringify(out));
     ..writeln('//')
     ..writeln('// Port of KaTeX `unicodeSymbols.js`: precomposed accented')
     ..writeln('// character -> base letter + combining accent(s), built by')
-    ..writeln('// NFC-normalizing every letter x accent (x accent) combination.')
+    ..writeln(
+      '// NFC-normalizing every letter x accent (x accent) combination.',
+    )
     ..writeln('library;')
     ..writeln()
     ..writeln('/// Precomposed accented characters mapped to their base letter')
@@ -101,7 +103,8 @@ process.stdout.write(JSON.stringify(out));
     ..writeln('const Map<String, String> unicodeSymbols = {');
 
   // Sort by code point for deterministic, diffable output.
-  final keys = decoded.keys.toList()..sort((a, b) => a.runes.first.compareTo(b.runes.first));
+  final keys = decoded.keys.toList()
+    ..sort((a, b) => a.runes.first.compareTo(b.runes.first));
   for (final key in keys) {
     final value = decoded[key] as String;
     buffer.writeln('  ${_escape(key)}: ${_escape(value)}, // $key');

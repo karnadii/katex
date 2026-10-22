@@ -202,7 +202,10 @@ void main() {
       final tight = render('$longSum \\\\ $longSum', maxWidth: 6);
       final loose = render('$longSum \\\\[2em] $longSum', maxWidth: 6);
       expect(linesOf(loose), hasLength(linesOf(tight).length));
-      expect(loose.height + loose.depth, greaterThan(tight.height + tight.depth));
+      expect(
+        loose.height + loose.depth,
+        greaterThan(tight.height + tight.depth),
+      );
     });
   });
 

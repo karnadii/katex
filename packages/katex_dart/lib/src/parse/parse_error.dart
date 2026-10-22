@@ -34,7 +34,11 @@ class ParseError implements Exception {
 
       // Underline token in question using combining underscores.
       const combiningLowLine = '̲';
-      final underlined = input.substring(start, end).split('').map((c) => '$c$combiningLowLine').join();
+      final underlined = input
+          .substring(start, end)
+          .split('')
+          .map((c) => '$c$combiningLowLine')
+          .join();
 
       // Extract some context from the input and add it to the error.
       final String left;

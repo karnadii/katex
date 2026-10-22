@@ -72,9 +72,8 @@ const double _passThreshold = 1;
 String _repoRoot() {
   var dir = Directory.current.absolute.path;
   while (true) {
-    if (Directory(
-      p.join(dir, 'reference', 'fixtures', 'metrics'),
-    ).existsSync()) {
+    if (Directory(p.join(dir, 'reference', 'fixtures', 'metrics'))
+        .existsSync()) {
       return dir;
     }
     final parent = p.dirname(dir);
@@ -111,13 +110,15 @@ class _DimResult {
     return relDiff <= _relTol || absDiff <= _absTol;
   }
 
-  String get pctStr => applicable ? '${(relDiff * 100).toStringAsFixed(3)}%' : '   n/a';
+  String get pctStr =>
+      applicable ? '${(relDiff * 100).toStringAsFixed(3)}%' : '   n/a';
 }
 
 void main() {
   final root = _repoRoot();
   final galleryFile = File(p.join(root, 'reference', 'gallery.json'));
-  final gallery = (jsonDecode(galleryFile.readAsStringSync()) as List).cast<Map<String, dynamic>>();
+  final gallery = (jsonDecode(galleryFile.readAsStringSync()) as List)
+      .cast<Map<String, dynamic>>();
 
   // Accumulate per-entry results so we can print one summary table at the end.
   final rows = <String>[];

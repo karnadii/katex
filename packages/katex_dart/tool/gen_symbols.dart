@@ -44,7 +44,8 @@ void main() {
   // strip types and execute it.
   final tmp = Directory.systemTemp.createTempSync('katex_gen_symbols_');
   try {
-    final stagedSymbols = File('${tmp.path}/symbols.ts')..writeAsStringSync(symbolsTs.readAsStringSync());
+    final stagedSymbols = File('${tmp.path}/symbols.ts')
+      ..writeAsStringSync(symbolsTs.readAsStringSync());
     final dumper = File('${tmp.path}/dump.mts')
       ..writeAsStringSync('''
 import symbols from "./symbols.ts";
@@ -68,7 +69,8 @@ process.stdout.write(JSON.stringify({math: s["math"], text: s["text"]}));
       exit(1);
     }
 
-    final data = (jsonDecode(result.stdout as String) as Map).cast<String, dynamic>();
+    final data = (jsonDecode(result.stdout as String) as Map)
+        .cast<String, dynamic>();
     final math = (data['math'] as Map).cast<String, dynamic>();
     final text = (data['text'] as Map).cast<String, dynamic>();
 

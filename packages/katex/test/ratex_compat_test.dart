@@ -49,10 +49,7 @@ void main() {
     test('a finite width budget wraps the expression', () {
       const tex = r'a+b+c+d=e+f+g+h';
       final unwrapped = KaTeXEngine.instance.parseAndLayout(tex);
-      final wrapped = KaTeXEngine.instance.parseAndLayout(
-        tex,
-        maxWidthEm: 6,
-      );
+      final wrapped = KaTeXEngine.instance.parseAndLayout(tex, maxWidthEm: 6);
       // Wrapping trades width for height: the result is narrower and taller.
       expect(wrapped.width, lessThan(unwrapped.width));
       expect(wrapped.totalHeight, greaterThan(unwrapped.totalHeight));
@@ -148,7 +145,9 @@ void main() {
       expect(find.textContaining('KaTeX error'), findsOneWidget);
     });
 
-    testWidgets('matches the Math widget box tree for the same formula', (tester) async {
+    testWidgets('matches the Math widget box tree for the same formula', (
+      tester,
+    ) async {
       const tex = r'\sum_{i=0}^{n} i';
       final widgetBox = KaTeXEngine.instance.parseBox(tex, displayMode: true);
       final mathBox = KaTeXEngine.instance.parseBox(tex, displayMode: true);
@@ -159,17 +158,16 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: KaTeXWidget(
-              latex: r'\sqrt{x}',
-              haloColor: Color(0xFFFFFFFF),
-            ),
+            body: KaTeXWidget(latex: r'\sqrt{x}', haloColor: Color(0xFFFFFFFF)),
           ),
         ),
       );
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('a width budget wraps the formula onto several lines', (tester) async {
+    testWidgets('a width budget wraps the formula onto several lines', (
+      tester,
+    ) async {
       const tex = r'a+b+c+d=e+f+g+h';
       await tester.pumpWidget(
         const MaterialApp(

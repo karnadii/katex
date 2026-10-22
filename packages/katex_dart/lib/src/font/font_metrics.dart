@@ -276,7 +276,8 @@ const List<int> _supportedBlocks = [
 /// block. Mirrors KaTeX's `supportedCodepoint`.
 bool supportedCodepoint(int codepoint) {
   for (var i = 0; i < _supportedBlocks.length; i += 2) {
-    if (codepoint >= _supportedBlocks[i] && codepoint <= _supportedBlocks[i + 1]) {
+    if (codepoint >= _supportedBlocks[i] &&
+        codepoint <= _supportedBlocks[i + 1]) {
       return true;
     }
   }

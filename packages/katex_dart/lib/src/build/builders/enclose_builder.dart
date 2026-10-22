@@ -21,13 +21,15 @@ import 'package:katex_dart/src/ast/parse_node.dart' as ast;
 import 'package:katex_dart/src/box/box_node.dart';
 import 'package:katex_dart/src/build/build_common.dart';
 import 'package:katex_dart/src/build/build_expression.dart';
-import 'package:katex_dart/src/build/builders/supsub_builder.dart' show isCharacterBox;
+import 'package:katex_dart/src/build/builders/supsub_builder.dart'
+    show isCharacterBox;
 import 'package:katex_dart/src/build/builders/units.dart' show calculateSize;
 import 'package:katex_dart/src/build/options.dart';
 
 /// Registers the enclose builder into [registry].
 void registerEncloseBuilder(Map<String, GroupBuilder> registry) {
-  registry['enclose'] = (node, options) => _buildEnclose(node as ast.EncloseParseNode, options);
+  registry['enclose'] = (node, options) =>
+      _buildEnclose(node as ast.EncloseParseNode, options);
 }
 
 // Wraps [inner] with [leftPad]/[rightPad] em of horizontal padding and

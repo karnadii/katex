@@ -67,7 +67,8 @@ bool _isFinitePositive(double v) => v.isFinite && v > 0;
 
 /// A stand-in for a backend measurer, so a test can assert the reported
 /// dimensions reach the box tree rather than depending on the estimate.
-TextRunMetrics _fixedMeasurer(String text) => const TextRunMetrics(width: 7, height: 3, depth: 2);
+TextRunMetrics _fixedMeasurer(String text) =>
+    const TextRunMetrics(width: 7, height: 3, depth: 2);
 
 void main() {
   group('renderToBox builds every gallery expression', () {
@@ -170,7 +171,10 @@ void main() {
     // The visible rules are the only RuleNodes with BOTH a positive width and a
     // positive height — the per-row layout struts are zero-width.
     List<RuleNode> visibleRules(BoxNode root) =>
-        _flatten(root).whereType<RuleNode>().where((r) => r.width > 0 && (r.height + r.depth) > 0).toList();
+        _flatten(root)
+            .whereType<RuleNode>()
+            .where((r) => r.width > 0 && (r.height + r.depth) > 0)
+            .toList();
 
     // From LaTeX \showthe\arrayrulewidth — KaTeX's `fontMetrics.arrayRuleWidth`
     // is 0.04 em across all styles, and minRuleThickness defaults to 0.
@@ -191,9 +195,13 @@ void main() {
       );
       final rules = visibleRules(root);
       // Vertical separator: width == arrayRuleWidth, tall.
-      final verticals = rules.where((r) => (r.width - arrayRuleWidth).abs() < 1e-9).toList();
+      final verticals = rules
+          .where((r) => (r.width - arrayRuleWidth).abs() < 1e-9)
+          .toList();
       // Horizontal hline: height == arrayRuleWidth, wide.
-      final horizontals = rules.where((r) => (r.height - arrayRuleWidth).abs() < 1e-9).toList();
+      final horizontals = rules
+          .where((r) => (r.height - arrayRuleWidth).abs() < 1e-9)
+          .toList();
       expect(verticals, hasLength(1), reason: 'one | separator');
       expect(horizontals, hasLength(1), reason: r'one \hline');
       // The vertical separator spans (roughly) the whole array height; the
@@ -208,8 +216,12 @@ void main() {
         options: display,
       );
       final rules = visibleRules(root);
-      final verticals = rules.where((r) => (r.width - arrayRuleWidth).abs() < 1e-9).length;
-      final horizontals = rules.where((r) => (r.height - arrayRuleWidth).abs() < 1e-9).length;
+      final verticals = rules
+          .where((r) => (r.width - arrayRuleWidth).abs() < 1e-9)
+          .length;
+      final horizontals = rules
+          .where((r) => (r.height - arrayRuleWidth).abs() < 1e-9)
+          .length;
       expect(verticals, 3, reason: 'three | separators');
       expect(horizontals, 3, reason: r'three \hline rows');
     });
@@ -259,11 +271,16 @@ void main() {
   // letterforms in reversed order. The whole word has to reach the backend as
   // a single string for the platform to shape and reorder it.
   group('complex-script text runs', () {
-    List<TextRunNode> runs(BoxNode root) => _flatten(root).whereType<TextRunNode>().toList();
+    List<TextRunNode> runs(BoxNode root) =>
+        _flatten(root).whereType<TextRunNode>().toList();
 
     test('an Arabic word becomes ONE run holding the whole word', () {
       final found = runs(renderToBox(r'\text{مرة}'));
-      expect(found, hasLength(1), reason: 'must not split into per-character runs');
+      expect(
+        found,
+        hasLength(1),
+        reason: 'must not split into per-character runs',
+      );
       expect(found.single.text, 'مرة');
       expect(found.single.rtl, isTrue);
       // The old failure mode was silent disappearance; a real advance proves
@@ -494,9 +511,9 @@ void main() {
     // Locates the `.root` wrapper span and the surd `.sqrt` span's two VLists:
     // the index VList (inside `.root`) and the surd body VList (the sibling).
     (SpanNode rootWrap, VList indexVList) findRoot(BoxNode root) {
-      final wrap = _flatten(
-        root,
-      ).whereType<SpanNode>().firstWhere((s) => s.classes.contains('root'));
+      final wrap = _flatten(root)
+          .whereType<SpanNode>()
+          .firstWhere((s) => s.classes.contains('root'));
       final vlist = _flatten(wrap).whereType<VList>().first;
       return (wrap, vlist);
     }
@@ -534,9 +551,9 @@ void main() {
         final (wrap, _) = findRoot(root);
         // The .sqrt span holds: [Kern(5mu), root, Kern(-10mu), body]. Find the
         // kerns flanking the `.root` wrapper.
-        final sqrtSpan = _flatten(
-          root,
-        ).whereType<SpanNode>().firstWhere((s) => s.classes.contains('sqrt'));
+        final sqrtSpan = _flatten(root)
+            .whereType<SpanNode>()
+            .firstWhere((s) => s.classes.contains('sqrt'));
         final kids = sqrtSpan.children;
         final wrapIndex = kids.indexOf(wrap);
         expect(wrapIndex, greaterThan(0), reason: 'root has a leading kern');
@@ -782,7 +799,10 @@ void main() {
     // accentWrap`. Expected dimensions are KaTeX 0.17.0's own.
     group('accent with sub/superscript', () {
       int glyphCount(BoxNode root, int codepoint) =>
-          _flatten(root).whereType<GlyphNode>().where((g) => g.codepoint == codepoint).length;
+          _flatten(root)
+              .whereType<GlyphNode>()
+              .where((g) => g.codepoint == codepoint)
+              .length;
 
       const u = 0x75;
 
@@ -872,7 +892,9 @@ void main() {
         double bottom(VListPosition p) => p.shift + p.box.depth;
         double top(VListPosition p) => p.shift - p.box.height;
 
-        final ced = _flatten(renderToBox(r'\text{\c c}')).whereType<VList>().firstWhere((v) => v.positions.length >= 2);
+        final ced = _flatten(renderToBox(r'\text{\c c}'))
+            .whereType<VList>()
+            .firstWhere((v) => v.positions.length >= 2);
         expect(
           bottom(ced.positions.last),
           greaterThan(bottom(ced.positions.first)),
@@ -880,7 +902,9 @@ void main() {
         );
 
         // Control: the circumflex extends above the base instead.
-        final hat = _flatten(renderToBox(r'\text{\^a}')).whereType<VList>().firstWhere((v) => v.positions.length >= 2);
+        final hat = _flatten(renderToBox(r'\text{\^a}'))
+            .whereType<VList>()
+            .firstWhere((v) => v.positions.length >= 2);
         expect(
           top(hat.positions.last),
           lessThan(top(hat.positions.first)),
@@ -950,7 +974,10 @@ void main() {
     const disp = KatexOptions(displayMode: true);
     test('untrusted html commands render red names, not content', () {
       final root = renderToBox(r'\htmlClass{foo}{x}', options: disp);
-      final reds = _flatten(root).whereType<SpanNode>().where((n) => n.color == '#cc0000').toList();
+      final reds = _flatten(root)
+          .whereType<SpanNode>()
+          .where((n) => n.color == '#cc0000')
+          .toList();
       expect(reds, isNotEmpty);
     });
 
@@ -959,7 +986,10 @@ void main() {
         r'\htmlClass{foo}{x}',
         options: const KatexOptions(displayMode: true, trust: true),
       );
-      final reds = _flatten(root).whereType<SpanNode>().where((n) => n.color == '#cc0000').toList();
+      final reds = _flatten(root)
+          .whereType<SpanNode>()
+          .where((n) => n.color == '#cc0000')
+          .toList();
       expect(reds, isEmpty);
     });
   });
@@ -975,7 +1005,8 @@ void main() {
     }
 
     // Collects the leaf GlyphNodes' code points in left-to-right order.
-    List<int> glyphs(BoxNode root) => _flatten(root).whereType<GlyphNode>().map((g) => g.codepoint).toList();
+    List<int> glyphs(BoxNode root) =>
+        _flatten(root).whereType<GlyphNode>().map((g) => g.codepoint).toList();
 
     test(
       r'\int_0^1 uses the side supsub layout (msupsub), not stacked limits',
@@ -1012,9 +1043,10 @@ void main() {
         // child is a negative KernNode (= -italic of the integral sign). The
         // superscript row has no such leading negative kern. This is what tucks
         // the lower bound under the slanted sign.
-        final negKerns = _flatten(
-          msupsub,
-        ).whereType<KernNode>().where((k) => k.width < -1e-6).toList();
+        final negKerns = _flatten(msupsub)
+            .whereType<KernNode>()
+            .where((k) => k.width < -1e-6)
+            .toList();
         expect(
           negKerns,
           isNotEmpty,
@@ -1037,9 +1069,10 @@ void main() {
         options: const KatexOptions(displayMode: true),
       );
       final msupsub = findMsupsub(root)!;
-      final scriptspaceKerns = _flatten(
-        msupsub,
-      ).whereType<KernNode>().where((k) => (k.width - 0.05).abs() < 1e-6).toList();
+      final scriptspaceKerns = _flatten(msupsub)
+          .whereType<KernNode>()
+          .where((k) => (k.width - 0.05).abs() < 1e-6)
+          .toList();
       expect(
         scriptspaceKerns,
         hasLength(2),
@@ -1125,16 +1158,19 @@ void main() {
   // those margins as kerns; these tests pin the exact em values.
   group('supsub italic correction + scriptspace (RC-1)', () {
     // Finds the msupsub span anywhere in the built tree.
-    SpanNode msupsubOf(BoxNode root) => _flatten(
-      root,
-    ).whereType<SpanNode>().firstWhere((s) => s.classes.contains('msupsub'));
+    SpanNode msupsubOf(BoxNode root) =>
+        _flatten(root)
+            .whereType<SpanNode>()
+            .firstWhere((s) => s.classes.contains('msupsub'));
 
     // The HBox holding the base + (optional italic kern) + msupsub span.
-    HBox supsubHBoxOf(BoxNode root) => _flatten(root).whereType<HBox>().firstWhere(
-      (h) => h.children.any(
-        (c) => c is SpanNode && c.classes.contains('msupsub'),
-      ),
-    );
+    HBox supsubHBoxOf(BoxNode root) => _flatten(root)
+        .whereType<HBox>()
+        .firstWhere(
+          (h) => h.children.any(
+            (c) => c is SpanNode && c.classes.contains('msupsub'),
+          ),
+        );
 
     test('scriptspace (0.05em) trails the superscript row', () {
       // x has italic 0, so the only horizontal kern in the sup row is the
@@ -1183,9 +1219,10 @@ void main() {
       expect(baseKern.width, closeTo(0.22222, 1e-4));
 
       final msupsub = msupsubOf(root);
-      final negKerns = _flatten(
-        msupsub,
-      ).whereType<KernNode>().where((k) => k.width < 0).toList();
+      final negKerns = _flatten(msupsub)
+          .whereType<KernNode>()
+          .where((k) => k.width < 0)
+          .toList();
       expect(negKerns, hasLength(1), reason: 'subscript has one negative kern');
       expect(
         negKerns.single.width,
@@ -1271,7 +1308,8 @@ void main() {
     String tagInk(BoxNode root) {
       final chars = <String>[];
       void walk(BoxNode node, bool inTag) {
-        final nowInTag = inTag || (node is SpanNode && node.classes.contains('tag'));
+        final nowInTag =
+            inTag || (node is SpanNode && node.classes.contains('tag'));
         if (node is GlyphNode) {
           if (nowInTag) chars.add(String.fromCharCode(node.codepoint));
           return;
@@ -1338,9 +1376,9 @@ void main() {
       );
       expect(tagInk(root), isEmpty);
       expect(
-        _flatten(root).whereType<SpanNode>().where(
-          (n) => n.classes.contains('tag'),
-        ),
+        _flatten(root)
+            .whereType<SpanNode>()
+            .where((n) => n.classes.contains('tag')),
         isEmpty,
       );
     });

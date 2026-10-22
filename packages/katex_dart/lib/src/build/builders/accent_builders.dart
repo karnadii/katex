@@ -30,14 +30,17 @@ import 'package:katex_dart/src/ast/parse_node.dart' hide KernNode, RuleNode;
 import 'package:katex_dart/src/box/box_node.dart';
 import 'package:katex_dart/src/build/build_common.dart';
 import 'package:katex_dart/src/build/build_expression.dart';
-import 'package:katex_dart/src/build/builders/supsub_builder.dart' show buildSupSub, isCharacterBox;
+import 'package:katex_dart/src/build/builders/supsub_builder.dart'
+    show buildSupSub, isCharacterBox;
 import 'package:katex_dart/src/build/options.dart';
 import 'package:katex_dart/src/svg/svg_geometry.g.dart' as geom;
 
 /// Registers the accent / accentUnder builders into [registry].
 void registerAccentBuilders(Map<String, GroupBuilder> registry) {
-  registry['accent'] = (node, options) => _buildAccent(node as AccentNode, options);
-  registry['accentUnder'] = (node, options) => _buildAccentUnder(node as AccentUnderNode, options);
+  registry['accent'] = (node, options) =>
+      _buildAccent(node as AccentNode, options);
+  registry['accentUnder'] = (node, options) =>
+      _buildAccentUnder(node as AccentUnderNode, options);
 }
 
 GlyphNode? _baseSymbol(BoxNode node) {
@@ -187,8 +190,9 @@ _katexImagesData = {
 /// Maps a KaTeX `preserveAspectRatio` x-anchor name to our slice enum. The
 /// stretchy arrow SVGs always anchor the top (`YMin`); only the x-anchor
 /// varies (left head vs. right head).
-SvgPreserveAspectRatio _sliceForAlign(String align) =>
-    align.startsWith('xMax') ? SvgPreserveAspectRatio.xMaxYMinSlice : SvgPreserveAspectRatio.xMinYMinSlice;
+SvgPreserveAspectRatio _sliceForAlign(String align) => align.startsWith('xMax')
+    ? SvgPreserveAspectRatio.xMaxYMinSlice
+    : SvgPreserveAspectRatio.xMinYMinSlice;
 
 const Set<String> _wideAccentLabels = {
   'widehat',
@@ -345,7 +349,9 @@ BoxNode _buildAccent(AccentNode group, Options options) {
   final accentBelow = group.label == r'\c';
 
   // Clearance between body and accent (rule 12): min of body height & xHeight.
-  var clearance = accentBelow ? body.height + body.depth : math.min(body.height, options.fontMetrics().xHeight);
+  var clearance = accentBelow
+      ? body.height + body.depth
+      : math.min(body.height, options.fontMetrics().xHeight);
 
   if (!isStretchy) {
     final BoxNode accent;

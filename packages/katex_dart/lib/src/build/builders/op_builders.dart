@@ -9,7 +9,8 @@ import 'package:katex_dart/src/ast/parse_node.dart' hide KernNode, RuleNode;
 import 'package:katex_dart/src/box/box_node.dart';
 import 'package:katex_dart/src/build/build_common.dart';
 import 'package:katex_dart/src/build/build_expression.dart';
-import 'package:katex_dart/src/build/builders/supsub_builder.dart' show isCharacterBox;
+import 'package:katex_dart/src/build/builders/supsub_builder.dart'
+    show isCharacterBox;
 import 'package:katex_dart/src/build/options.dart';
 import 'package:katex_dart/src/build/style.dart';
 import 'package:katex_dart/src/svg/svg_geometry.g.dart' as geom;
@@ -18,7 +19,8 @@ import 'package:katex_dart/src/types.dart';
 /// Registers the op/operatorname builders into [registry].
 void registerOpBuilders(Map<String, GroupBuilder> registry) {
   registry['op'] = (node, options) => _buildOp(node as OpNode, options);
-  registry['operatorname'] = (node, options) => _buildOperatorName(node as OperatorNameNode, options);
+  registry['operatorname'] = (node, options) =>
+      _buildOperatorName(node as OperatorNameNode, options);
 }
 
 const Set<String> _noSuccessor = {r'\smallint'};
@@ -33,23 +35,20 @@ const Map<String, String> _overlayBaseName = <String, String>{
 
 /// Oval overlay dimensions (width, height) in em, verbatim from KaTeX's
 /// `svgData` table in `buildCommon.js`.
-const Map<String, (double, double)> _overlayOvalDims = <String, (double, double)>{
-  'oiintSize1': (0.957, 0.499),
-  'oiintSize2': (1.472, 0.659),
-  'oiiintSize1': (1.304, 0.499),
-  'oiiintSize2': (1.98, 0.659),
-};
+const Map<String, (double, double)> _overlayOvalDims =
+    <String, (double, double)>{
+      'oiintSize1': (0.957, 0.499),
+      'oiintSize2': (1.472, 0.659),
+      'oiiintSize1': (1.304, 0.499),
+      'oiiintSize2': (1.98, 0.659),
+    };
 
 /// Builds a ringed integral (`\oiint` / `\oiiint`) the way KaTeX does: the
 /// plain multiple-integral glyph with an oval overlay, stacked in an
 /// individual-shift vlist (base at shift 0, oval at 0.08 in display style).
 /// Returns `null` when the overlay geometry is unavailable, letting the
 /// caller fall back to the bare base glyph.
-BoxNode? _overlayOval(
-  String name,
-  GlyphNode baseGlyph,
-  bool large,
-) {
+BoxNode? _overlayOval(String name, GlyphNode baseGlyph, bool large) {
   final key = '${name.substring(1)}Size${large ? 2 : 1}';
   final dims = _overlayOvalDims[key];
   final pathData = geom.svgPath[key];
@@ -83,7 +82,9 @@ class _OpBase {
 _OpBase _buildOpBase(OpNode group, Options options) {
   final style = options.style;
   var large = false;
-  if (style.size == Style.DISPLAY.size && group.symbol && !_noSuccessor.contains(group.name)) {
+  if (style.size == Style.DISPLAY.size &&
+      group.symbol &&
+      !_noSuccessor.contains(group.name)) {
     large = true;
   }
 
@@ -97,12 +98,7 @@ _OpBase _buildOpBase(OpNode group, Options options) {
       // with an oval overlay. Falls back to the bare base glyph when the
       // overlay geometry is unavailable.
       final baseGlyph =
-          makeSymbol(
-            overlayBase,
-            fontName,
-            Mode.math,
-            options: options,
-          ) ??
+          makeSymbol(overlayBase, fontName, Mode.math, options: options) ??
           missingMetricsGlyph(
             value: overlayBase,
             fontName: fontName,
@@ -144,7 +140,8 @@ _OpBase _buildOpBase(OpNode group, Options options) {
   var baseShift = 0.0;
   var slant = 0.0;
   if (group.symbol && !(group.suppressBaseShift ?? false)) {
-    baseShift = (base.height - base.depth) / 2 - options.fontMetrics().axisHeight;
+    baseShift =
+        (base.height - base.depth) / 2 - options.fontMetrics().axisHeight;
     slant = italic;
   }
   return _OpBase(base, slant, baseShift, italic);
@@ -182,7 +179,10 @@ BoxNode buildOpSupSub(SupSubNode grp, Options options) {
   // Mirror supsub.js's htmlBuilderDelegate: limits ops stack above/below when
   // in displaystyle or when they always handle their own scripts; otherwise
   // the scripts render to the side (the nolimits / integral case).
-  final useLimits = group.limits && (options.style.size == Style.DISPLAY.size || (group.alwaysHandleSupSub ?? false));
+  final useLimits =
+      group.limits &&
+      (options.style.size == Style.DISPLAY.size ||
+          (group.alwaysHandleSupSub ?? false));
 
   if (useLimits) {
     return _assembleSupSub(
@@ -224,13 +224,21 @@ BoxNode _buildOpSideSupSub(SupSubNode grp, _OpBase opBase, Options options) {
     final newOptions = options.havingStyle(options.style.sup());
     supm = buildGroup(grp.sup, newOptions, options);
     // Rule 18a: the op base is never a character box.
-    supShift = base.height - newOptions.fontMetrics()['supDrop'] * newOptions.sizeMultiplier / options.sizeMultiplier;
+    supShift =
+        base.height -
+        newOptions.fontMetrics()['supDrop'] *
+            newOptions.sizeMultiplier /
+            options.sizeMultiplier;
   }
 
   if (grp.sub != null) {
     final newOptions = options.havingStyle(options.style.sub());
     subm = buildGroup(grp.sub, newOptions, options);
-    subShift = base.depth + newOptions.fontMetrics()['subDrop'] * newOptions.sizeMultiplier / options.sizeMultiplier;
+    subShift =
+        base.depth +
+        newOptions.fontMetrics()['subDrop'] *
+            newOptions.sizeMultiplier /
+            options.sizeMultiplier;
   }
 
   // Rule 18c: minimum sup shift.
@@ -416,7 +424,13 @@ BoxNode _assembleSupSub(
 
   final BoxNode finalGroup;
   if (supC != null && subC != null) {
-    final bottom = fm.bigOpSpacing5 + subElem!.height + subElem.depth + subKern + base.depth + baseShift;
+    final bottom =
+        fm.bigOpSpacing5 +
+        subElem!.height +
+        subElem.depth +
+        subKern +
+        base.depth +
+        baseShift;
     finalGroup = makeVList(
       positionType: VListPositionType.bottom,
       positionData: bottom,

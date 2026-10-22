@@ -73,7 +73,9 @@ process.stdout.write(JSON.stringify(m));
     // Sort charcodes numerically for deterministic, diffable output.
     final codes = glyphs.keys.map(int.parse).toList()..sort();
     for (final code in codes) {
-      final tuple = (glyphs['$code'] as List).map((n) => _dartNum(n as num)).join(', ');
+      final tuple = (glyphs['$code'] as List)
+          .map((n) => _dartNum(n as num))
+          .join(', ');
       buffer.writeln('    $code: [$tuple],');
     }
     buffer.writeln('  },');
@@ -93,7 +95,8 @@ process.stdout.write(JSON.stringify(m));
   );
 }
 
-String _dartString(String s) => "'${s.replaceAll(r'\', r'\\').replaceAll("'", r"\'")}'";
+String _dartString(String s) =>
+    "'${s.replaceAll(r'\', r'\\').replaceAll("'", r"\'")}'";
 
 /// Render a number as a Dart `double` literal, preserving the source value.
 String _dartNum(num n) {

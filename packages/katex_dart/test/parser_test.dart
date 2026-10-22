@@ -7,7 +7,8 @@ import 'package:katex_dart/src/parse/settings.dart';
 import 'package:test/test.dart';
 
 /// Parses [tex] in math (or display) mode with default settings.
-List<ParseNode> parse(String tex, {bool displayMode = false}) => parseTree(tex, Settings(displayMode: displayMode));
+List<ParseNode> parse(String tex, {bool displayMode = false}) =>
+    parseTree(tex, Settings(displayMode: displayMode));
 
 void main() {
   group('gallery', () {
@@ -20,7 +21,8 @@ void main() {
       (p) => File(p).existsSync(),
       orElse: () => candidates.last,
     );
-    final gallery = (jsonDecode(File(galleryPath).readAsStringSync()) as List).cast<Map<String, dynamic>>();
+    final gallery = (jsonDecode(File(galleryPath).readAsStringSync()) as List)
+        .cast<Map<String, dynamic>>();
 
     // Expected root node types per gallery id (single root unless noted).
     const expectedRootType = <String, String>{

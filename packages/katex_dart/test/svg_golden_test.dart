@@ -153,9 +153,11 @@ void main() {
   }
 
   final galleryFile = File(p.join(root, 'reference', 'gallery.json'));
-  final gallery = (jsonDecode(galleryFile.readAsStringSync()) as List).cast<Map<String, dynamic>>();
+  final gallery = (jsonDecode(galleryFile.readAsStringSync()) as List)
+      .cast<Map<String, dynamic>>();
 
-  final diffsDir = Directory(p.join(Directory.current.path, 'test', '.diffs'))..createSync(recursive: true);
+  final diffsDir = Directory(p.join(Directory.current.path, 'test', '.diffs'))
+    ..createSync(recursive: true);
   final tmpDir = Directory.systemTemp.createTempSync('katex_svg_golden_');
 
   final rows = <String>[
@@ -233,7 +235,9 @@ void main() {
   }
 
   tearDownAll(() {
-    final mean = gatedRatios.isEmpty ? 0.0 : gatedRatios.reduce((a, b) => a + b) / gatedRatios.length;
+    final mean = gatedRatios.isEmpty
+        ? 0.0
+        : gatedRatios.reduce((a, b) => a + b) / gatedRatios.length;
     print(
       '\n===== SVG GOLDEN REPORT (rasterizer: $rasterizer, '
       'zoom: ${_zoom.toStringAsFixed(3)}, diffs: ${diffsDir.path}) =====',
@@ -261,7 +265,9 @@ void main() {
   });
 
   test('svg golden mean diff ratio under lenient ceiling', () {
-    final mean = gatedRatios.isEmpty ? 1.0 : gatedRatios.reduce((a, b) => a + b) / gatedRatios.length;
+    final mean = gatedRatios.isEmpty
+        ? 1.0
+        : gatedRatios.reduce((a, b) => a + b) / gatedRatios.length;
     expect(
       mean,
       lessThanOrEqualTo(_meanRatioCeiling),

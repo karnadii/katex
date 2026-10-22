@@ -74,10 +74,7 @@ void main() {
     });
 
     test(r'\left\downarrow sizes to its body', () {
-      final plain = renderToBox(
-        r'\left\downarrow x \right.',
-        options: disp,
-      );
+      final plain = renderToBox(r'\left\downarrow x \right.', options: disp);
       final tall = renderToBox(
         r'\left\downarrow \frac{a}{b} \right.',
         options: disp,
@@ -152,10 +149,7 @@ void main() {
 
     test('an @ inside a label is a parse error', () {
       expect(
-        () => renderToBox(
-          r'\begin{CD} A @>x@y>> B \end{CD}',
-          options: disp,
-        ),
+        () => renderToBox(r'\begin{CD} A @>x@y>> B \end{CD}', options: disp),
         throwsA(isA<ParseError>()),
       );
     });

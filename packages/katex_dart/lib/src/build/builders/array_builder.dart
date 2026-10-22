@@ -18,7 +18,8 @@ import 'package:katex_dart/src/symbols/symbols.dart';
 
 /// Registers the array builder into [registry].
 void registerArrayBuilder(Map<String, GroupBuilder> registry) {
-  registry['array'] = (node, options) => _buildArray(node as ArrayNode, options);
+  registry['array'] = (node, options) =>
+      _buildArray(node as ArrayNode, options);
 }
 
 class _Outrow {
@@ -137,7 +138,9 @@ BoxNode _buildArray(ArrayNode group, Options options) {
   var c = 0;
   var colDescrNum = 0;
   while (c < nc || colDescrNum < colDescriptions.length) {
-    var colDescr = colDescrNum < colDescriptions.length ? colDescriptions[colDescrNum] : null;
+    var colDescr = colDescrNum < colDescriptions.length
+        ? colDescriptions[colDescrNum]
+        : null;
 
     // Column separators (`|`/`:`) → a vertical rule spanning the whole array.
     // KaTeX inserts a `doubleRuleSep` gap between consecutive separators (for
@@ -181,7 +184,9 @@ BoxNode _buildArray(ArrayNode group, Options options) {
 
       firstSeparator = false;
       colDescrNum++;
-      colDescr = colDescrNum < colDescriptions.length ? colDescriptions[colDescrNum] : null;
+      colDescr = colDescrNum < colDescriptions.length
+          ? colDescriptions[colDescrNum]
+          : null;
     }
 
     if (c >= nc) {
@@ -322,12 +327,7 @@ BoxNode _buildArray(ArrayNode group, Options options) {
       final tagBox = makeSpan(
         buildExpression(tagBody, options, isRealGroup: true),
       );
-      tagSpans.add(
-        VListChild.elem(
-          tagBox,
-          shift: body[r].pos - offset,
-        ),
-      );
+      tagSpans.add(VListChild.elem(tagBox, shift: body[r].pos - offset));
     }
     if (hasTag) {
       final tagColumn = makeVList(
@@ -336,12 +336,10 @@ BoxNode _buildArray(ArrayNode group, Options options) {
       );
       final tagCell = makeSpan([tagColumn], classes: const ['tag']);
       // `leqno` puts the number on the left.
-      final row = group.leqno == true ? <BoxNode>[tagCell, tableBody] : <BoxNode>[tableBody, tagCell];
-      return withAtomClass(
-        makeFragment(row),
-        'mord',
-        options: options,
-      );
+      final row = group.leqno == true
+          ? <BoxNode>[tagCell, tableBody]
+          : <BoxNode>[tableBody, tagCell];
+      return withAtomClass(makeFragment(row), 'mord', options: options);
     }
   }
 

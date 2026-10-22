@@ -32,7 +32,9 @@ void registerCr() {
       allowedInText: true,
       handler: (context, args, optArgs) {
         final parser = context.parser;
-        final size = parser.gullet.future().text == '[' ? parser.parseSizeGroup(true) : null;
+        final size = parser.gullet.future().text == '['
+            ? parser.parseSizeGroup(true)
+            : null;
         final newLine =
             !parser.settings.displayMode ||
             !parser.settings.useStrictBehavior(

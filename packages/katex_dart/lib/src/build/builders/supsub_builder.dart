@@ -18,7 +18,8 @@ import 'package:katex_dart/src/build/style.dart';
 
 /// Registers the supsub builder into [registry].
 void registerSupSubBuilder(Map<String, GroupBuilder> registry) {
-  registry['supsub'] = (node, options) => buildSupSub(node as SupSubNode, options);
+  registry['supsub'] = (node, options) =>
+      buildSupSub(node as SupSubNode, options);
 }
 
 // Mirrors KaTeX's utils.isCharacterBox for the MVP node set.
@@ -26,8 +27,13 @@ bool isCharacterBox(ParseNode? node) {
   if (node == null) {
     return false;
   }
-  final base = node is OrdGroupNode && node.body.isNotEmpty ? node.body.first : node;
-  return base is MathOrdNode || base is TextOrdNode || base is AtomNode || base is SpacingNode;
+  final base = node is OrdGroupNode && node.body.isNotEmpty
+      ? node.body.first
+      : node;
+  return base is MathOrdNode ||
+      base is TextOrdNode ||
+      base is AtomNode ||
+      base is SpacingNode;
 }
 
 /// Builds a [SupSubNode]. Public so op/accent delegation can be checked.
@@ -50,13 +56,17 @@ BoxNode buildSupSub(SupSubNode group, Options options, {BoxNode? baseBox}) {
     // nolimits ops (\sin, \log, …) stay on the generic path — they have no
     // italic correction, so the two paths are equivalent for them.
     final delegate =
-        (base.limits && (options.style.size == Style.DISPLAY.size || (base.alwaysHandleSupSub ?? false))) ||
+        (base.limits &&
+            (options.style.size == Style.DISPLAY.size ||
+                (base.alwaysHandleSupSub ?? false))) ||
         (!base.limits && base.symbol);
     if (delegate) {
       return buildOpSupSub(group, options);
     }
   } else if (base is OperatorNameNode) {
-    final delegate = base.alwaysHandleSupSub && (options.style.size == Style.DISPLAY.size || base.limits);
+    final delegate =
+        base.alwaysHandleSupSub &&
+        (options.style.size == Style.DISPLAY.size || base.limits);
     if (delegate) {
       return buildOperatorNameSupSub(group, options);
     }
@@ -91,7 +101,10 @@ BoxNode buildSupSub(SupSubNode group, Options options, {BoxNode? baseBox}) {
     supm = buildGroup(valueSup, newOptions, options);
     if (!isCharBox) {
       supShift =
-          builtBase.height - newOptions.fontMetrics()['supDrop'] * newOptions.sizeMultiplier / options.sizeMultiplier;
+          builtBase.height -
+          newOptions.fontMetrics()['supDrop'] *
+              newOptions.sizeMultiplier /
+              options.sizeMultiplier;
     }
   }
 
@@ -100,7 +113,10 @@ BoxNode buildSupSub(SupSubNode group, Options options, {BoxNode? baseBox}) {
     subm = buildGroup(valueSub, newOptions, options);
     if (!isCharBox) {
       subShift =
-          builtBase.depth + newOptions.fontMetrics()['subDrop'] * newOptions.sizeMultiplier / options.sizeMultiplier;
+          builtBase.depth +
+          newOptions.fontMetrics()['subDrop'] *
+              newOptions.sizeMultiplier /
+              options.sizeMultiplier;
     }
   }
 

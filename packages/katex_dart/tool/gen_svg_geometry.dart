@@ -77,7 +77,8 @@ const phaseCases = [[800, m.phasePath(800)], [1234, m.phasePath(1234)]];
 process.stdout.write(JSON.stringify({path: m.path, sqrtCases, tallCases, innerCases, phaseCases}));
 ''';
 
-  final scriptFile = File('${Directory.systemTemp.path}/_gen_svg_geom.mjs')..writeAsStringSync(nodeScript);
+  final scriptFile = File('${Directory.systemTemp.path}/_gen_svg_geom.mjs')
+    ..writeAsStringSync(nodeScript);
   final result = Process.runSync('node', [scriptFile.path, tsPath]);
   if (result.exitCode != 0) {
     stderr

@@ -17,7 +17,8 @@ import 'package:katex_dart/src/build/options.dart';
 
 /// Registers the includegraphics builder into [registry].
 void registerIncludegraphicsBuilder(Map<String, GroupBuilder> registry) {
-  registry['includegraphics'] = (node, options) => _buildIncludegraphics(node as ast.IncludegraphicsParseNode, options);
+  registry['includegraphics'] = (node, options) =>
+      _buildIncludegraphics(node as ast.IncludegraphicsParseNode, options);
 }
 
 BoxNode _buildIncludegraphics(

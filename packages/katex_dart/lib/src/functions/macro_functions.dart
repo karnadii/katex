@@ -120,7 +120,8 @@ void ensureMacrosRegistered() {
       }
       number = first;
       int? digit;
-      while ((digit = _digitToNumber[context.future().text]) != null && digit! < base) {
+      while ((digit = _digitToNumber[context.future().text]) != null &&
+          digit! < base) {
         number *= base;
         number += digit;
         context.popToken();

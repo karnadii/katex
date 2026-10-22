@@ -37,10 +37,7 @@ Future<Size> pumpUnbounded(WidgetTester tester, Widget child) async {
     MaterialApp(
       home: Align(
         alignment: Alignment.topLeft,
-        child: UnconstrainedBox(
-          constrainedAxis: Axis.vertical,
-          child: child,
-        ),
+        child: UnconstrainedBox(constrainedAxis: Axis.vertical, child: child),
       ),
     ),
   );
@@ -96,10 +93,15 @@ void main() {
     expect(narrow.height, greaterThan(wide.height));
   });
 
-  testWidgets('explicit maxWidth wraps without a bounded parent', (tester) async {
+  testWidgets('explicit maxWidth wraps without a bounded parent', (
+    tester,
+  ) async {
     // A horizontally-unbounded parent: softWrap alone would have nothing to
     // wrap to, but an explicit pixel budget still applies.
-    final size = await pumpUnbounded(tester, const Math(longTex, maxWidth: 200));
+    final size = await pumpUnbounded(
+      tester,
+      const Math(longTex, maxWidth: 200),
+    );
 
     expect(tester.takeException(), isNull);
     expect(size.width, lessThanOrEqualTo(200));
@@ -115,7 +117,9 @@ void main() {
     expect(size.width, lessThanOrEqualTo(150));
   });
 
-  testWidgets('softWrap under unbounded width stays on one line', (tester) async {
+  testWidgets('softWrap under unbounded width stays on one line', (
+    tester,
+  ) async {
     final wrapped = await pumpUnbounded(
       tester,
       const Math(longTex, softWrap: true),
@@ -174,7 +178,9 @@ void main() {
     expect(squeezed.height, unbounded.height);
   });
 
-  testWidgets('a degenerate (zero) constraint does not explode', (tester) async {
+  testWidgets('a degenerate (zero) constraint does not explode', (
+    tester,
+  ) async {
     await pumpInWidth(tester, const Math(longTex, softWrap: true), width: 0);
 
     expect(tester.takeException(), isNull);

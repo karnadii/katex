@@ -191,7 +191,8 @@ class _KaTeXWidgetState extends State<KaTeXWidget> {
     return em > 0 ? em : null;
   }
 
-  Color get _inheritedColor => DefaultTextStyle.of(context).style.color ?? const Color(0xFF000000);
+  Color get _inheritedColor =>
+      DefaultTextStyle.of(context).style.color ?? const Color(0xFF000000);
 
   @override
   Widget build(BuildContext context) {
@@ -224,7 +225,11 @@ class _KaTeXWidgetState extends State<KaTeXWidget> {
     final naturalHeight = (box.height + box.depth) * widget.fontSize + 2 * pad;
 
     final maxWidth = widget.maxWidth;
-    final scale = (maxWidth != null && maxWidth.isFinite && maxWidth > 0 && naturalWidth > 0)
+    final scale =
+        (maxWidth != null &&
+            maxWidth.isFinite &&
+            maxWidth > 0 &&
+            naturalWidth > 0)
         ? (maxWidth / naturalWidth).clamp(0.0, 1.0)
         : 1.0;
 

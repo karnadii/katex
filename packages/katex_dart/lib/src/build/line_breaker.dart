@@ -122,7 +122,8 @@ double _widthOf(List<BoxNode> nodes) {
   return total;
 }
 
-bool _hasClass(BoxNode node, String className) => node is SpanNode && node.classes.contains(className);
+bool _hasClass(BoxNode node, String className) =>
+    node is SpanNode && node.classes.contains(className);
 
 bool _hasAnyClass(BoxNode node, Set<String> classNames) {
   if (node is! SpanNode) {

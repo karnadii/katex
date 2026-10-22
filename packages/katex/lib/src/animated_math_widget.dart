@@ -114,7 +114,8 @@ class AnimatedMath extends StatefulWidget {
   State<AnimatedMath> createState() => _AnimatedMathState();
 }
 
-class _AnimatedMathState extends State<AnimatedMath> with SingleTickerProviderStateMixin {
+class _AnimatedMathState extends State<AnimatedMath>
+    with SingleTickerProviderStateMixin {
   /// The controller we created ourselves, or `null` when the caller supplied
   /// one via [AnimatedMath.controller].
   AnimationController? _internal;
@@ -137,7 +138,8 @@ class _AnimatedMathState extends State<AnimatedMath> with SingleTickerProviderSt
 
   /// The reveal curve — forced linear under [AnimatedMath.stepDuration] so each
   /// element gets an equal real-time slice.
-  Curve get _curve => widget.stepDuration != null ? Curves.linear : widget.curve;
+  Curve get _curve =>
+      widget.stepDuration != null ? Curves.linear : widget.curve;
 
   @override
   void initState() {
@@ -229,7 +231,8 @@ class _AnimatedMathState extends State<AnimatedMath> with SingleTickerProviderSt
     if (boxChanged) {
       _parse();
     }
-    if (_curve != (oldWidget.stepDuration != null ? Curves.linear : oldWidget.curve)) {
+    if (_curve !=
+        (oldWidget.stepDuration != null ? Curves.linear : oldWidget.curve)) {
       _curved.dispose();
       _curved = CurvedAnimation(parent: _controller, curve: _curve);
     }
@@ -262,7 +265,10 @@ class _AnimatedMathState extends State<AnimatedMath> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    final baseColor = widget.color ?? DefaultTextStyle.of(context).style.color ?? const Color(0xFF000000);
+    final baseColor =
+        widget.color ??
+        DefaultTextStyle.of(context).style.color ??
+        const Color(0xFF000000);
     final fontSizePx = widget.fontSize ?? kDefaultMathFontSize;
 
     final box = _box;

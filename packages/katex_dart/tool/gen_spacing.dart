@@ -31,9 +31,8 @@ void main() {
 
   final tmp = Directory.systemTemp.createTempSync('katex_gen_spacing_');
   try {
-    File(
-      '${tmp.path}/spacingData.ts',
-    ).writeAsStringSync(spacingTs.readAsStringSync());
+    File('${tmp.path}/spacingData.ts')
+        .writeAsStringSync(spacingTs.readAsStringSync());
     final dumper = File('${tmp.path}/dump.mts')
       ..writeAsStringSync('''
 import {spacings, tightSpacings} from "./spacingData.ts";
@@ -56,7 +55,8 @@ process.stdout.write(JSON.stringify({spacings, tightSpacings}));
       exit(1);
     }
 
-    final data = (jsonDecode(result.stdout as String) as Map).cast<String, dynamic>();
+    final data = (jsonDecode(result.stdout as String) as Map)
+        .cast<String, dynamic>();
     final spacings = (data['spacings'] as Map).cast<String, dynamic>();
     final tight = (data['tightSpacings'] as Map).cast<String, dynamic>();
 

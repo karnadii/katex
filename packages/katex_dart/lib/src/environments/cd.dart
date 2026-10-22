@@ -40,7 +40,12 @@ const Map<String, String> _cdArrowFunctionName = <String, String>{
 StylingNode _newCell(Mode mode) {
   // An empty cell, shaped like the ones `parseArray` produces: CD is
   // always displaystyle.
-  return StylingNode(mode: mode, style: StyleStr.display, body: [], resetFont: true);
+  return StylingNode(
+    mode: mode,
+    style: StyleStr.display,
+    body: [],
+    resetFont: true,
+  );
 }
 
 bool _isStartOfArrow(ParseNode node) => node is TextOrdNode && node.text == '@';
@@ -59,11 +64,7 @@ SymbolParseNode _assertSymbolNode(ParseNode node) {
 
 /// Returns the parse tree of an arrow with its labels, acting like a macro
 /// expansion (mirrors KaTeX's `cdArrow`).
-ParseNode _cdArrow(
-  String arrowChar,
-  List<OrdGroupNode> labels,
-  Parser parser,
-) {
+ParseNode _cdArrow(String arrowChar, List<OrdGroupNode> labels, Parser parser) {
   final funcName = _cdArrowFunctionName[arrowChar];
   switch (funcName) {
     case r'\\cdrightarrow':
@@ -71,35 +72,25 @@ ParseNode _cdArrow(
       return parser.callFunction(funcName!, [labels[0]], [labels[1]]);
     case r'\uparrow':
     case r'\downarrow':
-      final leftLabel = parser.callFunction(
-        r'\\cdleft',
-        [labels[0]],
-        <ParseNode?>[],
-      );
+      final leftLabel = parser.callFunction(r'\\cdleft', [
+        labels[0],
+      ], <ParseNode?>[]);
       final bareArrow = AtomNode(
         mode: parser.mode,
         text: funcName!,
         family: Group.rel,
       );
-      final sizedArrow = parser.callFunction(
-        r'\Big',
-        [bareArrow],
-        <ParseNode?>[],
-      );
-      final rightLabel = parser.callFunction(
-        r'\\cdright',
-        [labels[1]],
-        <ParseNode?>[],
-      );
+      final sizedArrow = parser.callFunction(r'\Big', [
+        bareArrow,
+      ], <ParseNode?>[]);
+      final rightLabel = parser.callFunction(r'\\cdright', [
+        labels[1],
+      ], <ParseNode?>[]);
       final arrowGroup = OrdGroupNode(
         mode: parser.mode,
         body: [leftLabel, sizedArrow, rightLabel],
       );
-      return parser.callFunction(
-        r'\\cdparent',
-        [arrowGroup],
-        <ParseNode?>[],
-      );
+      return parser.callFunction(r'\\cdparent', [arrowGroup], <ParseNode?>[]);
     case r'\\cdlongequal':
       return parser.callFunction(
         r'\\cdlongequal',
@@ -138,10 +129,7 @@ ArrayNode parseCD(Parser parser) {
       }
       break;
     } else {
-      throw ParseError(
-        r'Expected \\ or \cr or \end',
-        parser.fetch(),
-      );
+      throw ParseError(r'Expected \\ or \cr or \end', parser.fetch());
     }
   }
 

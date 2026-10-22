@@ -59,7 +59,8 @@ Future<({ByteData rgba, int width, int height})> _rasterize(
     ),
   );
   await tester.pumpAndSettle();
-  final boundary = key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+  final boundary =
+      key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
   // Real async raster work (toImage/toByteData) must run outside the fake-async
   // test zone, hence tester.runAsync.
   final result = await tester.runAsync(() async {
@@ -72,7 +73,9 @@ Future<({ByteData rgba, int width, int height})> _rasterize(
 
 /// Counts pixels that are not white (i.e. ink) in a rasterized region.
 int _inkCount(({ByteData rgba, int width, int height}) img, {Rect? region}) {
-  final r = region ?? Rect.fromLTWH(0, 0, img.width.toDouble(), img.height.toDouble());
+  final r =
+      region ??
+      Rect.fromLTWH(0, 0, img.width.toDouble(), img.height.toDouble());
   var count = 0;
   for (var y = r.top.floor(); y < r.bottom.ceil() && y < img.height; y++) {
     for (var x = r.left.floor(); x < r.right.ceil() && x < img.width; x++) {

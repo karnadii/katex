@@ -39,7 +39,10 @@ const Set<String> _endOfExpression = <String>{
 /// Faithful port of KaTeX's `Parser` class for the MVP grammar.
 class Parser {
   /// Creates a parser over [input] with [settings].
-  Parser(String input, this.settings) : mode = Mode.math, leftrightDepth = 0, nextToken = null {
+  Parser(String input, this.settings)
+    : mode = Mode.math,
+      leftrightDepth = 0,
+      nextToken = null {
     // Ensure the builtin functions/environments are registered.
     fns.ensureRegistered();
     gullet = MacroExpander(input, settings, mode)
@@ -140,7 +143,9 @@ class Parser {
       if (breakOnTokenText != null && lex.text == breakOnTokenText) {
         break;
       }
-      if (breakOnInfix && functions[lex.text] != null && functions[lex.text]!.infix) {
+      if (breakOnInfix &&
+          functions[lex.text] != null &&
+          functions[lex.text]!.infix) {
         break;
       }
       final atom = parseAtom(breakOnTokenText);
@@ -231,7 +236,8 @@ class Parser {
   /// Converts unsupported command text into a colored text node.
   ColorNode formatUnsupportedCmd(String text) {
     final textordArray = <ParseNode>[
-      for (var i = 0; i < text.length; i++) TextOrdNode(mode: Mode.text, text: text[i]),
+      for (var i = 0; i < text.length; i++)
+        TextOrdNode(mode: Mode.text, text: text[i]),
     ];
     final textNode = TextNode(mode: mode, body: textordArray);
     return ColorNode(
@@ -416,7 +422,9 @@ class Parser {
     final optArgs = <ParseNode?>[];
 
     for (var i = 0; i < totalArgs; i++) {
-      var argType = (argTypes != null && i < argTypes.length) ? argTypes[i] : null;
+      var argType = (argTypes != null && i < argTypes.length)
+          ? argTypes[i]
+          : null;
       final isOptional = i < numOptionalArgs;
 
       if ((isPrimitive && argType == null) ||
@@ -463,7 +471,9 @@ class Parser {
             : null;
       case ArgType.raw:
         final token = parseStringGroup(optional);
-        return token != null ? RawNode(mode: Mode.text, string: token.text) : null;
+        return token != null
+            ? RawNode(mode: Mode.text, string: token.text)
+            : null;
       case ArgType.primitive:
         if (optional) {
           throw ParseError('A primitive argument cannot be optional');
@@ -530,7 +540,8 @@ class Parser {
     var lastToken = firstToken;
     final str = StringBuffer();
     Token nextToken;
-    while ((nextToken = fetch()).text != 'EOF' && regex.hasMatch(str.toString() + nextToken.text)) {
+    while ((nextToken = fetch()).text != 'EOF' &&
+        regex.hasMatch(str.toString() + nextToken.text)) {
       lastToken = nextToken;
       str.write(lastToken.text);
       consume();
@@ -648,7 +659,10 @@ class Parser {
       );
     } else {
       result = parseFunction(breakOnTokenText, name) ?? parseSymbol();
-      if (result == null && text.isNotEmpty && text[0] == r'\' && !implicitCommands.contains(text)) {
+      if (result == null &&
+          text.isNotEmpty &&
+          text[0] == r'\' &&
+          !implicitCommands.contains(text)) {
         if (settings.throwOnError) {
           throw ParseError('Undefined control sequence: $text', firstToken);
         }

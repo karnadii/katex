@@ -9,8 +9,10 @@ import 'package:katex_dart/src/build/options.dart';
 
 /// Registers the CD builders into [registry].
 void registerCdBuilders(Map<String, GroupBuilder> registry) {
-  registry['cdlabel'] = (node, options) => _buildCdLabel(node as CdLabelNode, options);
-  registry['cdlabelparent'] = (node, options) => _buildCdParent(node as CdParentNode, options);
+  registry['cdlabel'] = (node, options) =>
+      _buildCdLabel(node as CdLabelNode, options);
+  registry['cdlabelparent'] = (node, options) =>
+      _buildCdParent(node as CdParentNode, options);
 }
 
 BoxNode _buildCdLabel(CdLabelNode group, Options options) {
@@ -34,7 +36,9 @@ BoxNode _buildCdParent(CdParentNode group, Options options) {
   // 0.8em above the baseline, and the small script-size labels stay inside
   // the arrow's vertical extent, so the arrow still sets the row metrics.
   final fragment = group.fragment;
-  final parts = fragment is OrdGroupNode ? fragment.body : <ParseNode>[fragment];
+  final parts = fragment is OrdGroupNode
+      ? fragment.body
+      : <ParseNode>[fragment];
   final built = <ParseNode, BoxNode>{
     for (final part in parts) part: buildGroup(part, options),
   };
@@ -60,8 +64,5 @@ BoxNode _buildCdParent(CdParentNode group, Options options) {
       row.add(box);
     }
   }
-  return makeSpan(
-    [makeFragment(row)],
-    classes: const ['cd-vert-arrow'],
-  );
+  return makeSpan([makeFragment(row)], classes: const ['cd-vert-arrow']);
 }

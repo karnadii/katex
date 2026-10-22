@@ -249,7 +249,9 @@ class KatexBoxPainter extends CustomPainter {
     for (final op in ops) {
       // Each element owns a 1/n slice of the timeline by its reveal rank;
       // `t * n - rank` is its local 0 → 1 progress within that slot.
-      final a = isFade ? t : ((t * n - op.revealStart) / _kFadeSlots).clamp(0.0, 1.0);
+      final a = isFade
+          ? t
+          : ((t * n - op.revealStart) / _kFadeSlots).clamp(0.0, 1.0);
       if (a <= 0.0) {
         continue;
       }
@@ -283,7 +285,8 @@ class KatexBoxPainter extends CustomPainter {
       }
       return;
     }
-    var order = List<int>.generate(n, (i) => i)..sort((a, b) => ops[a].left.compareTo(ops[b].left));
+    var order = List<int>.generate(n, (i) => i)
+      ..sort((a, b) => ops[a].left.compareTo(ops[b].left));
     if (mode == MathAnimationMode.rightToLeft) {
       order = order.reversed.toList();
     }
@@ -377,7 +380,8 @@ class KatexBoxPainter extends CustomPainter {
             node,
             x,
             baselineY,
-            (c) => _paintEncloseDecorations(c, node, x, baselineY, currentColor),
+            (c) =>
+                _paintEncloseDecorations(c, node, x, baselineY, currentColor),
           ),
         );
         _collect(node.child, x, baselineY, currentColor, ops);
@@ -656,7 +660,8 @@ class KatexBoxPainter extends CustomPainter {
     // \phase: the Steinmetz angle — a diagonal stroke down to the bottom-left
     // corner joined to a horizontal stroke along the bottom (mirrors the SVG
     // serializer and the shape KaTeX's `phasePath` SVG produces).
-    if (node.notations.contains(EncloseNotation.phase) && node.phaseLineWidth != null) {
+    if (node.notations.contains(EncloseNotation.phase) &&
+        node.phaseLineWidth != null) {
       final lw = node.phaseLineWidth! * fontSize;
       final h = (node.height + node.depth) * fontSize;
       final phasePaint = Paint()
@@ -686,7 +691,9 @@ class KatexBoxPainter extends CustomPainter {
     double baselineY,
     Color currentColor,
   ) {
-    if (node.pathData.isEmpty || node.viewBoxWidth <= 0 || node.viewBoxHeight <= 0) {
+    if (node.pathData.isEmpty ||
+        node.viewBoxWidth <= 0 ||
+        node.viewBoxHeight <= 0) {
       return;
     }
     final path = parseSvgPath(node.pathData);
@@ -773,7 +780,9 @@ class KatexBoxPainter extends CustomPainter {
     double baselineY,
     Color currentColor,
   ) {
-    final tp = _strokePass ? _haloTextPainterFor(node) : _textPainterFor(node, currentColor);
+    final tp = _strokePass
+        ? _haloTextPainterFor(node)
+        : _textPainterFor(node, currentColor);
     // A glyph paints at its box origin. `skew`/`italic` are metadata consumed
     // by builders (accent placement, supsub correction) and are baked into the
     // box tree — they must NOT offset the glyph here, or slanted glyphs
@@ -833,18 +842,14 @@ class KatexBoxPainter extends CustomPainter {
     }
     // `foreground` replaces `color` in a TextStyle, so the stroke paint is
     // the only thing that shows — exactly what the halo pass wants.
-    final style =
-        textStyleFor(
-          node.font,
-          node.size * fontSize,
-        ).copyWith(
-          foreground: Paint()
-            ..color = halo
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = haloWidth
-            ..strokeJoin = StrokeJoin.round
-            ..isAntiAlias = true,
-        );
+    final style = textStyleFor(node.font, node.size * fontSize).copyWith(
+      foreground: Paint()
+        ..color = halo
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = haloWidth
+        ..strokeJoin = StrokeJoin.round
+        ..isAntiAlias = true,
+    );
     final tp = TextPainter(
       text: TextSpan(text: node.text, style: style),
       textDirection: TextDirection.ltr,
@@ -1374,7 +1379,10 @@ class _SvgPathParser {
       return false;
     }
     final c = _d[_pos];
-    return (c.codeUnitAt(0) >= 0x30 && c.codeUnitAt(0) <= 0x39) || c == '-' || c == '+' || c == '.';
+    return (c.codeUnitAt(0) >= 0x30 && c.codeUnitAt(0) <= 0x39) ||
+        c == '-' ||
+        c == '+' ||
+        c == '.';
   }
 
   double _num() {
